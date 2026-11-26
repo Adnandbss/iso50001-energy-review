@@ -1,0 +1,22 @@
+/* Continuité : terme du lexique, bandeau « travail retrouvé », menu du pied */
+.cnt-terme { text-decoration: underline dotted; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--muet); cursor: help; border-radius: 2px; }
+.cnt-terme:hover, .cnt-terme:focus-visible { text-decoration-color: var(--encre); }
+.tip .cnt-def { color: var(--encre); font-weight: 400; line-height: 1.45; }
+.cnt-bandeau { margin: 0 0 16px; }
+.cnt-bandeau-tete { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; justify-content: space-between; }
+.cnt-bandeau ul { margin: 6px 0 0; padding-left: 18px; color: var(--encre); }
+.cnt-bandeau li { overflow-wrap: anywhere; }
+.cnt-bandeau .erreur { margin: 8px 0 0; }
+.cnt-menu { font-size: 13px; }
+.cnt-menu summary { cursor: pointer; color: var(--encre2); padding: 4px 2px; }
+.cnt-menu[open] summary { color: var(--encre); }
+.cnt-menu-corps { display: flex; flex-direction: column; gap: 8px; padding: 6px 0 2px; }
+.cnt-menu-corps .note { margin: 0; overflow-wrap: anywhere; }
+.cnt-menu-corps .lien { align-self: flex-start; white-space: normal; text-align: left; }
+.cnt-menu-corps .erreur { margin: 0; font-size: 12px; }
+@media (max-width: 700px) {
+  .cnt-menu { flex-basis: 100%; }
+  .cnt-menu-corps { flex-direction: row; flex-wrap: wrap; }
+  .cnt-menu-corps .note { flex-basis: 100%; }
+}
+@media print { .cnt-bandeau, .cnt-menu { display: none !important; } .cnt-terme { text-decoration: none; } }
