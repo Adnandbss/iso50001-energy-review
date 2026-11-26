@@ -1,0 +1,71 @@
+/* Module Revue : quatre étapes à l'écran, puis le document, seul à l'impression. */
+.rev-marge { margin: 0 0 10px; }
+.rev-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 10px; }
+.rev-actions .note, .rev-valider .note { margin: 0; flex: 1 1 240px; }
+.rev-actions .progres { margin: 0; }
+.rev-page input[type="text"] { border: 1px solid var(--axe); background: var(--surface); border-radius: 4px; padding: 6px 8px; width: 240px; max-width: 100%; }
+.rev-valider { margin: 22px 0 12px; padding-top: 14px; border-top: 1px solid var(--bord); }
+.rev-page .journal pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Dossier de faits : identifiant en marge, phrase en regard */
+.rev-faits summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.rev-grille-faits { display: grid; grid-template-columns: 3.2em minmax(0, 104ch); gap: 4px 10px; margin: 0; font-size: 13px; }
+.rev-grille-faits dt { font: 700 13px/1.5 var(--f-chiffre); color: var(--encre2); }
+.rev-grille-faits dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Relecture : une section par feuillet, la marge dit son état */
+.rev-section { border-left: 4px solid var(--bord); padding: 2px 0 4px 16px; margin: 18px 0 0; max-width: 104ch; }
+.rev-section.ok { border-left-color: var(--bon); }
+.rev-section.ko { border-left-color: var(--critique); }
+.rev-section.attente { border-left-color: var(--signal); }
+.rev-section-tete { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.rev-section h3 { font: 700 17px/1.25 var(--f-chiffre); letter-spacing: .01em; margin: 0; flex: 1 1 220px; }
+.rev-texte { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; font-size: 13.5px; line-height: 1.6; }
+.rev-renvoi { font: 600 11.5px var(--f-chiffre); color: var(--muet); white-space: nowrap; cursor: help; }
+.nb.rev-hors { border-bottom: 2px dotted var(--signal); }
+.nb.rev-leve { border-bottom: 1px dashed var(--muet); }
+.rev-sig { background: color-mix(in srgb, var(--signal) 40%, transparent); color: inherit; border-bottom: 1px solid var(--encre); }
+.rev-section textarea { display: block; width: 100%; min-height: 190px; margin: 8px 0; padding: 8px 10px; font: inherit; line-height: 1.5; color: inherit; background: var(--surface); border: 1px solid var(--axe); border-radius: 4px; resize: vertical; }
+.rev-section .juge { margin-top: 6px; font-size: 12.5px; }
+.rev-signalements { list-style: none; margin: 0 0 12px; padding: 0; font-size: 13px; max-width: 110ch; }
+.rev-signalements li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 6px 0 6px 12px; border-left: 4px solid var(--critique); border-bottom: 1px solid var(--grille); }
+.rev-signalements li.leve { border-left-color: var(--bord); color: var(--muet); }
+.rev-signalements span { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+
+/* Le document : ce qui s'imprime */
+.rev-document { background: var(--surface); border: 1px solid var(--bord); border-top: 4px solid var(--encre); border-radius: 0 0 4px 4px; padding: 26px 32px 22px; margin: 28px 0 0; max-width: 100ch; }
+.rev-document h2 { font: 700 27px/1.15 var(--f-chiffre); letter-spacing: .005em; margin: 2px 0 14px; }
+.rev-document h3 { font: 700 17px/1.25 var(--f-chiffre); letter-spacing: .01em; margin: 22px 0 4px; padding-top: 12px; border-top: 1px solid var(--bord); }
+.rev-document p { margin: 0; }
+.rev-bandeau { border-left: 4px solid var(--signal); background: var(--creux); padding: 8px 12px; margin: 0 0 14px; font-weight: 600; }
+.rev-bandeau ul { font-weight: 400; font-size: 13px; margin: 4px 0 0; padding-left: 18px; }
+.rev-meta { display: grid; grid-template-columns: minmax(150px, 27%) minmax(0, 1fr); gap: 5px 16px; margin: 0; font-size: 12.5px; }
+.rev-meta dt { color: var(--encre2); }
+.rev-meta dd { margin: 0; overflow-wrap: anywhere; }
+.rev-document mark.rev-sig::after { content: " ⚠"; }
+.rev-annexe .rev-grille-faits { font-size: 12px; margin-top: 8px; }
+.rev-document footer { margin-top: 22px; padding-top: 10px; border-top: 1px solid var(--bord); }
+@media (max-width: 700px) {
+  .rev-document { padding: 16px 14px; }
+  .rev-document h2 { font-size: 22px; }
+  .rev-meta { grid-template-columns: 1fr; gap: 0; }
+  .rev-meta dd { margin-bottom: 7px; }
+  .rev-section { padding-left: 10px; }
+}
+@media print {
+  .rev-ecran, .contenu:has(.rev-page) > .entete, .contenu:has(.rev-page) > .alertes { display: none !important; }
+  .contenu:has(.rev-page) { max-width: none; padding: 0; }
+  .rev-document { page: rev-revue; border: 0; padding: 0; margin: 0; max-width: none; background: none; font-size: 10.5pt; line-height: 1.45; }
+  .rev-document, .rev-document * { color: #15202e !important; }
+  .rev-document h2 { font-size: 21pt; }
+  .rev-document h3 { font-size: 12.5pt; border-top-color: #9aa7b3; break-after: avoid; }
+  .rev-texte { font-size: 10.5pt; orphans: 3; widows: 3; }
+  .rev-meta { font-size: 9pt; break-inside: avoid; }
+  .rev-bandeau { background: none; border: 1pt solid #15202e; border-left-width: 4pt; break-inside: avoid; }
+  .rev-sig { background: none; border-bottom: 1.5pt solid #15202e; font-weight: 700; }
+  .rev-renvoi { color: #465566 !important; }
+  .rev-annexe { break-before: page; }
+  .rev-annexe .rev-grille-faits { font-size: 8.5pt; }
+  .rev-grille-faits dd, .rev-document li { break-inside: avoid; }
+  @page rev-revue { margin: 18mm 17mm 16mm; }
+}
