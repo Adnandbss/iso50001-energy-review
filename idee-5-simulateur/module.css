@@ -1,0 +1,24 @@
+/* Simulateur « et si » : une ligne de réglage par facteur, barres signées, tableau de comparaison */
+.sim-champ { border: 1px solid var(--axe); background: var(--surface); border-radius: 4px; padding: 6px 10px; min-width: 0; max-width: 100%; width: 190px; }
+.sim-phrase { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.sim-phrase .sim-champ { flex: 1 1 280px; width: auto; }
+.sim-facteur { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: 6px 22px; padding: 12px 0; border-top: 1px solid var(--grille); }
+.sim-facteur .sim-nom b { display: block; overflow-wrap: anywhere; }
+.sim-facteur .sim-nom small { color: var(--encre2); font-size: 12px; }
+.sim-facteur .filtres { margin: 0; gap: 8px 14px; align-items: flex-end; }
+.sim-facteur .note { grid-column: 1 / -1; margin: 0; }
+.sim-facteur input[type="number"] { width: 96px; }
+.sim-facteur select { max-width: 100%; }
+.sim-puces { display: flex; flex-wrap: wrap; gap: 6px; }
+.sim-puces .btn[aria-pressed="true"] { background: var(--encre); color: var(--surface); border-color: var(--encre); }
+.sim-titre { font-size: 12px; color: var(--encre2); margin: 12px 0 6px; }
+.sim-titre:first-child { margin-top: 0; }
+.sim-barres .piste { border-radius: 3px; background: linear-gradient(var(--axe), var(--axe)) center / 1px 100% no-repeat, var(--voile); }
+.sim-barres .barre { border-radius: 2px; min-width: 0; }
+.sim-barres .nom { white-space: normal; overflow-wrap: anywhere; }
+.sim-fort { font-weight: 600; }
+.sim-compare th, .sim-compare td { white-space: normal; vertical-align: top; min-width: 132px; }
+@media (max-width: 700px) {
+  .sim-facteur { grid-template-columns: minmax(0, 1fr); }
+  .sim-barres { grid-template-columns: minmax(96px, 38%) 1fr auto; }
+}
