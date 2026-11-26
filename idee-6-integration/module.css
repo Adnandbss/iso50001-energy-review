@@ -1,0 +1,25 @@
+/* Module Intégration : un second feuillet sous la zone de dépôt, puis une page du tableau de bord. */
+.itg-accueil { max-width: 680px; margin: 18px auto 0; background: var(--surface); border: 1px solid var(--bord); border-radius: 6px; padding: 24px 38px 26px; }
+.itg-accueil.itg-large { max-width: 1120px; }
+.itg-titre { font: 700 20px/1.25 var(--f-chiffre); letter-spacing: .01em; margin: 0 0 6px; }
+.itg .carte + .itg-titre { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--bord); }
+.itg p { color: var(--encre2); max-width: 96ch; margin: 6px 0 12px; overflow-wrap: anywhere; }
+.itg p.erreur { color: var(--critique); }
+.itg .carte { margin-top: 24px; }
+.itg .filtres { margin-bottom: 4px; }
+.itg-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 10px 0 6px; }
+.itg-actions .note { margin-top: 0; }
+.itg-actions .btn { white-space: normal; text-align: left; }
+.itg-points { margin: 4px 0 12px; padding-left: 20px; font-size: 13px; color: var(--encre2); max-width: 110ch; }
+.itg-points li + li { margin-top: 5px; }
+.itg-bloque li { color: var(--critique); font-weight: 600; }
+.itg-gauche th, .itg-gauche td { text-align: left; vertical-align: top; }
+.itg-gauche .table-defile { max-height: 420px; }
+.itg-pli { display: block; white-space: normal; min-width: 180px; max-width: 360px; color: var(--encre2); font-size: 12.5px; }
+.itg-eq { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.itg input[type="text"] { border: 1px solid var(--axe); background: var(--surface); border-radius: 4px; padding: 4px 7px; width: 170px; max-width: 100%; }
+.itg td select { padding: 4px 6px; }
+.itg details { margin: 6px 0 10px; font-size: 13px; }
+.itg summary { cursor: pointer; color: var(--encre2); }
+.itg pre { font: 12px ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 260px; overflow: auto; margin: 6px 0; padding: 6px 8px; background: var(--surface); border: 1px solid var(--bord); border-radius: 3px; }
+@media (max-width: 700px) { .itg-accueil { padding: 18px 16px 20px; } }
