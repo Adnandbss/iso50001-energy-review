@@ -1,0 +1,19 @@
+/* Module « Évaluation » : note d'une question, piste de réussite, tableaux à texte long. */
+.evl-note { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1.5; white-space: nowrap; color: var(--encre2); border: 1px solid var(--axe); border-left-width: 4px; border-radius: 3px; padding: 0 7px; background: var(--surface); }
+.evl-note.bon { color: var(--encre); border-left-color: var(--bon); }
+.evl-note.mauvais { color: var(--encre); border-left-color: var(--critique); }
+.evl-voulue { display: inline-block; margin-left: 6px; font-size: 11.5px; font-weight: 600; line-height: 1.5; white-space: nowrap; color: #15202e; background: var(--signal); border-radius: 3px; padding: 0 6px; cursor: help; }
+.evl-piste { display: block; width: 100%; min-width: 90px; height: 10px; background: var(--voile); border-radius: 2px; overflow: hidden; }
+.evl-piste span { display: block; height: 100%; background: var(--encre); }
+.evl-large { max-height: 560px; }
+.evl-large td { vertical-align: top; }
+.evl-large td:nth-child(3), .evl-jeu td:nth-child(4), .evl-jeu td:nth-child(5) { white-space: normal; text-align: left; min-width: 250px; overflow-wrap: anywhere; }
+.evl-large th:nth-child(3), .evl-jeu th:nth-child(4), .evl-jeu th:nth-child(5) { text-align: left; }
+.evl-jeu summary { cursor: pointer; font-weight: 600; padding: 2px 0 8px; }
+.evl-jeu code { font: 12px ui-monospace, Menlo, Consolas, monospace; color: var(--encre2); }
+.evl-echec { border-left-color: var(--critique); }
+.evl-echec + .evl-echec { margin-top: 12px; }
+.evl-echec h3 { font-size: 16px; }
+.evl-echec dl { margin-bottom: 2px; }
+.evl-h3 { font: 700 15px/1.25 var(--f-chiffre); letter-spacing: .01em; margin: 18px 0 6px; }
+@media (max-width: 700px) { .evl-large td:nth-child(3), .evl-jeu td:nth-child(4), .evl-jeu td:nth-child(5) { min-width: 200px; } }
