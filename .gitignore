@@ -1,0 +1,22 @@
+# fichiers produits par l'assemblage et les essais
+assemble.html
+assemble.js
+essai*.html
+essai*.js
+controle*.html
+controle*.js
+base.html
+base.js
+web/
+# profils temporaires de Chrome et captures d'essai
+.chrome*/
+profil*/
+captures/
+*.png
+# système et éditeurs
+.DS_Store
+.claude/
+node_modules/
+# formats exclus du dépôt
+*.pbix
+*.docx

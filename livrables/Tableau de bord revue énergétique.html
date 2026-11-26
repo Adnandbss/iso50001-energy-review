@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revue énergétique</title>
+<style>
+:root {
+  color-scheme: light;
+  --plan: #f9f9f7; --surface: #fcfcfb; --encre: #0b0b0b; --encre2: #52514e; --muet: #898781;
+  --grille: #e1e0d9; --axe: #c3c2b7; --bord: rgba(11,11,11,.10); --voile: rgba(11,11,11,.05);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --plus: #e34948; --moins: #2a78d6; --contexte: #52514e; --neutre: #c3c2b7;
+  --bon: #0ca30c; --critique: #d03b3b; --alerte: #fab219;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --plan: #0d0d0d; --surface: #1a1a19; --encre: #f0efec; --encre2: #c3c2b7; --muet: #898781;
+    --grille: #2c2c2a; --axe: #383835; --bord: rgba(255,255,255,.10); --voile: rgba(255,255,255,.06);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9085e9; --s8: #e66767;
+    --plus: #e66767; --moins: #3987e5; --contexte: #c3c2b7; --neutre: #52514e;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--plan); color: var(--encre); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+button, select, input { font: inherit; color: inherit; }
+a { color: inherit; }
+.page { max-width: 1320px; margin: 0 auto; padding: 16px 20px 48px; }
+
+/* En-tête */
+.entete { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; }
+.entete h1 { font-size: 18px; font-weight: 650; margin: 0; }
+.entete .fichier { color: var(--encre2); font-size: 13px; }
+.entete .espace { flex: 1; }
+.btn { border: 1px solid var(--bord); background: var(--surface); border-radius: 8px; padding: 6px 12px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn:hover { background: var(--voile); }
+.btn.principal { background: var(--encre); color: var(--surface); border-color: var(--encre); }
+.btn.principal:hover { opacity: .88; background: var(--encre); }
+.badge { font-size: 12px; color: var(--encre2); border: 1px solid var(--bord); border-radius: 999px; padding: 2px 10px; }
+
+/* Onglets */
+.onglets { display: flex; flex-wrap: wrap; gap: 2px; border-bottom: 1px solid var(--bord); margin-bottom: 14px; }
+.onglets button { border: 0; background: none; padding: 9px 14px; cursor: pointer; color: var(--encre2); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.onglets button:hover { color: var(--encre); }
+.onglets button[aria-selected="true"] { color: var(--encre); font-weight: 600; border-bottom-color: var(--encre); }
+
+/* Filtres */
+.filtres { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; margin-bottom: 14px; }
+.filtre { display: flex; flex-direction: column; gap: 4px; }
+.filtre > span { font-size: 11px; color: var(--muet); text-transform: uppercase; letter-spacing: .04em; }
+.segments { display: inline-flex; border: 1px solid var(--bord); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.segments button { border: 0; background: none; padding: 6px 11px; cursor: pointer; color: var(--encre2); }
+.segments button + button { border-left: 1px solid var(--bord); }
+.segments button:hover { background: var(--voile); }
+.segments button[aria-pressed="true"] { background: var(--encre); color: var(--surface); }
+select, input[type="date"] { border: 1px solid var(--bord); background: var(--surface); border-radius: 8px; padding: 6px 8px; max-width: 280px; }
+.dates { display: inline-flex; align-items: center; gap: 6px; color: var(--encre2); }
+
+/* Tuiles */
+.tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.tuile { background: var(--surface); border: 1px solid var(--bord); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.tuile .lib { font-size: 12px; color: var(--encre2); }
+.tuile .val { font-size: 24px; font-weight: 620; line-height: 1.2; margin-top: 2px; overflow-wrap: anywhere; }
+.tuile .det { font-size: 12px; color: var(--encre2); margin-top: 2px; }
+.tuile.hero .val { font-size: 48px; }
+.fleche { display: inline-block; font-size: 11px; margin-right: 4px; }
+.fleche.plus { color: var(--critique); } .fleche.moins { color: var(--bon); }
+
+/* Cartes */
+.grille { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+.carte { grid-column: span 12; background: var(--surface); border: 1px solid var(--bord); border-radius: 12px; padding: 14px 16px 12px; min-width: 0; }
+.carte.demi { grid-column: span 6; }
+@media (max-width: 900px) { .carte.demi { grid-column: span 12; } }
+.carte-tete { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.carte-tete h2 { font-size: 14px; font-weight: 620; margin: 0; flex: 1; }
+.carte-tete .sous { display: block; font-size: 12px; font-weight: 400; color: var(--encre2); margin-top: 2px; }
+.lien { border: 0; background: none; padding: 0; color: var(--encre2); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: 12px; white-space: nowrap; }
+.lien:hover { color: var(--encre); }
+.legende { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--encre2); margin: 2px 0 6px; }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.cle-ligne { width: 16px; height: 2px; border-radius: 1px; display: inline-block; }
+.cle-bloc { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.cle-bande { width: 16px; height: 10px; border-radius: 2px; display: inline-block; opacity: .22; }
+.zone { position: relative; width: 100%; }
+.zone svg { display: block; width: 100%; overflow: visible; }
+svg text { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--muet); font-variant-numeric: tabular-nums; }
+svg text.fin { fill: var(--encre2); font-size: 12px; }
+svg text.titre-axe { fill: var(--encre2); }
+.vide { color: var(--encre2); padding: 28px 8px; text-align: center; }
+
+/* Tableaux */
+.table-defile { max-height: 340px; overflow: auto; border: 1px solid var(--bord); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 10px; text-align: right; border-bottom: 1px solid var(--grille); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface); color: var(--encre2); font-weight: 600; }
+
+/* Barres classées et jauges */
+.rangs { display: grid; grid-template-columns: minmax(120px, 34%) 1fr auto; gap: 8px 12px; align-items: center; font-size: 13px; }
+.rangs .nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rangs .piste { height: 12px; background: var(--voile); border-radius: 0 4px 4px 0; position: relative; }
+.rangs .barre { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+.rangs .chiffre { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rangs .chiffre small { color: var(--encre2); margin-left: 6px; }
+.rangs .ligne { display: contents; }
+.rangs .ligne:hover .barre { filter: brightness(1.12); }
+
+/* Barre segmentée */
+.segbarre { display: flex; gap: 2px; height: 28px; margin: 6px 0 8px; }
+.segbarre div { border-radius: 4px; min-width: 3px; display: flex; align-items: center; padding: 0 8px; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+.segbarre div.sombre { color: #0b0b0b; }
+.segbarre div:hover { filter: brightness(1.1); }
+
+/* Bandeau d'alertes */
+.alertes { background: var(--surface); border: 1px solid var(--bord); border-left: 3px solid var(--alerte); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 13px; }
+.alertes summary { cursor: pointer; }
+.alertes ul { margin: 6px 0 2px; padding-left: 20px; color: var(--encre2); }
+
+/* Accueil */
+.accueil { max-width: 720px; margin: 9vh auto 0; background: var(--surface); border: 1px dashed var(--axe); border-radius: 16px; padding: 36px 32px; text-align: center; }
+.accueil.survol { border-color: var(--s1); background: var(--voile); }
+.accueil h1 { font-size: 22px; margin: 0 0 6px; }
+.accueil p { color: var(--encre2); margin: 6px 0 18px; }
+.accueil .aide { text-align: left; font-size: 13px; color: var(--encre2); margin-top: 26px; border-top: 1px solid var(--bord); padding-top: 16px; }
+.accueil .aide b { color: var(--encre); }
+.erreur { color: var(--critique); margin-top: 14px; font-weight: 600; }
+
+/* Infobulle */
+.tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); border: 1px solid var(--bord); border-radius: 8px; box-shadow: 0 6px 24px rgba(0,0,0,.16); padding: 8px 10px; font-size: 12.5px; max-width: 320px; }
+.tip .t { color: var(--encre2); margin-bottom: 4px; }
+.tip .l { display: flex; align-items: center; gap: 8px; }
+.tip .l b { font-variant-numeric: tabular-nums; }
+.tip .l span.n { color: var(--encre2); }
+
+.arbo-energie { display: flex; align-items: center; gap: 8px; }
+.note { font-size: 12px; color: var(--encre2); margin-top: 8px; }
+.note.attention::before { content: "⚠ "; color: var(--alerte); }
+@media print { .filtres, .onglets, .entete .btn, .lien { display: none !important; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<div class="page" id="app"></div>
+<div class="tip" id="tip" hidden></div>
+<script id="donnees-figees" type="application/json"></script>
+<script>
+"use strict";
+/* ============================================================================
+   Tableau de bord de revue énergétique (ISO 50001)
+   Un seul fichier, sans dépendance : il lit le classeur Excel dans le navigateur
+   (feuilles CONSO, FACTEURS INF, EQUATION, EQUATION 2, WIKI), refait le calcul
+   de la macro et affiche les pages. Aucune donnée ne quitte le poste.
+   ============================================================================ */
+
+/* ---- Réglages à adapter ---------------------------------------------------- */
+const LIENS = [];   // liens vers l'intranet de l'entreprise retirés de la version publique
+const FEUILLES_REQUISES = ["CONSO", "FACTEURS INF", "EQUATION", "WIKI"];
+const FEUILLES_LUES = ["CONSO", "FACTEURS INF", "EQUATION", "EQUATION 2", "WIKI"];
+const JOUR = 864e5;
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const RANG = { day: 0, week: 1, month: 2, year: 3 };
+const NOM_PAS = { day: "jour", week: "semaine", month: "mois", year: "année" };
+const COULEURS = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)", "var(--s8)"];
+
+/* ---- Petits outils DOM ----------------------------------------------------- */
+function h(balise, attrs, ...enfants) {
+  const e = document.createElement(balise);
+  poser(e, attrs, enfants);
+  return e;
+}
+function s(balise, attrs, ...enfants) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", balise);
+  poser(e, attrs, enfants);
+  return e;
+}
+function poser(e, attrs, enfants) {
+  for (const k in (attrs || {})) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of enfants.flat()) {
+    if (c == null || c === false) continue;
+    e.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+}
+
+/* ---- Formats --------------------------------------------------------------- */
+const nf = (v, d = 1) => v.toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+function uniteEnergie(maxAbs) {
+  if (maxAbs >= 1e9) return { div: 1e9, nom: "GWh" };
+  if (maxAbs >= 1e6) return { div: 1e6, nom: "MWh" };
+  if (maxAbs >= 1e3) return { div: 1e3, nom: "kWh" };
+  return { div: 1, nom: "Wh" };
+}
+function fmtEnergie(wh, signe) {
+  if (wh == null || !isFinite(wh)) return "–";
+  const u = uniteEnergie(Math.abs(wh));
+  const a = Math.abs(wh) / u.div;
+  const txt = nf(a, a >= 100 ? 0 : a >= 10 ? 1 : 2) + " " + u.nom;
+  return (wh < 0 ? "−" : signe && wh > 0 ? "+" : "") + txt;
+}
+function fmtPct(v, signe) {
+  if (v == null || !isFinite(v)) return "–";
+  return (v < 0 ? "−" : signe && v > 0 ? "+" : "") + nf(Math.abs(v) * 100, 1) + " %";
+}
+const fmtDate = t => { const d = new Date(t); return String(d.getUTCDate()).padStart(2, "0") + "/" + String(d.getUTCMonth() + 1).padStart(2, "0") + "/" + d.getUTCFullYear(); };
+const isoJour = t => new Date(t).toISOString().slice(0, 10);
+
+/* ============================================================================
+   1. Lecture du classeur Excel (.xlsx / .xlsm = archive ZIP de fichiers XML)
+   ============================================================================ */
+async function lireZip(buf) {
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  let fin = -1;
+  for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { fin = i; break; }
+  }
+  if (fin < 0) throw new Error("Ce fichier n'est pas un classeur Excel .xlsx ou .xlsm (un ancien .xls doit être réenregistré en .xlsx).");
+  const nb = dv.getUint16(fin + 10, true);
+  let p = dv.getUint32(fin + 16, true);
+  const dec = new TextDecoder("utf-8"), entrees = new Map();
+  for (let k = 0; k < nb && p + 46 <= buf.byteLength; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const methode = dv.getUint16(p + 10, true), taille = dv.getUint32(p + 20, true);
+    const lNom = dv.getUint16(p + 28, true), lExtra = dv.getUint16(p + 30, true), lCom = dv.getUint16(p + 32, true);
+    const local = dv.getUint32(p + 42, true);
+    entrees.set(dec.decode(u8.subarray(p + 46, p + 46 + lNom)), { methode, taille, local });
+    p += 46 + lNom + lExtra + lCom;
+  }
+  return async function texte(nom) {
+    const e = entrees.get(nom);
+    if (!e) return null;
+    const debut = e.local + 30 + dv.getUint16(e.local + 26, true) + dv.getUint16(e.local + 28, true);
+    const brut = u8.subarray(debut, debut + e.taille);
+    if (e.methode === 0) return dec.decode(brut);
+    if (e.methode !== 8) throw new Error("Compression du classeur non prise en charge.");
+    if (typeof DecompressionStream === "undefined") throw new Error("Ce navigateur est trop ancien pour lire le classeur. Utilisez une version récente de Chrome, Edge, Firefox ou Safari.");
+    const flux = new Blob([brut]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return await new Response(flux).text();
+  };
+}
+const cleFeuille = nom => String(nom).trim().toUpperCase().replace(/\s+/g, " ");
+
+async function lireClasseur(buf) {
+  const texte = await lireZip(buf);
+  const xml = async nom => { const t = await texte(nom); return t == null ? null : new DOMParser().parseFromString(t, "application/xml"); };
+  const balises = (doc, nom) => doc.getElementsByTagNameNS("*", nom);
+  const wb = await xml("xl/workbook.xml");
+  const rels = await xml("xl/_rels/workbook.xml.rels");
+  if (!wb || !rels) throw new Error("Classeur illisible : structure Excel introuvable.");
+  const cible = {};
+  for (const r of balises(rels, "Relationship")) cible[r.getAttribute("Id")] = r.getAttribute("Target");
+  const pr = balises(wb, "workbookPr")[0];
+  const d1904 = !!pr && ["1", "true"].includes(pr.getAttribute("date1904"));
+  const chaines = [];
+  const sst = await xml("xl/sharedStrings.xml");
+  if (sst) for (const si of balises(sst, "si")) {
+    let t = "";
+    for (const n of si.getElementsByTagNameNS("*", "t")) if (n.parentNode.localName !== "rPh") t += n.textContent;
+    chaines.push(t);
+  }
+  const grilles = {}, presentes = [];
+  for (const sh of balises(wb, "sheet")) {
+    const cle = cleFeuille(sh.getAttribute("name"));
+    presentes.push(sh.getAttribute("name"));
+    if (!FEUILLES_LUES.includes(cle)) continue;
+    const rid = sh.getAttribute("r:id") || sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    let chemin = cible[rid];
+    if (!chemin) continue;
+    chemin = chemin.startsWith("/") ? chemin.slice(1) : "xl/" + chemin;
+    const doc = await xml(chemin);
+    if (doc) grilles[cle] = lireGrille(doc, chaines);
+  }
+  const manquantes = FEUILLES_REQUISES.filter(f => !grilles[f]);
+  if (manquantes.length) throw new Error("Feuille(s) introuvable(s) dans le classeur : " + manquantes.join(", ") + ". Feuilles présentes : " + presentes.join(", ") + ".");
+  return { grilles, d1904 };
+}
+
+/* Grille g[ligne][colonne], indices à partir de 1, valeurs = nombres, textes ou booléens. */
+function lireGrille(doc, chaines) {
+  const g = [];
+  for (const c of doc.getElementsByTagNameNS("*", "c")) {
+    const m = /^([A-Z]+)(\d+)$/.exec(c.getAttribute("r") || "");
+    if (!m) continue;
+    let col = 0;
+    for (const ch of m[1]) col = col * 26 + ch.charCodeAt(0) - 64;
+    const type = c.getAttribute("t");
+    let vn = null, is = null;
+    for (const e of c.children) { if (e.localName === "v") vn = e; else if (e.localName === "is") is = e; }
+    let v = null;
+    if (type === "inlineStr") v = is ? is.textContent : null;
+    else if (vn) {
+      const x = vn.textContent;
+      if (type === "s") v = chaines[+x];
+      else if (type === "str" || type === "d") v = x;
+      else if (type === "b") v = x === "1";
+      else if (type === "e") v = null;
+      else { const n = Number(x); v = Number.isFinite(n) ? n : null; }
+    }
+    if (v == null || v === "") continue;
+    (g[+m[2]] || (g[+m[2]] = []))[col] = v;
+  }
+  return g;
+}
+
+/* ============================================================================
+   2. Moteur de calcul (reprend la logique de la macro EcrireTemplate)
+   ============================================================================ */
+function calculer(grilles, d1904) {
+  const C = grilles["CONSO"] || [], F = grilles["FACTEURS INF"] || [], E1 = grilles["EQUATION"] || [],
+        E2 = grilles["EQUATION 2"] || [], W = grilles["WIKI"] || [];
+  const val = (g, l, c) => { const r = g[l]; const x = r ? r[c] : null; return x == null || x === "" ? null : x; };
+  const num = v => typeof v === "number" ? v : (typeof v === "string" && v.trim() !== "" && isFinite(+v.replace(",", ".")) ? +v.replace(",", ".") : 0);
+  const txt = v => v == null ? "" : String(v).trim();
+  const versDate = v => {
+    if (typeof v === "number") return v >= 1 ? Date.UTC(1899, 11, 30) + (Math.floor(v) + (d1904 ? 1462 : 0)) * JOUR : null;
+    if (typeof v === "string") {
+      let m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+      if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3]);
+      m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/.exec(v.trim());
+      if (m) return Date.UTC(+m[3], +m[2] - 1, +m[1]);
+    }
+    return null;
+  };
+  const derniereColonne = g => { const l = g[1] || []; let d = 0; for (let c = 1; c < l.length; c++) if (l[c] != null && l[c] !== "") d = c; return d; };
+  let derniereLigne = 0;
+  for (let l = 1; l < C.length; l++) if (val(C, l, 1) != null) derniereLigne = l;
+
+  const nbConso = derniereColonne(C) - 1, nbFact = Math.max(0, derniereColonne(F) - 1);
+  if (derniereLigne < 2 || nbConso < 1) throw new Error("La feuille CONSO est vide : dates attendues en colonne A, noms des consommations en ligne 1.");
+
+  // lignes de CONSO portant une date valide
+  const lignes = [], dates = [];
+  for (let l = 2; l <= derniereLigne; l++) { const t = versDate(val(C, l, 1)); if (t != null) { lignes.push(l); dates.push(t); } }
+  if (!dates.length) throw new Error("Aucune date reconnue en colonne A de la feuille CONSO.");
+  const indexDate = new Map();
+  dates.forEach((t, i) => { if (!indexDate.has(t)) indexDate.set(t, i); });
+
+  // contrôles de cohérence (le calcul se fait par position, comme dans la macro)
+  const alertes = [];
+  let datesKo = 0;
+  lignes.forEach((l, i) => { if (nbFact && versDate(val(F, l, 1)) !== dates[i]) datesKo++; });
+  if (datesKo) alertes.push(datesKo + " date(s) de FACTEURS INF ne correspondent pas à celles de CONSO (même ligne attendue).");
+  for (let k = 1; k <= nbFact; k++) {
+    if (txt(val(E1, k + 2, 1)) !== txt(val(F, 1, k + 1))) alertes.push("EQUATION ligne " + (k + 2) + " : « " + txt(val(E1, k + 2, 1)) + " » au lieu du facteur « " + txt(val(F, 1, k + 1)) + " ».");
+  }
+  if (!grilles["EQUATION 2"]) alertes.push("Feuille EQUATION 2 absente : les modèles saisonniers utilisent uniquement EQUATION.");
+
+  const facteurs = [];
+  for (let k = 1; k <= nbFact; k++) {
+    facteurs.push({ nom: txt(val(F, 1, k + 1)) || "Facteur " + k, valeurs: lignes.map(l => { const x = val(F, l, k + 1); return typeof x === "number" ? x : null; }) });
+  }
+
+  const series = [];
+  for (let i = 1; i <= nbConso; i++) {
+    const c = i + 1, nom = txt(val(C, 1, c)) || "Consommation " + i;
+    if (txt(val(E1, 1, c)) !== txt(val(C, 1, c))) alertes.push("EQUATION colonne " + c + " : « " + txt(val(E1, 1, c)) + " » au lieu de « " + nom + " ».");
+    if (txt(val(W, 1, c)) !== txt(val(C, 1, c))) alertes.push("WIKI colonne " + c + " : « " + txt(val(W, 1, c)) + " » au lieu de « " + nom + " ».");
+    const niveau = txt(val(W, 3, c));
+    if (!niveau) alertes.push("« " + nom + " » n'a pas de niveau (Site / UES) dans le WIKI : classée en UES.");
+    const saisonnier = txt(val(W, 10, c)).toLowerCase() === "saisonnier";
+    const saisons = [[versDate(val(W, 11, c)), versDate(val(W, 12, c))], [versDate(val(W, 13, c)), versDate(val(W, 14, c))]].filter(p => p[0] != null && p[1] != null);
+    const err = [6, 7, 8, 9].map(l => num(val(W, l, c)));
+    const r2 = val(W, 15, c);
+    const conso = [], ref = [], an1 = [];
+    lignes.forEach((l, j) => {
+      const kwh = num(val(C, l, c));
+      if (kwh === 0) { conso.push(null); ref.push(null); return; }   // 0 ou vide = pas de donnée
+      let r1 = num(val(E1, 2, c)), rr2 = num(val(E2, 2, c));
+      for (let k = 1; k <= nbFact; k++) {
+        const f = num(val(F, l, k + 1));
+        r1 += f * num(val(E1, k + 2, c));
+        rr2 += f * num(val(E2, k + 2, c));
+      }
+      const t = dates[j];
+      const ete = saisonnier && saisons.some(p => t >= p[0] && t <= p[1]);
+      conso.push(kwh * 1000);
+      ref.push((ete ? rr2 : r1) * 1000);
+    });
+    // consommation de l'an dernier : même date, sinon la plus proche renseignée à ± 3 jours
+    dates.forEach((t, j) => {
+      let v = null;
+      if (conso[j] != null) {
+        const d = new Date(t);
+        let cibleT = Date.UTC(d.getUTCFullYear() - 1, d.getUTCMonth(), d.getUTCDate());
+        if (new Date(cibleT).getUTCMonth() !== d.getUTCMonth()) cibleT -= JOUR;
+        for (const e of [0, 1, -1, 2, -2, 3, -3]) {
+          const r = indexDate.get(cibleT + e * JOUR);
+          if (r != null && conso[r] != null) { v = conso[r]; break; }
+        }
+      }
+      an1.push(v);
+    });
+    // pas des données : écart médian entre deux dates renseignées
+    const pts = dates.filter((t, j) => conso[j] != null), ecarts = [];
+    for (let j = 1; j < pts.length; j++) ecarts.push((pts[j] - pts[j - 1]) / JOUR);
+    ecarts.sort((a, b) => a - b);
+    const med = ecarts.length ? ecarts[Math.floor(ecarts.length / 2)] : 1;
+    series.push({
+      nom, energie: txt(val(W, 2, c)) || "Non renseignée", niveau: niveau || "UES",
+      groupe: niveau.toLowerCase() === "site" ? "site" : "ues",
+      actif: val(W, 4, c), cible: typeof val(W, 5, c) === "number" ? val(W, 5, c) : null,
+      err, type: txt(val(W, 10, c)) || "Simple", r2: typeof r2 === "number" ? r2 : null,
+      conso, ref, an1, pas: med <= 1.5 ? "day" : med <= 10 ? "week" : "month", nbPoints: pts.length
+    });
+  }
+  const energies = [...new Set(series.map(x => x.energie))];
+  const pasFin = series.reduce((m, x) => x.nbPoints && RANG[x.pas] < RANG[m] ? x.pas : m, "month");
+  let debut = null, fin = null;
+  dates.forEach((t, j) => { if (series.some(x => x.conso[j] != null)) { if (debut == null || t < debut) debut = t; if (fin == null || t > fin) fin = t; } });
+  if (debut == null) { debut = Math.min(...dates); fin = Math.max(...dates); alertes.push("Aucune consommation renseignée dans CONSO."); }
+  return { dates, series, facteurs, energies, alertes, pasFin, debut, fin };
+}
+
+function semaineISO(t) {
+  const d = new Date(t), j = (d.getUTCDay() + 6) % 7;           // lundi = 0
+  const jeudi = t - j * JOUR + 3 * JOUR, an = new Date(jeudi).getUTCFullYear();
+  return { an, sem: Math.floor((jeudi - Date.UTC(an, 0, 1)) / JOUR / 7) + 1 };
+}
+
+/* ============================================================================
+   3. État, filtres et agrégation
+   ============================================================================ */
+const etat = { modele: null, fichier: "", figee: null, onglet: "site", de: 0, a: 0, gran: "week", comparer: "ref", unite: "pct",
+               nomSite: null, nomUES: null, factConso: null, facteur: null, energie: "*", tables: new Set(), erreur: null };
+let grillesChargees = null, d1904Charge = false;
+
+function charger(grilles, d1904, fichier, figee) {
+  const m = calculer(grilles, d1904);
+  grillesChargees = grilles; d1904Charge = d1904;
+  Object.assign(etat, { modele: m, fichier, figee: figee || null, erreur: null, de: m.debut, a: m.fin,
+    gran: m.pasFin === "month" ? "month" : "week", comparer: "ref", unite: "pct", energie: "*", onglet: "site" });
+  const site = m.series.filter(x => x.groupe === "site"), ues = m.series.filter(x => x.groupe === "ues");
+  etat.nomSite = site[0] ? site[0].nom : null;
+  etat.nomUES = ues[0] ? ues[0].nom : null;
+  etat.factConso = (ues[0] || site[0] || {}).nom || null;
+  etat.facteur = m.facteurs[0] ? m.facteurs[0].nom : null;
+  if (!site.length && ues.length) etat.onglet = "ues";
+  const voulu = new URLSearchParams(location.hash.slice(1)).get("onglet");
+  if (ONGLETS.some(o => o[0] === voulu)) etat.onglet = voulu;
+  rendre();
+}
+
+/* Découpe la période filtrée en « seaux » (année, mois, semaine ISO ou jour). */
+function seaux(gran) {
+  const m = etat.modele, cles = new Map(), etiquettes = [], debuts = [], idx = new Int32Array(m.dates.length).fill(-1);
+  const ordre = m.dates.map((t, i) => i).filter(i => m.dates[i] >= etat.de && m.dates[i] <= etat.a).sort((x, y) => m.dates[x] - m.dates[y]);
+  for (const i of ordre) {
+    const t = m.dates[i], d = new Date(t);
+    let cle, lib;
+    if (gran === "year") { cle = d.getUTCFullYear(); lib = String(cle); }
+    else if (gran === "month") { cle = d.getUTCFullYear() * 12 + d.getUTCMonth(); lib = MOIS[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+    else if (gran === "week") { const w = semaineISO(t); cle = w.an * 100 + w.sem; lib = "S" + String(w.sem).padStart(2, "0") + " " + w.an; }
+    else { cle = t; lib = fmtDate(t); }
+    if (!cles.has(cle)) { cles.set(cle, etiquettes.length); etiquettes.push(lib); debuts.push(t); }
+    idx[i] = cles.get(cle);
+  }
+  return { n: etiquettes.length, etiquettes, debuts, idx };
+}
+function agreger(valeurs, S) {
+  const out = new Array(S.n).fill(null);
+  for (let i = 0; i < valeurs.length; i++) {
+    const b = S.idx[i], v = valeurs[i];
+    if (b >= 0 && v != null) out[b] = (out[b] || 0) + v;
+  }
+  return out;
+}
+const somme = a => a.reduce((x, v) => x + (v || 0), 0);
+function totalPeriode(valeurs) {
+  const m = etat.modele; let t = 0, n = 0;
+  for (let i = 0; i < valeurs.length; i++) if (valeurs[i] != null && m.dates[i] >= etat.de && m.dates[i] <= etat.a) { t += valeurs[i]; n++; }
+  return n ? t : null;
+}
+/* Garde la plage de seaux entre la première et la dernière valeur connue. */
+function rogner(S, ...tableaux) {
+  let a = 0, b = S.n - 1;
+  const vide = i => tableaux.every(t => !t || t[i] == null);
+  while (a <= b && vide(a)) a++;
+  while (b >= a && vide(b)) b--;
+  const c = t => t ? t.slice(a, b + 1) : t;
+  return { etiquettes: c(S.etiquettes), tableaux: tableaux.map(c) };
+}
+const couleurEnergie = e => COULEURS[Math.min(etat.modele.energies.indexOf(e), COULEURS.length - 1)];
+
+/* ============================================================================
+   4. Graphiques (SVG, sans bibliothèque)
+   ============================================================================ */
+const tip = document.getElementById("tip");
+function montrerTip(evt, titre, lignes) {
+  tip.replaceChildren(h("div", { class: "t" }, titre), ...lignes.map(l =>
+    h("div", { class: "l" }, l.couleur ? h("span", { class: l.bloc ? "cle-bloc" : "cle-ligne", style: "background:" + l.couleur }) : null, h("b", null, l.valeur), h("span", { class: "n" }, l.nom))));
+  tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  let x = evt.clientX + 14, y = evt.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = evt.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = evt.clientY - r.height - 14;
+  tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+}
+const cacherTip = () => { tip.hidden = true; };
+
+function graduations(min, max, n = 5) {
+  if (!(max > min)) max = min + 1;
+  const brut = (max - min) / n, p = Math.pow(10, Math.floor(Math.log10(brut))), f = brut / p;
+  const pas = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p, t = [];
+  for (let v = Math.floor(min / pas + 1e-9) * pas; v <= Math.ceil(max / pas - 1e-9) * pas + pas * 1e-6; v += pas) t.push(Math.abs(v) < pas * 1e-6 ? 0 : v);
+  return t;
+}
+/* Cadre commun : axes, quadrillage, libellés. Renvoie les échelles. */
+function cadre(zone, o) {
+  const L = zone.clientWidth || 600, H = o.hauteur || 280;
+  const mg = { g: 58, d: o.margeDroite || 16, h: 26, b: 30 + (o.titreX ? 16 : 0) };
+  const ticks = graduations(o.min, o.max, o.nTicks || 5), y0 = ticks[0], y1 = ticks[ticks.length - 1];
+  const plotL = Math.max(40, L - mg.g - mg.d), plotH = H - mg.h - mg.b;
+  const y = v => mg.h + plotH * (1 - (v - y0) / (y1 - y0));
+  const svg = s("svg", { viewBox: "0 0 " + L + " " + H, height: H, role: "img", "aria-label": o.titre || "Graphique" });
+  for (const t of ticks) {
+    svg.append(s("line", { x1: mg.g, x2: mg.g + plotL, y1: y(t), y2: y(t), stroke: t === 0 && y0 < 0 ? "var(--axe)" : "var(--grille)", "stroke-width": 1 }));
+    svg.append(s("text", { x: mg.g - 8, y: y(t) + 4, "text-anchor": "end" }, o.fmtY(t)));
+  }
+  if (o.titreY) svg.append(s("text", { x: mg.g - 8, y: 11, "text-anchor": "end", class: "titre-axe" }, o.titreY));
+  let x, pas = 0;
+  if (o.etiquettes) {                                 // axe par catégories (périodes)
+    const n = o.etiquettes.length;
+    pas = plotL / Math.max(1, n);
+    x = i => mg.g + (i + 0.5) * pas;
+    const chaque = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(plotL / 84))));
+    o.etiquettes.forEach((e, i) => { if (i % chaque === 0) svg.append(s("text", { x: x(i), y: H - mg.b + 16, "text-anchor": "middle" }, e)); });
+  } else {                                            // axe numérique (nuage de points)
+    const tx = graduations(o.xMin, o.xMax, 6), x0 = tx[0], x1 = tx[tx.length - 1];
+    x = v => mg.g + plotL * (v - x0) / (x1 - x0);
+    for (const t of tx) svg.append(s("text", { x: x(t), y: H - mg.b + 16, "text-anchor": "middle" }, nf(t, 2)));
+    if (o.titreX) svg.append(s("text", { x: mg.g + plotL / 2, y: H - 4, "text-anchor": "middle", class: "titre-axe" }, o.titreX));
+  }
+  svg.append(s("line", { x1: mg.g, x2: mg.g + plotL, y1: y(Math.max(y0, Math.min(0, y1))), y2: y(Math.max(y0, Math.min(0, y1))), stroke: "var(--axe)", "stroke-width": 1 }));
+  zone.replaceChildren(svg);
+  return { svg, x, y, pas, mg, plotL, plotH, L, H, y0, y1 };
+}
+/* Zone de survol : renvoie l'indice de période le plus proche du pointeur. */
+function survol(c, n, surIndice) {
+  const r = s("rect", { x: c.mg.g, y: c.mg.h, width: c.plotL, height: c.plotH, fill: "transparent" });
+  r.addEventListener("pointermove", e => {
+    const b = c.svg.getBoundingClientRect(), px = (e.clientX - b.left) * (c.L / b.width);
+    surIndice(Math.max(0, Math.min(n - 1, Math.floor((px - c.mg.g) / c.pas))), e);
+  });
+  r.addEventListener("pointerleave", () => { surIndice(-1); cacherTip(); });
+  c.svg.append(r);
+}
+function unitePour(listes) {
+  let m = 0;
+  for (const l of listes) for (const v of (l || [])) if (v != null && Math.abs(v) > m) m = Math.abs(v);
+  return uniteEnergie(m);
+}
+function etendue(listes, forcerZero) {
+  let min = Infinity, max = -Infinity;
+  for (const l of listes) for (const v of (l || [])) if (v != null) { if (v < min) min = v; if (v > max) max = v; }
+  if (!isFinite(min)) { min = 0; max = 1; }
+  if (forcerZero || (min > 0 && min < max * 0.5)) min = Math.min(0, min);
+  if (max < 0 && forcerZero) max = 0;
+  if (min === max) { max = min + Math.abs(min || 1) * 0.1; }
+  return { min, max };
+}
+
+/* Courbes : séries = [{nom, valeurs, couleur}], bande = {bas, haut, nom} facultative. */
+function graphCourbes(zone, o) {
+  const tout = o.series.map(x => x.valeurs).concat(o.bande ? [o.bande.bas, o.bande.haut] : []);
+  const u = o.unite || unitePour(tout), e = etendue(tout, false);
+  const fmt = o.fmtValeur || (v => fmtEnergie(v));
+  const c = cadre(zone, { etiquettes: o.etiquettes, min: e.min, max: e.max, fmtY: o.fmtY || (v => nf(v / u.div, 2)), titreY: o.titreY || u.nom, margeDroite: 96, hauteur: o.hauteur, titre: o.titre });
+  const n = o.etiquettes.length;
+  if (o.bande) {                                       // tunnel d'erreur : une surface par tronçon continu
+    let i = 0;
+    while (i < n) {
+      if (o.bande.bas[i] == null) { i++; continue; }
+      let j = i; while (j + 1 < n && o.bande.bas[j + 1] != null) j++;
+      let d = "";
+      for (let k = i; k <= j; k++) d += (k === i ? "M" : "L") + c.x(k) + " " + c.y(o.bande.haut[k]);
+      for (let k = j; k >= i; k--) d += "L" + c.x(k) + " " + c.y(o.bande.bas[k]);
+      c.svg.append(s("path", { d: d + "Z", fill: o.bande.couleur, opacity: i === j ? 0 : 0.14 }));
+      i = j + 1;
+    }
+  }
+  const fins = [];
+  for (const sr of [...o.series].reverse()) {          // la première série est dessinée au-dessus
+    let d = "", dernier = -1;
+    for (let i = 0; i < n; i++) {
+      const v = sr.valeurs[i];
+      if (v == null) continue;
+      const seul = (i === 0 || sr.valeurs[i - 1] == null) && (i === n - 1 || sr.valeurs[i + 1] == null);
+      if (seul) c.svg.append(s("circle", { cx: c.x(i), cy: c.y(v), r: 3, fill: sr.couleur }));
+      d += (i === 0 || sr.valeurs[i - 1] == null ? "M" : "L") + c.x(i) + " " + c.y(v);
+      dernier = i;
+    }
+    c.svg.append(s("path", { d, fill: "none", stroke: sr.couleur, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    if (dernier >= 0) fins.push({ sr, i: dernier, y: c.y(sr.valeurs[dernier]) });
+  }
+  // libellés en bout de courbe, seulement s'ils ne se chevauchent pas
+  fins.sort((a, b) => a.y - b.y);
+  const libres = fins.every((f, k) => k === 0 || f.y - fins[k - 1].y >= 15);
+  for (const f of fins) {
+    c.svg.append(s("circle", { cx: c.x(f.i), cy: f.y, r: 4, fill: f.sr.couleur, stroke: "var(--surface)", "stroke-width": 2 }));
+    if (libres && fins.length <= 4) c.svg.append(s("text", { x: c.x(f.i) + 9, y: f.y + 4, class: "fin" }, f.sr.court || f.sr.nom));
+  }
+  const repere = s("line", { y1: c.mg.h, y2: c.mg.h + c.plotH, stroke: "var(--axe)", "stroke-width": 1, visibility: "hidden" });
+  const points = o.series.map(sr => s("circle", { r: 4, fill: sr.couleur, stroke: "var(--surface)", "stroke-width": 2, visibility: "hidden" }));
+  c.svg.append(repere, ...points);
+  survol(c, n, (i, evt) => {
+    if (i < 0) { repere.setAttribute("visibility", "hidden"); points.forEach(p => p.setAttribute("visibility", "hidden")); return; }
+    repere.setAttribute("x1", c.x(i)); repere.setAttribute("x2", c.x(i)); repere.setAttribute("visibility", "visible");
+    const lignes = [];
+    o.series.forEach((sr, k) => {
+      const v = sr.valeurs[i];
+      points[k].setAttribute("visibility", v == null ? "hidden" : "visible");
+      if (v != null) { points[k].setAttribute("cx", c.x(i)); points[k].setAttribute("cy", c.y(v)); }
+      lignes.push({ couleur: sr.couleur, valeur: v == null ? "–" : fmt(v), nom: sr.nom });
+    });
+    if (o.bande && o.bande.bas[i] != null) lignes.push({ valeur: fmt(o.bande.bas[i]) + " à " + fmt(o.bande.haut[i]), nom: o.bande.nom });
+    if (o.complement) lignes.push(...o.complement(i));
+    montrerTip(evt, o.etiquettes[i], lignes);
+  });
+}
+
+/* Colonnes divergentes autour de zéro (écart au modèle). */
+function graphEcarts(zone, o) {
+  const e = etendue([o.valeurs], true);
+  const c = cadre(zone, { etiquettes: o.etiquettes, min: e.min, max: e.max, fmtY: o.fmtY, titreY: o.titreY, hauteur: o.hauteur || 230, titre: o.titre });
+  const n = o.etiquettes.length, larg = Math.max(1, Math.min(24, c.pas - 2)), zero = c.y(0), barres = [];
+  o.valeurs.forEach((v, i) => {
+    if (v == null) { barres.push(null); return; }
+    const yv = c.y(v), ht = Math.abs(yv - zero), r = Math.min(4, larg / 2, ht), x0 = c.x(i) - larg / 2, x1 = x0 + larg;
+    const d = v >= 0
+      ? "M" + x0 + " " + zero + "V" + (yv + r) + "Q" + x0 + " " + yv + " " + (x0 + r) + " " + yv + "H" + (x1 - r) + "Q" + x1 + " " + yv + " " + x1 + " " + (yv + r) + "V" + zero + "Z"
+      : "M" + x0 + " " + zero + "V" + (yv - r) + "Q" + x0 + " " + yv + " " + (x0 + r) + " " + yv + "H" + (x1 - r) + "Q" + x1 + " " + yv + " " + x1 + " " + (yv - r) + "V" + zero + "Z";
+    const b = s("path", { d, fill: v >= 0 ? "var(--plus)" : "var(--moins)" });
+    c.svg.append(b); barres.push(b);
+  });
+  let actif = -1;
+  survol(c, n, (i, evt) => {
+    if (actif >= 0 && barres[actif]) barres[actif].removeAttribute("opacity");
+    actif = i;
+    if (i < 0) return;
+    if (barres[i]) barres[i].setAttribute("opacity", 0.7);
+    montrerTip(evt, o.etiquettes[i], o.detail(i));
+  });
+}
+
+/* Colonnes empilées : piles = [{nom, couleur, valeurs}]. */
+function graphEmpile(zone, o) {
+  const n = o.etiquettes.length, totaux = o.etiquettes.map((_, i) => somme(o.piles.map(p => p.valeurs[i])));
+  const u = unitePour([totaux]);
+  const c = cadre(zone, { etiquettes: o.etiquettes, min: 0, max: Math.max(1, ...totaux), fmtY: v => nf(v / u.div, 2), titreY: u.nom, hauteur: o.hauteur || 260, titre: o.titre });
+  const larg = Math.max(1, Math.min(24, c.pas - 2)), groupes = [];
+  for (let i = 0; i < n; i++) {
+    const g = s("g"), parts = o.piles.filter(p => p.valeurs[i] != null && p.valeurs[i] > 0);
+    let cumul = 0;
+    parts.forEach((p, k) => {
+      const yBas = c.y(cumul), yHaut = c.y(cumul + p.valeurs[i]); cumul += p.valeurs[i];
+      const haut = k === parts.length - 1, ht = Math.max(0, yBas - yHaut - (haut ? 0 : 2)), x0 = c.x(i) - larg / 2;
+      if (ht <= 0) return;
+      const r = haut ? Math.min(4, larg / 2, ht) : 0, yy = yBas - ht;
+      g.append(s("path", { d: "M" + x0 + " " + yBas + "V" + (yy + r) + "Q" + x0 + " " + yy + " " + (x0 + r) + " " + yy + "H" + (x0 + larg - r) + "Q" + (x0 + larg) + " " + yy + " " + (x0 + larg) + " " + (yy + r) + "V" + yBas + "Z", fill: p.couleur }));
+    });
+    c.svg.append(g); groupes.push(g);
+  }
+  let actif = -1;
+  survol(c, n, (i, evt) => {
+    if (actif >= 0) groupes[actif].removeAttribute("opacity");
+    actif = i;
+    if (i < 0) return;
+    groupes[i].setAttribute("opacity", 0.75);
+    const lignes = o.piles.filter(p => p.valeurs[i] != null).map(p => ({ couleur: p.couleur, bloc: true, valeur: fmtEnergie(p.valeurs[i]), nom: p.nom }));
+    if (lignes.length > 1) lignes.push({ valeur: fmtEnergie(totaux[i]), nom: "Total" });
+    montrerTip(evt, o.etiquettes[i], lignes);
+  });
+}
+
+/* Nuage de points avec droite de tendance. */
+function graphNuage(zone, o) {
+  const xs = o.points.map(p => p.x), ys = o.points.map(p => p.y), u = unitePour([ys]);
+  const ey = etendue([ys], false), ex = etendue([xs], false);
+  const c = cadre(zone, { xMin: ex.min, xMax: ex.max, min: ey.min, max: ey.max, fmtY: v => nf(v / u.div, 2), titreY: u.nom, titreX: o.titreX, hauteur: o.hauteur || 320, titre: o.titre });
+  if (o.droite) {
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), clip = v => Math.max(c.y0, Math.min(c.y1, v));
+    c.svg.append(s("line", { x1: c.x(x0), y1: c.y(clip(o.droite.a + o.droite.b * x0)), x2: c.x(x1), y2: c.y(clip(o.droite.a + o.droite.b * x1)), stroke: "var(--contexte)", "stroke-width": 2, "stroke-linecap": "round" }));
+  }
+  const ronds = o.points.map(p => { const r = s("circle", { cx: c.x(p.x), cy: c.y(p.y), r: 4, fill: "var(--s1)", stroke: "var(--surface)", "stroke-width": 2 }); c.svg.append(r); return r; });
+  const r = s("rect", { x: c.mg.g, y: c.mg.h, width: c.plotL, height: c.plotH, fill: "transparent" });
+  let actif = -1;
+  const relacher = () => { if (actif >= 0) { ronds[actif].setAttribute("r", 4); actif = -1; } };
+  r.addEventListener("pointermove", e => {
+    const b = c.svg.getBoundingClientRect(), px = (e.clientX - b.left) * (c.L / b.width), py = (e.clientY - b.top) * (c.H / b.height);
+    let meilleur = -1, dist = 30 * 30;
+    o.points.forEach((p, i) => { const d = (c.x(p.x) - px) ** 2 + (c.y(p.y) - py) ** 2; if (d < dist) { dist = d; meilleur = i; } });
+    relacher();
+    if (meilleur < 0) { cacherTip(); return; }
+    actif = meilleur; ronds[meilleur].setAttribute("r", 6);
+    const p = o.points[meilleur];
+    montrerTip(e, p.lib, [{ valeur: fmtEnergie(p.y), nom: o.nomY }, { valeur: nf(p.x, 2), nom: o.titreX }]);
+  });
+  r.addEventListener("pointerleave", () => { relacher(); cacherTip(); });
+  c.svg.append(r);
+}
+
+/* Barres horizontales classées : lignes = [{nom, valeur, couleur}], base = total de référence. */
+function barresClassees(lignes, base, nomBase) {
+  const max = Math.max(...lignes.map(l => Math.abs(l.valeur)), 1e-9), echelle = base && base > 0 ? Math.max(base, max) : max;
+  const g = h("div", { class: "rangs" });
+  for (const l of lignes) {
+    const part = base ? l.valeur / base : null;
+    const ligne = h("div", { class: "ligne" },
+      h("div", { class: "nom", title: l.nom }, l.nom),
+      h("div", { class: "piste" }, h("div", { class: "barre", style: "width:" + Math.max(0, Math.min(100, Math.abs(l.valeur) / echelle * 100)) + "%;background:" + l.couleur })),
+      h("div", { class: "chiffre" }, fmtEnergie(l.valeur), part != null ? h("small", null, fmtPct(part)) : null));
+    ligne.addEventListener("pointermove", e => montrerTip(e, l.nom, [{ valeur: fmtEnergie(l.valeur), nom: "consommation" }].concat(part != null ? [{ valeur: fmtPct(part), nom: nomBase }] : [])));
+    ligne.addEventListener("pointerleave", cacherTip);
+    g.append(ligne);
+  }
+  return g;
+}
+/* Barre segmentée haute : parts = [{nom, valeur, couleur, sombre}]. */
+function barreSegmentee(parts) {
+  const total = somme(parts.map(p => p.valeur)), b = h("div", { class: "segbarre" });
+  for (const p of parts) {
+    if (!(p.valeur > 0)) continue;
+    const part = p.valeur / total;
+    const d = h("div", { class: p.sombre ? "sombre" : null, style: "flex:" + p.valeur + " 1 0;background:" + p.couleur }, part >= 0.09 ? fmtPct(part) : "");
+    d.addEventListener("pointermove", e => montrerTip(e, p.nom, [{ valeur: fmtEnergie(p.valeur), nom: "consommation" }, { valeur: fmtPct(part), nom: "du total" }]));
+    d.addEventListener("pointerleave", cacherTip);
+    b.append(d);
+  }
+  return b;
+}
+const legende = items => h("div", { class: "legende" }, items.map(i => h("span", null, h("span", { class: i.type === "bloc" ? "cle-bloc" : i.type === "bande" ? "cle-bande" : "cle-ligne", style: "background:" + i.couleur }), i.nom)));
+function tableau(entetes, lignes) {
+  return h("div", { class: "table-defile" }, h("table", null,
+    h("thead", null, h("tr", null, entetes.map(e => h("th", null, e)))),
+    h("tbody", null, lignes.map(l => h("tr", null, l.map(c => h("td", null, c)))))));
+}
+
+/* ============================================================================
+   5. Pages
+   ============================================================================ */
+let aDessiner = [];
+function carte(o) {
+  const enTable = etat.tables.has(o.id), corps = h("div");
+  if (enTable && o.table) { const t = o.table(); corps.append(tableau(t.entetes, t.lignes)); }
+  else {
+    if (o.legende) corps.append(legende(o.legende));
+    if (o.contenu) corps.append(o.contenu);
+    if (o.dessiner) { const zone = h("div", { class: "zone" }); corps.append(zone); aDessiner.push(() => o.dessiner(zone)); }
+  }
+  if (o.note) corps.append(h("div", { class: "note" + (o.attention ? " attention" : "") }, o.note));
+  return h("section", { class: "carte" + (o.demi ? " demi" : "") },
+    h("div", { class: "carte-tete" },
+      h("h2", null, o.titre, o.sous ? h("span", { class: "sous" }, o.sous) : null),
+      o.table ? h("button", { class: "lien", onclick: () => { enTable ? etat.tables.delete(o.id) : etat.tables.add(o.id); rendre(); } }, enTable ? "Voir le graphique" : "Voir le tableau") : null),
+    corps);
+}
+const tuile = (lib, val, det, hero) => h("div", { class: "tuile" + (hero ? " hero" : "") }, h("div", { class: "lib" }, lib), h("div", { class: "val" }, val), det ? h("div", { class: "det" }, det) : null);
+const filtre = (lib, controle) => h("label", { class: "filtre" }, h("span", null, lib), controle);
+function segments(options, courant, choisir) {
+  return h("div", { class: "segments", role: "group" }, options.map(o => h("button", { type: "button", "aria-pressed": String(o.v === courant), onclick: () => choisir(o.v) }, o.t)));
+}
+function liste(options, courant, choisir) {
+  const sel = h("select", { onchange: e => choisir(e.target.value) });
+  const ajouter = (parent, o) => parent.append(h("option", { value: o.v, selected: o.v === courant }, o.t));
+  for (const o of options) {
+    if (o.groupe) { const g = h("optgroup", { label: o.groupe }); o.options.forEach(x => ajouter(g, x)); sel.append(g); }
+    else ajouter(sel, o);
+  }
+  return sel;
+}
+const maj = (cle, v) => { etat[cle] = v; rendre(); };
+
+function filtresCommuns(avecGranularite) {
+  const m = etat.modele, ans = [];
+  for (let a = new Date(m.debut).getUTCFullYear(); a <= new Date(m.fin).getUTCFullYear(); a++) ans.push(a);
+  const bornes = a => [Math.max(m.debut, Date.UTC(a, 0, 1)), Math.min(m.fin, Date.UTC(a, 11, 31))];
+  const courant = etat.de === m.debut && etat.a === m.fin ? "*" : (ans.find(a => { const b = bornes(a); return b[0] === etat.de && b[1] === etat.a; }) || null);
+  const lire = (e, cle) => { const [y, mo, d] = e.target.value.split("-").map(Number); if (!y) return; const t = Date.UTC(y, mo - 1, d); etat[cle] = Math.max(m.debut, Math.min(m.fin, t)); if (etat.de > etat.a) { if (cle === "de") etat.a = etat.de; else etat.de = etat.a; } rendre(); };
+  const out = [
+    filtre("Période", segments([{ v: "*", t: "Tout" }].concat(ans.map(a => ({ v: a, t: String(a) }))), courant, v => { if (v === "*") { etat.de = m.debut; etat.a = m.fin; } else { [etat.de, etat.a] = bornes(v); } rendre(); })),
+    filtre("Du / au", h("span", { class: "dates" },
+      h("input", { type: "date", value: isoJour(etat.de), min: isoJour(m.debut), max: isoJour(m.fin), onchange: e => lire(e, "de") }), "→",
+      h("input", { type: "date", value: isoJour(etat.a), min: isoJour(m.debut), max: isoJour(m.fin), onchange: e => lire(e, "a") })))
+  ];
+  if (avecGranularite) {
+    const options = [{ v: "day", t: "Jour" }, { v: "week", t: "Semaine" }, { v: "month", t: "Mois" }, { v: "year", t: "Année" }].filter(o => RANG[o.v] >= RANG[m.pasFin]);
+    if (!options.some(o => o.v === etat.gran)) etat.gran = options[0].v;
+    out.push(filtre("Affichage par", segments(options, etat.gran, v => maj("gran", v))));
+  }
+  return out;
+}
+
+/* ---- Pages SITE et UES ----------------------------------------------------- */
+function pageNiveau(groupe) {
+  const m = etat.modele, cle = groupe === "site" ? "nomSite" : "nomUES";
+  const dispo = m.series.filter(x => x.groupe === groupe);
+  if (!dispo.length) return [h("div", { class: "vide" }, groupe === "site" ? "Aucune consommation de niveau « Site » dans le WIKI." : "Aucune consommation de niveau UES dans le WIKI.")];
+  const sr = dispo.find(x => x.nom === etat[cle]) || dispo[0];
+  const filtres = h("div", { class: "filtres" },
+    filtre(groupe === "site" ? "Consommation du site" : "Usage (UES)", liste(dispo.map(x => ({ v: x.nom, t: x.nom })), sr.nom, v => maj(cle, v))),
+    filtresCommuns(true),
+    filtre("Comparer à", segments([{ v: "ref", t: "Référence" }, { v: "an1", t: "Année précédente" }], etat.comparer, v => maj("comparer", v))),
+    filtre("Écart en", segments([{ v: "pct", t: "%" }, { v: "wh", t: "Énergie" }], etat.unite, v => maj("unite", v))));
+
+  const versRef = etat.comparer === "ref", brutCmp = versRef ? sr.ref : sr.an1, nomCmp = versRef ? "Référence (modèle)" : "Année précédente";
+  const S = seaux(etat.gran);
+  const comparable = sr.conso.map((v, i) => brutCmp[i] != null ? v : null);
+  const R = rogner(S, agreger(sr.conso, S), agreger(brutCmp, S), agreger(comparable, S));
+  const [reel, cmp, reelC] = R.tableaux, lib = R.etiquettes;
+  const ecartWh = cmp.map((v, i) => v != null && reelC[i] != null ? reelC[i] - v : null);
+  const ecartPct = cmp.map((v, i) => ecartWh[i] != null && v ? ecartWh[i] / v : null);
+
+  // tunnel d'erreur : l'erreur retenue est celle du pas le plus grossier entre les données et l'affichage
+  const rang = Math.max(RANG[sr.pas], RANG[etat.gran]), erreur = sr.err[rang], nomErr = Object.keys(RANG)[rang];
+  const bande = versRef && erreur > 0 ? { bas: cmp.map(v => v == null ? null : v * (1 - erreur)), haut: cmp.map(v => v == null ? null : v * (1 + erreur)), nom: "tunnel ± " + fmtPct(erreur), couleur: "var(--contexte)" } : null;
+  let hors = 0, compares = 0;
+  if (bande) reel.forEach((v, i) => { if (v != null && cmp[i] != null) { compares++; if (v > bande.haut[i] || v < bande.bas[i]) hors++; } });
+
+  const tReel = totalPeriode(sr.conso), tCmp = totalPeriode(brutCmp), tReelC = totalPeriode(comparable);
+  const ecart = tCmp != null && tReelC != null ? tReelC - tCmp : null, pct = ecart != null && tCmp ? ecart / tCmp : null;
+  const sens = ecart == null ? null : ecart > 0 ? h("span", null, h("span", { class: "fleche plus" }, "▲"), "surconsommation") : ecart < 0 ? h("span", null, h("span", { class: "fleche moins" }, "▼"), "économie") : "à l'équilibre";
+  const partiel = !versRef && tReel != null && tReelC != null && Math.abs(tReel - tReelC) > 1e-6;
+  const tuiles = h("div", { class: "tuiles" },
+    tuile("Consommation réelle", fmtEnergie(tReel), sr.energie),
+    tuile(nomCmp, fmtEnergie(tCmp), versRef ? "modèle " + sr.type.toLowerCase() : null),
+    tuile("Écart", fmtEnergie(ecart, true), partiel ? h("span", null, sens, " · périodes comparables") : sens),
+    tuile("Écart relatif", fmtPct(pct, true), versRef ? "réel par rapport au modèle" : "réel par rapport à N-1"),
+    tuile("R² du modèle", sr.r2 == null ? "–" : nf(sr.r2, 3), erreur > 0 ? "erreur ± " + fmtPct(erreur) + " (" + NOM_PAS[nomErr] + ")" : "erreur non renseignée"),
+    bande ? tuile("Hors tunnel", hors + " / " + compares, "périodes hors de la marge d'erreur") : null);
+
+  if (!lib.length) return [filtres, tuiles, h("div", { class: "vide" }, "Aucune donnée sur la période choisie.")];
+  const serieCmp = { nom: nomCmp, court: versRef ? "Référence" : "N-1", valeurs: cmp, couleur: "var(--contexte)" };
+  const serieReel = { nom: "Réel", valeurs: reel, couleur: "var(--s1)" };
+  const u = unitePour([reel, cmp]);
+  const c1 = carte({
+    id: groupe + "-courbe", titre: sr.nom + " : réel et " + (versRef ? "référence" : "année précédente"),
+    sous: "par " + NOM_PAS[etat.gran] + (bande ? " · tunnel = erreur du modèle ± " + fmtPct(erreur) + " (pas " + NOM_PAS[nomErr] + ")" : ""),
+    legende: [{ nom: "Réel", couleur: "var(--s1)" }, { nom: nomCmp, couleur: "var(--contexte)" }].concat(bande ? [{ nom: "Tunnel d'erreur", couleur: "var(--contexte)", type: "bande" }] : []),
+    dessiner: z => graphCourbes(z, { etiquettes: lib, series: [serieReel, serieCmp], bande, titre: sr.nom,
+      complement: i => ecartWh[i] == null ? [] : [{ valeur: fmtEnergie(ecartWh[i], true) + " (" + fmtPct(ecartPct[i], true) + ")", nom: "écart" }] }),
+    table: () => ({ entetes: ["Période", "Réel (" + u.nom + ")", nomCmp + " (" + u.nom + ")", "Écart (" + u.nom + ")", "Écart (%)"].concat(bande ? ["Tunnel bas", "Tunnel haut"] : []),
+      lignes: lib.map((e, i) => [e, reel[i] == null ? "" : nf(reel[i] / u.div, 2), cmp[i] == null ? "" : nf(cmp[i] / u.div, 2), ecartWh[i] == null ? "" : nf(ecartWh[i] / u.div, 2), ecartPct[i] == null ? "" : nf(ecartPct[i] * 100, 1)]
+        .concat(bande ? [bande.bas[i] == null ? "" : nf(bande.bas[i] / u.div, 2), bande.haut[i] == null ? "" : nf(bande.haut[i] / u.div, 2)] : [])) })
+  });
+  const enPct = etat.unite === "pct", ue = unitePour([ecartWh]);
+  const c2 = carte({
+    id: groupe + "-ecart", titre: "Écart entre le réel et " + (versRef ? "la référence" : "l'année précédente"),
+    sous: "par " + NOM_PAS[etat.gran] + " · " + (enPct ? "en % de la valeur de comparaison" : "en énergie"),
+    legende: [{ nom: "Surconsommation (réel au-dessus)", couleur: "var(--plus)", type: "bloc" }, { nom: "Économie (réel en dessous)", couleur: "var(--moins)", type: "bloc" }],
+    dessiner: z => graphEcarts(z, { etiquettes: lib, valeurs: enPct ? ecartPct.map(v => v == null ? null : v * 100) : ecartWh, titre: "Écarts",
+      fmtY: enPct ? v => nf(v, 1) : v => nf(v / ue.div, 2), titreY: enPct ? "%" : ue.nom,
+      detail: i => ecartWh[i] == null ? [{ valeur: "–", nom: "pas de comparaison" }] : [
+        { couleur: ecartWh[i] >= 0 ? "var(--plus)" : "var(--moins)", bloc: true, valeur: fmtPct(ecartPct[i], true), nom: ecartWh[i] >= 0 ? "surconsommation" : "économie" },
+        { valeur: fmtEnergie(ecartWh[i], true), nom: "écart" }, { valeur: fmtEnergie(reelC[i]), nom: "réel" }, { valeur: fmtEnergie(cmp[i]), nom: nomCmp }] }),
+    table: () => ({ entetes: ["Période", "Écart (" + ue.nom + ")", "Écart (%)"], lignes: lib.map((e, i) => [e, ecartWh[i] == null ? "" : nf(ecartWh[i] / ue.div, 2), ecartPct[i] == null ? "" : nf(ecartPct[i] * 100, 1)]) })
+  });
+  return [filtres, tuiles, h("div", { class: "grille" }, c1, c2)];
+}
+
+/* ---- Page FACTEURS INFLUENTS ----------------------------------------------- */
+function pageFacteurs() {
+  const m = etat.modele;
+  if (!m.facteurs.length) return [h("div", { class: "vide" }, "Aucun facteur influent dans la feuille FACTEURS INF.")];
+  const sr = m.series.find(x => x.nom === etat.factConso) || m.series[0];
+  const fa = m.facteurs.find(x => x.nom === etat.facteur) || m.facteurs[0];
+  const groupes = [["site", "Site"], ["ues", "UES"]].map(([g, t]) => ({ groupe: t, options: m.series.filter(x => x.groupe === g).map(x => ({ v: x.nom, t: x.nom })) })).filter(g => g.options.length);
+  const filtres = h("div", { class: "filtres" },
+    filtre("Consommation", liste(groupes, sr.nom, v => maj("factConso", v))),
+    filtre("Facteur influent", liste(m.facteurs.map(x => ({ v: x.nom, t: x.nom })), fa.nom, v => maj("facteur", v))),
+    filtresCommuns(true));
+
+  // corrélation calculée date par date, sur les dates où les deux valeurs existent
+  const pts = [];
+  m.dates.forEach((t, i) => { if (t >= etat.de && t <= etat.a && sr.conso[i] != null && fa.valeurs[i] != null) pts.push({ x: fa.valeurs[i], y: sr.conso[i], lib: fmtDate(t) }); });
+  let r = null, droite = null;
+  if (pts.length >= 3) {
+    const n = pts.length, mx = somme(pts.map(p => p.x)) / n, my = somme(pts.map(p => p.y)) / n;
+    let sxy = 0, sxx = 0, syy = 0;
+    for (const p of pts) { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) ** 2; syy += (p.y - my) ** 2; }
+    if (sxx > 0 && syy > 0) { r = sxy / Math.sqrt(sxx * syy); droite = { b: sxy / sxx, a: my - sxy / sxx * mx }; }
+  }
+  const force = r == null ? null : Math.abs(r) >= 0.7 ? "liaison forte" : Math.abs(r) >= 0.4 ? "liaison modérée" : "liaison faible";
+  const tuiles = h("div", { class: "tuiles" },
+    tuile("Coefficient de corrélation", r == null ? "–" : nf(r, 3), force ? force + (r < 0 ? ", négative" : ", positive") : "pas assez de points"),
+    tuile("R² (un seul facteur)", r == null ? "–" : nf(r * r, 3), "part de la variation expliquée"),
+    tuile("Points comparés", String(pts.length), "dates avec consommation et facteur"),
+    tuile("R² du modèle complet", sr.r2 == null ? "–" : nf(sr.r2, 3), "tous facteurs, d'après le WIKI"));
+
+  const S = seaux(etat.gran);
+  const R = rogner(S, agreger(sr.conso, S), agreger(fa.valeurs.map((v, i) => sr.conso[i] != null ? v : null), S));
+  const [conso, fact] = R.tableaux, lib = R.etiquettes;
+  if (!lib.length) return [filtres, tuiles, h("div", { class: "vide" }, "Aucune donnée sur la période choisie.")];
+  const u = unitePour([conso]);
+  return [filtres, tuiles, h("div", { class: "grille" },
+    carte({ id: "fact-conso", demi: true, titre: sr.nom, sous: "consommation réelle par " + NOM_PAS[etat.gran],
+      dessiner: z => graphCourbes(z, { etiquettes: lib, series: [{ nom: "Consommation", valeurs: conso, couleur: "var(--s1)" }], hauteur: 230, titre: sr.nom }),
+      table: () => ({ entetes: ["Période", "Consommation (" + u.nom + ")", fa.nom], lignes: lib.map((e, i) => [e, conso[i] == null ? "" : nf(conso[i] / u.div, 2), fact[i] == null ? "" : nf(fact[i], 2)]) }) }),
+    carte({ id: "fact-facteur", demi: true, titre: fa.nom, sous: "somme par " + NOM_PAS[etat.gran] + ", sur les mêmes dates",
+      dessiner: z => graphCourbes(z, { etiquettes: lib, series: [{ nom: fa.nom, court: "Facteur", valeurs: fact, couleur: "var(--s2)" }], hauteur: 230, titre: fa.nom, titreY: " ", fmtY: v => nf(v, 2), fmtValeur: v => nf(v, 2) }),
+      table: () => ({ entetes: ["Période", fa.nom], lignes: lib.map((e, i) => [e, fact[i] == null ? "" : nf(fact[i], 2)]) }) }),
+    carte({ id: "fact-nuage", titre: "Consommation en fonction du facteur", sous: "un point par date · la droite est l'ajustement linéaire sur ce seul facteur",
+      dessiner: z => graphNuage(z, { points: pts, droite, titreX: fa.nom, nomY: sr.nom, titre: "Nuage de points" }),
+      table: () => ({ entetes: ["Date", fa.nom, "Consommation (Wh)"], lignes: pts.map(p => [p.lib, nf(p.x, 2), nf(p.y, 0)]) }) }))];
+}
+
+/* ---- Page GRAPHIQUES ------------------------------------------------------- */
+function pageGraphiques() {
+  const m = etat.modele;
+  const filtres = h("div", { class: "filtres" }, filtresCommuns(true),
+    filtre("Énergie", segments([{ v: "*", t: "Toutes" }].concat(m.energies.map(e => ({ v: e, t: e }))), etat.energie, v => maj("energie", v))));
+  const garde = x => etat.energie === "*" || x.energie === etat.energie;
+  const site = m.series.filter(x => x.groupe === "site" && garde(x)), ues = m.series.filter(x => x.groupe === "ues" && garde(x));
+  const parEnergie = liste_ => m.energies.map(e => ({ nom: e, couleur: couleurEnergie(e), sombre: couleurEnergie(e) === "var(--s4)", valeur: somme(liste_.filter(x => x.energie === e).map(x => totalPeriode(x.conso) || 0)) })).filter(p => p.valeur > 0);
+  const cartes = [];
+
+  const S = seaux(etat.gran);
+  const piles = m.energies.map(e => ({ nom: e, couleur: couleurEnergie(e), valeurs: agreger(site.filter(x => x.energie === e).reduce((acc, x) => acc.map((v, i) => x.conso[i] != null ? (v || 0) + x.conso[i] : v), new Array(m.dates.length).fill(null)), S) })).filter(p => p.valeurs.some(v => v != null));
+  if (piles.length) {
+    const R = rogner(S, ...piles.map(p => p.valeurs));
+    piles.forEach((p, k) => { p.valeurs = R.tableaux[k]; });
+    const u = unitePour(piles.map(p => p.valeurs));
+    cartes.push(carte({ id: "g-periode", titre: "Consommation du site par " + NOM_PAS[etat.gran], sous: "compteurs de niveau Site uniquement, par type d'énergie",
+      legende: piles.length > 1 ? piles.map(p => ({ nom: p.nom, couleur: p.couleur, type: "bloc" })) : null,
+      dessiner: z => graphEmpile(z, { etiquettes: R.etiquettes, piles, titre: "Consommation du site" }),
+      table: () => ({ entetes: ["Période"].concat(piles.map(p => p.nom + " (" + u.nom + ")")), lignes: R.etiquettes.map((e, i) => [e].concat(piles.map(p => p.valeurs[i] == null ? "" : nf(p.valeurs[i] / u.div, 2)))) }) }));
+  }
+  const usages = ues.map(x => ({ nom: x.nom + (etat.energie === "*" && m.energies.length > 1 ? " (" + x.energie + ")" : ""), valeur: totalPeriode(x.conso) || 0, couleur: "var(--s1)" })).filter(x => x.valeur > 0).sort((a, b) => b.valeur - a.valeur);
+  const totalUES = somme(usages.map(x => x.valeur));
+  if (usages.length) cartes.push(carte({ id: "g-usages", titre: "Répartition des consommations par usage", sous: "UES uniquement · part dans le total des UES (" + fmtEnergie(totalUES) + ")",
+    contenu: barresClassees(usages, totalUES, "du total des UES"),
+    table: () => ({ entetes: ["Usage", "Consommation (Wh)", "Part des UES (%)"], lignes: usages.map(x => [x.nom, nf(x.valeur, 0), nf(x.valeur / totalUES * 100, 1)]) }) }));
+  for (const [id, titre, sous, lst] of [["g-site", "Site : répartition par type d'énergie", "compteurs de niveau Site", site], ["g-ues", "UES : répartition par type d'énergie", "somme des usages suivis", ues]]) {
+    const parts = parEnergie(lst);
+    if (!parts.length) continue;
+    const total = somme(parts.map(p => p.valeur));
+    cartes.push(carte({ id, demi: true, titre, sous: sous + " · total " + fmtEnergie(total),
+      contenu: h("div", null, barreSegmentee(parts), legende(parts.map(p => ({ nom: p.nom + " : " + fmtEnergie(p.valeur), couleur: p.couleur, type: "bloc" })))),
+      table: () => ({ entetes: ["Énergie", "Consommation (Wh)", "Part (%)"], lignes: parts.map(p => [p.nom, nf(p.valeur, 0), nf(p.valeur / total * 100, 1)]) }) }));
+  }
+  if (!cartes.length) cartes.push(h("div", { class: "vide carte" }, "Aucune donnée sur la période choisie."));
+  return [filtres, h("div", { class: "grille" }, cartes)];
+}
+
+/* ---- Page ARBORESCENCE ----------------------------------------------------- */
+function pageArborescence() {
+  const m = etat.modele, filtres = h("div", { class: "filtres" }, filtresCommuns(false));
+  const tot = x => totalPeriode(x.conso) || 0;
+  const totalSite = somme(m.series.filter(x => x.groupe === "site").map(tot));
+  const cartes = [];
+  for (const e of m.energies) {
+    const site = m.series.filter(x => x.energie === e && x.groupe === "site"), ues = m.series.filter(x => x.energie === e && x.groupe === "ues");
+    const tSite = somme(site.map(tot)), tUES = somme(ues.map(tot)), delta = tSite - tUES, aSite = site.length > 0 && tSite > 0;
+    const lignes = ues.map(x => ({ nom: x.nom, valeur: tot(x), couleur: couleurEnergie(e) })).sort((a, b) => b.valeur - a.valeur);
+    if (aSite && delta > 0) lignes.push({ nom: "Non suivi (site − UES)", valeur: delta, couleur: "var(--neutre)" });
+    const note = !aSite ? "Pas de compteur de niveau Site pour cette énergie : les parts ne peuvent pas être calculées."
+      : delta < 0 ? "Les UES dépassent le compteur site de " + fmtEnergie(-delta) + " : périmètres qui se recouvrent, ou périodes de mesure différentes." : null;
+    cartes.push(carte({ id: "arbo-" + e, demi: m.energies.length > 1, titre: e, sous: aSite ? "du compteur site vers les usages · part dans la consommation du site" : "usages suivis",
+      contenu: h("div", null,
+        h("div", { class: "tuiles" },
+          tuile("Site", aSite ? fmtEnergie(tSite) : "–", site.map(x => x.nom).join(", ") || null),
+          tuile("Suivi par les UES", fmtEnergie(tUES), aSite ? fmtPct(tUES / tSite) + " du site" : ues.length + " usage(s)"),
+          aSite ? tuile("Non suivi", fmtEnergie(delta), fmtPct(delta / tSite) + " du site") : null),
+        lignes.length ? barresClassees(lignes, aSite ? tSite : null, "du site") : h("div", { class: "vide" }, "Aucun usage suivi pour cette énergie.")),
+      note, attention: !!note,
+      table: () => ({ entetes: ["Poste", "Consommation (Wh)", "Part du site (%)"],
+        lignes: [["Site", nf(tSite, 0), aSite ? "100" : ""]].concat(lignes.map(l => [l.nom, nf(l.valeur, 0), aSite ? nf(l.valeur / tSite * 100, 1) : ""])) }) }));
+  }
+  return [filtres, h("div", { class: "tuiles" }, tuile("Consommation totale du site, toutes énergies", fmtEnergie(totalSite), "du " + fmtDate(etat.de) + " au " + fmtDate(etat.a), true)), h("div", { class: "grille" }, cartes)];
+}
+
+/* ============================================================================
+   6. Rendu général, chargement du fichier, copie figée
+   ============================================================================ */
+const ONGLETS = [["site", "Site"], ["ues", "UES"], ["facteurs", "Facteurs influents"], ["graphiques", "Graphiques"], ["arbo", "Arborescence"]];
+const app = document.getElementById("app");
+const selecteur = h("input", { type: "file", accept: ".xlsx,.xlsm", hidden: true, onchange: e => { if (e.target.files[0]) ouvrir(e.target.files[0]); e.target.value = ""; } });
+document.body.append(selecteur);
+
+function rendre() {
+  cacherTip(); aDessiner = [];
+  if (!etat.modele) { app.replaceChildren(accueil()); return; }
+  const m = etat.modele;
+  const page = etat.onglet === "site" ? pageNiveau("site") : etat.onglet === "ues" ? pageNiveau("ues") : etat.onglet === "facteurs" ? pageFacteurs() : etat.onglet === "graphiques" ? pageGraphiques() : pageArborescence();
+  app.replaceChildren(...[
+    h("header", { class: "entete" },
+      h("h1", null, "Revue énergétique"),
+      h("span", { class: "fichier" }, etat.fichier),
+      etat.figee ? h("span", { class: "badge" }, "copie figée du " + etat.figee) : null,
+      h("span", { class: "espace" }),
+      LIENS.map(l => h("a", { class: "btn", href: l.url, target: "_blank", rel: "noopener" }, l.texte)),
+      h("button", { class: "btn", onclick: copieFigee, title: "Enregistre une page autonome contenant ces données, à transmettre sans l'Excel" }, "Enregistrer une copie figée"),
+      h("button", { class: "btn principal", onclick: () => selecteur.click() }, "Changer de fichier")),
+    m.alertes.length ? h("details", { class: "alertes" }, h("summary", null, m.alertes.length + " point(s) à vérifier dans le classeur"), h("ul", null, m.alertes.map(a => h("li", null, a)))) : null,
+    h("nav", { class: "onglets", role: "tablist" }, ONGLETS.map(([v, t]) => h("button", { role: "tab", "aria-selected": String(etat.onglet === v), onclick: () => { try { history.replaceState(null, "", "#onglet=" + v); } catch (e) {} maj("onglet", v); } }, t))),
+    ...page].filter(Boolean));
+  for (const f of aDessiner) f();
+}
+
+function accueil() {
+  const zone = h("div", { class: "accueil" },
+    h("h1", null, "Revue énergétique"),
+    h("p", null, "Déposez ici le classeur Excel de la revue (SER PBI), ou choisissez-le."),
+    h("button", { class: "btn principal", onclick: () => selecteur.click() }, "Choisir le classeur Excel"),
+    etat.erreur ? h("div", { class: "erreur" }, etat.erreur) : null,
+    h("div", { class: "aide" },
+      h("p", null, h("b", null, "Ce que lit la page : "), "les feuilles CONSO, FACTEURS INF, EQUATION, EQUATION 2 et WIKI. Le calcul du modèle se fait ici ; les feuilles TEMPLATE et la macro ne sont plus nécessaires."),
+      h("p", null, h("b", null, "Confidentialité : "), "le fichier est lu par votre navigateur et n'est envoyé nulle part.")));
+  return zone;
+}
+
+async function ouvrir(fichier) {
+  try {
+    const { grilles, d1904 } = await lireClasseur(await fichier.arrayBuffer());
+    charger(grilles, d1904, fichier.name, null);
+  } catch (e) {
+    console.error(e);
+    etat.erreur = e && e.message ? e.message : String(e);
+    if (!etat.modele) rendre(); else alert(etat.erreur);
+  }
+}
+addEventListener("dragover", e => { e.preventDefault(); const a = document.querySelector(".accueil"); if (a) a.classList.add("survol"); });
+addEventListener("dragleave", () => { const a = document.querySelector(".accueil"); if (a) a.classList.remove("survol"); });
+addEventListener("drop", e => { e.preventDefault(); const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) ouvrir(f); });
+
+/* Copie figée : la même page, avec les données du classeur incluses. */
+function copieFigee() {
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelector("#app").replaceChildren();
+  clone.querySelector("#tip").replaceChildren();
+  clone.querySelectorAll("input[type=file]").forEach(n => n.remove());
+  const donnees = { fichier: etat.fichier, date: new Date().toLocaleDateString("fr-FR"), d1904: d1904Charge, grilles: grillesChargees };
+  clone.querySelector("#donnees-figees").textContent = JSON.stringify(donnees).replace(/</g, "\\u003c");
+  const blob = new Blob(["<!doctype html>\n" + clone.outerHTML], { type: "text/html" });
+  const a = h("a", { href: URL.createObjectURL(blob), download: "Revue énergétique - " + etat.fichier.replace(/\.[^.]+$/, "") + " - " + isoJour(Date.now()) + ".html" });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* Redessine quand la largeur change. */
+let largeur = innerWidth, minuterie = null;
+addEventListener("resize", () => { if (innerWidth === largeur) return; largeur = innerWidth; clearTimeout(minuterie); minuterie = setTimeout(() => { if (etat.modele) rendre(); }, 120); });
+
+/* Démarrage : données incluses (copie figée), fichier indiqué dans l'adresse, ou écran d'accueil. */
+(async function demarrer() {
+  const incluses = document.getElementById("donnees-figees").textContent.trim();
+  if (incluses) {
+    try { const d = JSON.parse(incluses); charger(d.grilles, d.d1904, d.fichier, d.date); return; }
+    catch (e) { console.error(e); etat.erreur = "Les données incluses dans cette copie sont illisibles."; }
+  }
+  const demande = new URLSearchParams(location.search).get("fichier");
+  if (demande && location.protocol.startsWith("http")) {
+    try {
+      const rep = await fetch(demande);
+      if (!rep.ok) throw new Error("Fichier introuvable : " + demande);
+      const { grilles, d1904 } = await lireClasseur(await rep.arrayBuffer());
+      charger(grilles, d1904, decodeURIComponent(demande.split("/").pop()), null);
+      return;
+    } catch (e) { console.error(e); etat.erreur = e.message; }
+  }
+  rendre();
+})();
+</script>
+</body>
+</html>
