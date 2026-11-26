@@ -1,0 +1,64 @@
+/* Veille : file d'attente, série d'instructions et point de situation. Mêmes variables et mêmes filets que le reste de la feuille. */
+.vei-gardes { margin: 12px 0 0; padding-left: 18px; font-size: 13px; color: var(--encre2); max-width: 110ch; }
+.vei-gardes li + li { margin-top: 4px; }
+.vei-gardes .lien { white-space: normal; text-align: left; }
+.vei-bilan { margin: 0 0 10px; font-size: 13.5px; max-width: 110ch; }
+.vei-motif-bloc { margin: -8px 0 12px; }
+.vei-journal { margin: 4px 0 8px; }
+.vei-journal summary { cursor: pointer; font-size: 13px; color: var(--encre2); padding: 2px 0 6px; }
+.vei-coches { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 0 0 10px; font-size: 13px; }
+.vei-coche { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.vei-coche input { margin: 0; accent-color: var(--encre); }
+.vei-regle { margin: 0 0 12px; padding: 8px 12px; background: var(--creux); border-left: 4px solid var(--bord); border-radius: 0 4px 4px 0; font-size: 13px; max-width: 110ch; }
+.vei-marque { display: inline-block; font-size: 11.5px; font-weight: 600; line-height: 1.5; color: var(--encre2); border: 1px solid var(--axe); border-radius: 3px; padding: 0 6px; white-space: nowrap; }
+.vei-marque.fort { color: var(--encre); border-color: var(--encre); }
+.vei-marque + .vei-marque { margin-left: 4px; }
+.vei-pied .vei-marque, .vei-tete .vei-marque { white-space: normal; }
+.vei-rang { display: inline-block; min-width: 24px; padding: 0 5px; border-radius: 3px; text-align: center; font: 700 14px/1.5 var(--f-chiffre); }
+.vei-rang.prochain { background: var(--encre); color: var(--surface); }
+.vei-detail { display: block; font-size: 12px; color: var(--encre2); }
+td .vei-detail { font-size: 11.5px; }
+.vei-traites { margin-top: 14px; }
+.vei-traites summary { cursor: pointer; font-weight: 600; font-size: 13px; padding: 2px 0 6px; }
+.vei td select { padding: 3px 6px; font-size: 12.5px; }
+.vei-saisie { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vei-motif { border: 1px solid var(--axe); background: var(--surface); border-radius: 4px; padding: 4px 8px; width: 230px; max-width: 100%; font-size: 13px; }
+/* Un épisode instruit : une ligne qui ouvre sa fiche, reliée par sa marge comme la fiche elle-même */
+.vei-ep { border: 1px solid var(--bord); border-left: 4px solid var(--encre); border-radius: 0 4px 4px 0; background: var(--creux); margin: 0 0 12px; }
+.vei-ep.vei-attente, .vei-ep.vei-non-lance, .vei-ep.vei-arrete { border-left-color: var(--axe); }
+.vei-ep.vei-cours { border-left-color: var(--signal); }
+.vei-ep.vei-echec, .vei-ep.vei-hors-format { border-left-color: var(--critique); }
+.vei-tete { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; width: 100%; border: 0; background: none; text-align: left; padding: 12px 18px 4px; cursor: pointer; }
+.vei-tete[disabled] { cursor: default; }
+.vei-tete:not([disabled]):hover .vei-titre { text-decoration: underline; text-underline-offset: 3px; }
+.vei-tete:focus-visible { outline-offset: -3px; }
+.vei-titre { font: 700 18px/1.25 var(--f-chiffre); letter-spacing: .01em; overflow-wrap: anywhere; }
+.vei-periode { font-size: 13px; font-variant-numeric: tabular-nums; }
+.vei-sous { flex: 1 1 100%; font-size: 13px; color: var(--encre2); font-variant-numeric: tabular-nums; }
+.vei-corps { padding: 0 18px 12px; }
+.vei-corps > .fiche { background: var(--surface); margin-top: 12px; }
+.vei-dl { display: grid; grid-template-columns: minmax(130px, 20%) minmax(0, 88ch); gap: 7px 18px; margin: 8px 0 12px; font-size: 13.5px; }
+.vei-dl dt { color: var(--encre2); }
+.vei-dl dd { margin: 0; overflow-wrap: anywhere; }
+.vei-dl ul { margin: 0; padding-left: 18px; }
+.vei-dl li + li { margin-top: 3px; }
+.vei-etat { margin: 4px 0 10px; font-size: 13.5px; color: var(--encre2); }
+.vei-etat.erreur { color: var(--critique); font-weight: 600; }
+.vei-pied { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.vei-libelle { font-size: 12px; color: var(--encre2); }
+.vei-export { margin-top: 4px; }
+.vei-impr { display: none; }
+@media (max-width: 700px) {
+  .vei-dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .vei-dl dd { margin-bottom: 8px; }
+  .vei-tete { padding: 10px 12px 4px; }
+  .vei-corps { padding: 0 12px 10px; }
+}
+/* Impression : le point de situation seul (constat, enjeu, épisodes instruits et leur statut) */
+@media print {
+  .vei-ecran, .vei .btn, .vei .segments, .vei select, .vei-saisie, .vei-export, .vei .fiche-pied, .vei-libelle { display: none !important; }
+  .vei-impr { display: inline; font-weight: 600; }
+  .vei-impr::before { content: "→ "; }
+  .vei-ep { background: none; break-inside: avoid; }
+  .vei-tete { padding-left: 12px; }
+}
