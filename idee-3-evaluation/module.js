@@ -561,6 +561,7 @@ function evlPeindre() {
           h("div", { class: "note" }, evlT("Coût et durée. Jetons : champ « usage » des réponses du modèle, tous tours compris. Coût estimé = jetons × tarifs que vous saisissez, lus chez votre fournisseur (la page n'en connaît aucun), sans remise, cache ni palier gratuit. Un tarif saisi vaut pour la passe affichée, si elle vient de l'agent courant, et pour les suivantes. Durée : temps écoulé dans ce navigateur, attentes comprises.",
             "Cost and time. Tokens: “usage” field of the model's responses, all turns included. Estimated cost = tokens × the prices you enter, read from your provider (the page knows none), with no discount, cache or free tier. A price you enter applies to the run shown, if it comes from the current agent, and to later runs. Time: time elapsed in this browser, waits included."))) })].filter(Boolean)))
   ].filter(Boolean));
+  if (typeof cntPlusTard === "function") cntPlusTard();   // sauvegarde (module Continuité)
 }
 function evlPage() {
   derives();
@@ -571,3 +572,34 @@ function evlPage() {
 }
 ICONES.evaluation = "M2.5 4.5l1.5 1.5L6.5 3M9 4.5h4.5M2.5 11l1.5 1.5L6.5 9.5M9 11h4.5";
 ajouterPage("Agents", "evaluation", "Évaluation", "Banc d'évaluation de l'agent", ICONES.evaluation, evlPage);
+
+/* ---- Sauvegarde (module Continuité) : réglages du banc et passes, gardés pour ce classeur.
+   Ni les résultats d'outils (déjà retirés une fois la réponse notée), ni les questions : elles sont retirées du classeur avec la graine. ---- */
+function evlAGarder() {
+  if (!evl.modele || evl.modele !== etat.modele) return null;
+  const passes = evl.passes.map(P => ({ n: P.n, cle: P.cle, agent: P.agent, demo: P.demo, date: P.date.toISOString(), graine: P.graine, tarifIn: P.tarifIn, tarifOut: P.tarifOut, devise: P.devise,
+    fini: true, arrete: P.fini ? P.arrete || null : "demande",   // une passe en cours au moment de l'écriture revient comme arrêtée : on peut la reprendre
+    ids: P.questions.map(q => q.id), lignes: P.questions.map((q, k) => { const l = P.lignes[k]; if (!l) return null; const c = Object.assign({}, l); delete c.q; delete c.sources; return c; }) }));
+  const d = { graine: evl.graine, plafond: evl.plafond, tarifIn: evl.tarifIn, tarifOut: evl.tarifOut, devise: evl.devise, numero: evl.numero, passes };
+  return !passes.length && d.graine === 1 && !d.plafond && d.tarifIn == null && d.tarifOut == null && d.devise === "$" ? null : JSON.parse(JSON.stringify(d));
+}
+function evlReprendre(d) {
+  const nb = x => x == null || typeof x === "number" && isFinite(x) && x >= 0, ent = x => Number.isInteger(x) && x >= 0;
+  if (!d || !ent(d.graine) || !ent(d.plafond) || !nb(d.tarifIn) || !nb(d.tarifOut) || typeof d.devise !== "string" || d.devise.length > 8 || !ent(d.numero) || !Array.isArray(d.passes) || d.passes.length > evl.maxPasses) return false;
+  const graine = evl.graine, passes = [];
+  try {
+    for (const p of d.passes) {
+      if (!p || !ent(p.n) || !ent(p.graine) || typeof p.cle !== "string" || typeof p.demo !== "boolean" || isNaN(Date.parse(p.date)) || !Array.isArray(p.ids) || !Array.isArray(p.lignes) || p.ids.length !== p.lignes.length) return false;
+      evl.graine = p.graine;
+      const jeu = evlJeu(), questions = p.ids.map(id => jeu.find(q => q.id === id));
+      if (questions.some(q => !q)) return false;   // le jeu tiré avec cette graine n'est plus le même : la passe ne se rattache plus
+      const lignes = p.lignes.map((l, k) => l && typeof l === "object" ? Object.assign({}, l, { q: questions[k] }) : undefined);
+      if (lignes.some(l => l && l.note != null && !evlNOTES[l.note])) return false;
+      passes.push({ n: p.n, cle: p.cle, agent: typeof p.agent === "string" ? p.agent : null, demo: p.demo, date: new Date(p.date), graine: p.graine, questions, lignes,
+        tarifIn: nb(p.tarifIn) ? p.tarifIn : null, tarifOut: nb(p.tarifOut) ? p.tarifOut : null, devise: typeof p.devise === "string" ? p.devise : "$", fini: true, arrete: ["demande", "erreurs"].includes(p.arrete) ? p.arrete : null });
+    }
+  } finally { evl.graine = graine; }
+  Object.assign(evl, { graine: d.graine, plafond: d.plafond, tarifIn: d.tarifIn, tarifOut: d.tarifOut, devise: d.devise, numero: Math.max(d.numero, ...passes.map(P => P.n), 0), passes, vue: null });
+  return true;
+}
+function evlOublier() { if (etat.modele) { evlZero(etat.modele); Object.assign(evl, { graine: 1, plafond: 0, tarifIn: null, tarifOut: null, devise: "$" }); } }

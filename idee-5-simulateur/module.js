@@ -529,3 +529,23 @@ ajouterTraductions([
   ["Traduction arrêtée.", "Translation stopped."], ["Réglages compris ", "Settings understood "], ["Aucun réglage reconnu dans cette phrase.", "No setting recognised in this sentence."], ["Laissé de côté :", "Left aside:"],
   ["Abandonner", "Discard"], ["la phrase que vous avez écrite, telle quelle ;", "the sentence you wrote, as is;"], ["Réponse du modèle illisible.", "Unreadable model response."]
 ]);
+
+/* ---- Sauvegarde (module Continuité) : scénarios et réglages de la page, gardés pour ce classeur. Pas de proposition d'IA en attente, pas d'accord. ---- */
+function simAGarder() {
+  if (!sim.modele || sim.modele !== etat.modele) return null;
+  const d = { scenarios: sim.scenarios.map(x => ({ nom: x.nom, reglages: x.reglages, prix: x.prix, fe: x.fe })), courant: sim.courant, serie: sim.serie, sens: sim.sens, phrase: sim.phrase.slice(0, 2000) };
+  const vide = d.scenarios.length === 1 && !simResume(d.scenarios[0]).length && !d.courant && d.serie == null && d.sens === "pct" && !d.phrase.trim();
+  return vide ? null : JSON.parse(JSON.stringify(d));
+}
+function simReprendre(d) {   // tout est vérifié avant d'être posé : un état illisible est refusé en bloc
+  const m = etat.modele, noms = new Set(m.facteurs.map(f => f.nom)), nb = x => typeof x === "number" && isFinite(x);
+  const reglage = r => r && ["pct", "abs", "haut", "bas"].includes(r.type) && nb(r.v) && ["tout", "hiver", "ete"].includes(r.saison);
+  const valeurs = o => o && typeof o === "object" && !Array.isArray(o) && Object.entries(o).every(([en, v]) => m.energies.includes(en) && nb(v) && v >= 0);
+  const scenario = x => x && typeof x.nom === "string" && x.nom.length <= 40 && x.reglages && typeof x.reglages === "object" && Object.entries(x.reglages).every(([k, r]) => noms.has(k) && reglage(r)) && valeurs(x.prix) && valeurs(x.fe);
+  if (!d || !Array.isArray(d.scenarios) || !d.scenarios.length || d.scenarios.length > SIM.nbMax || !d.scenarios.every(scenario)) return false;
+  if (!Number.isInteger(d.courant) || d.courant < 0 || d.courant >= d.scenarios.length || !["pct", "unite"].includes(d.sens) || typeof d.phrase !== "string") return false;
+  if (d.serie != null && !m.series.some(s => s.nom === d.serie)) return false;
+  Object.assign(sim, { scenarios: JSON.parse(JSON.stringify(d.scenarios)), courant: d.courant, serie: d.serie, sens: d.sens, phrase: d.phrase, prop: null, erreur: null });
+  return true;
+}
+function simOublier() { if (etat.modele) simInitialiser(etat.modele); }

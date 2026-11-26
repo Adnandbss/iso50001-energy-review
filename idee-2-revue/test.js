@@ -252,7 +252,8 @@ async function test() {
   for (const o of ONGLETS) { etat.onglet = o[0]; rendre(); verifier(texteDe(app).length > 200, "la page « " + o[0] + " » se rend toujours"); }
   verifier(PAGES.some(g => g.groupe === "Agents" && g.pages.some(p => p[0] === "revue")) && ICONES.revue, "la page est rangée dans le groupe « Agents », avec son icône");
   await revLancer(); verifier(!!rev.revue, "brouillon en place avant rechargement");
-  charger(grillesChargees, d1904Charge, etat.fichier, null);
+  const autre = JSON.parse(JSON.stringify(grillesChargees)); autre.CONSO[2][2] += 1;   // un autre classeur (une valeur change) : le même, rechargé, retrouverait le brouillon gardé
+  charger(autre, d1904Charge, "autre.xlsm", null);
   verifier(!rev.revue && !rev.journal.length && rev.accord === false, "un nouveau classeur remet le module à zéro");
   verifier(__reseau.length === 0, "aucun appel réseau pendant tout le test");
 }

@@ -477,6 +477,7 @@ function revPeindre() {
       actions(h("button", { class: "btn principal", onclick: () => window.print() }, revT("Imprimer ou enregistrer en PDF", "Print or save as PDF")), bCopie,
         note(E.ouverts.length ? revBrut(revAvertir(E.ouverts.length)) : revT("L'impression ne garde que le document ci-dessous.", "Printing keeps only the document below.")))) });
   revNoeud.replaceChildren(h("div", { class: "rev-ecran" }, h("div", { class: "filtres" }, filtresCommuns(false)), h("div", { class: "grille" }, e1, e2, e3, e4)), v ? revDocument(v, E) : "");
+  if (typeof cntPlusTard === "function") cntPlusTard();   // sauvegarde (module Continuité)
 }
 function revPage() {
   if (rev.modele !== etat.modele) revZero(etat.modele);
@@ -488,3 +489,40 @@ function revPage() {
 ICONES.revue = "M4 2.5h5l3 3v8H4zM9 2.5v3h3M6 10l1.5 1.5L10 8.5";
 ajouterTraductions([["Revue", "Review"], ["Revue énergétique de la période", "Energy review of the period"]]);
 ajouterPage("Agents", "revue", "Revue", "Revue énergétique de la période", ICONES.revue, revPage);
+
+/* ---- Sauvegarde (module Continuité) : le brouillon (texte, corrections, signalements levés, verdicts, validation) et le nom du relecteur.
+   Le dossier de faits n'est pas gardé : il est recalculé depuis le classeur pour la même période ; seule sa signature est gardée, pour dire s'il a changé. ---- */
+const revSignature = D => { let x = 0; const t = JSON.stringify(D.faits.map(f => [f.id, f.fait])); for (let i = 0; i < t.length; i++) x = (Math.imul(x, 31) + t.charCodeAt(i)) | 0; return (x >>> 0).toString(16); };
+function revAGarder(precedent) {
+  const v = rev.modele === etat.modele ? rev.revue : null;
+  if (!v) {   // un brouillon écarté parce qu'il était dans l'autre langue reste gardé ; il reviendra avec elle
+    if (precedent && precedent.langue && precedent.langue !== LANGUE && precedent.sections) return Object.assign({}, precedent, { relecteur: rev.relecteur.slice(0, 200) });
+    return rev.relecteur.trim() ? { relecteur: rev.relecteur.slice(0, 200) } : null;
+  }
+  const vf = v.verif && !v.verif.enCours ? v.verif : null;
+  return JSON.parse(JSON.stringify({ langue: v.langue, de: v.dossier.de, a: v.dossier.a, signature: revSignature(v.dossier), sections: v.sections.map(s => ({ id: s.id, texte: s.texte.slice(0, 20000), origine: s.origine.slice(0, 20000) })),
+    redacteur: v.redacteur, demo: v.demo, date: v.date, verif: vf, leves: [...v.leves], valide: v.valide, piege: v.piege, relecteur: rev.relecteur.slice(0, 200),
+    edition: rev.edition ? { id: rev.edition.id, texte: String(rev.edition.texte).slice(0, 20000) } : null }));
+}
+function revReprendre(d) {
+  const txt = x => typeof x === "string", m = etat.modele;
+  if (!d || typeof d !== "object" || (d.relecteur != null && !txt(d.relecteur))) return false;
+  if (!d.sections) { if (!txt(d.relecteur) || !d.relecteur.trim()) return false; rev.relecteur = d.relecteur; return true; }
+  if (d.langue !== LANGUE) return false;   // rédigé dans l'autre langue : il attend qu'on y revienne
+  if (!Array.isArray(d.sections) || d.sections.length !== REV_IDS.length || !d.sections.every((s, k) => s && s.id === REV_IDS[k] && txt(s.texte) && txt(s.origine))) return false;
+  if (typeof d.de !== "number" || typeof d.a !== "number" || d.de < m.debut || d.a > m.fin || d.de > d.a || !txt(d.redacteur) || typeof d.demo !== "boolean" || !txt(d.date) || !Array.isArray(d.leves) || !d.leves.every(txt)) return false;
+  const vf = d.verif;
+  if (vf != null && !(typeof vf === "object" && (txt(vf.erreur) || Array.isArray(vf.sections) && vf.sections.length === REV_IDS.length && vf.sections.every((s, k) => s && s.id === REV_IDS[k] && ["conforme", "à corriger"].includes(s.verdict) && txt(s.resume) && Array.isArray(s.points) && s.points.every(p => p && txt(p.constat)))))) return false;
+  if (d.valide != null && !(txt(d.valide.par) && txt(d.valide.date))) return false;
+  if (d.piege != null && !(REV_IDS.includes(d.piege.id) && ["avant", "apres", "propre", "texte"].every(k => txt(d.piege[k])))) return false;
+  if (d.edition != null && !(REV_IDS.includes(d.edition.id) && txt(d.edition.texte))) return false;
+  const de0 = etat.de, a0 = etat.a;
+  let D;
+  try { etat.de = d.de; etat.a = d.a; D = revDossier(); } finally { etat.de = de0; etat.a = a0; }
+  rev.revue = { dossier: D, langue: d.langue, sections: d.sections.map(s => ({ id: s.id, texte: s.texte, origine: s.origine })), redacteur: d.redacteur, demo: d.demo, date: d.date,
+    verif: vf || null, leves: new Set(d.leves), valide: d.valide || null, piege: d.piege || null, dossierChange: revSignature(D) !== d.signature };
+  rev.edition = d.edition || null; rev.journal = []; rev.erreur = null;
+  if (txt(d.relecteur)) rev.relecteur = d.relecteur;
+  return true;
+}
+function revOublier() { if (etat.modele) revZero(etat.modele); rev.relecteur = ""; }
