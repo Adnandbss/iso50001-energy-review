@@ -187,9 +187,9 @@ function drvStatut(l) {
 }
 /* Le travail de l'agent sur cette dérive : instruction en cours, fiche gardée, ou bouton pour la lancer. */
 function drvTravail(l) {
-  const r = l.resultat, cours = drvEnInstruction(l), ou = drvJournalA(), aMoi = ou === "instruction" && drvCle(agent.episode) === l.cle, out = [];
+  const r = l.resultat, cours = drvEnInstruction(l), ou = drvJournalA(), aMoi = (ou === "instruction" || !ou) && drvCle(agent.episode) === l.cle, journalIci = aMoi && ou === "instruction", out = [];
   const vivante = aMoi && zoneFiche.childNodes.length > 0;                // la fiche de la dernière instruction : celle de la zone d'origine, reliée au journal
-  if (aMoi) out.push(zoneProgres);
+  if (journalIci) out.push(zoneProgres);
   if (vivante) out.push(zoneFiche);
   else if (r && r.res) out.push(veiNoeudFiche(l));
   else if (r && r.etat !== "fiche") out.push(h("p", { class: "vei-etat" + (r.etat === "echec" ? " erreur" : "") }, r.etat === "cours" ? h("span", { class: "voyant actif" }) : null, " " + veiEtatTexte(r)));
@@ -197,7 +197,7 @@ function drvTravail(l) {
   else if (!drvFiche(l) && !(r && (r.etat === "cours" || r.etat === "attente")))
     out.push(h("p", { class: "drv-pied" }, h("button", { type: "button", class: "btn principal", disabled: agent.enCours, title: agent.enCours ? "Une instruction est déjà en cours" : null, onclick: () => drvInstruire(l.ep) }, "Lancer l'instruction")));
   if (aMoi && agent.erreur && drv.contexte !== "evaluation") out.push(h("div", { class: "erreur", style: "margin:0 0 10px" }, agent.erreur));
-  if (aMoi) out.push(repli("drv-journal", "Journal de l'agent", journal, h("div", { class: "note", style: "margin-top:0" }, "Chaque ligne se déplie : elle montre l'appel exact et ce qui a été transmis au modèle.")));
+  if (journalIci) out.push(repli("drv-journal", "Journal de l'agent", journal, h("div", { class: "note", style: "margin-top:0" }, "Chaque ligne se déplie : elle montre l'appel exact et ce qui a été transmis au modèle.")));
   return h("div", { class: "drv-travail" }, out);
 }
 

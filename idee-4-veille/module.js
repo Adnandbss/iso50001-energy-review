@@ -1,8 +1,9 @@
 /* ============================================================================
-   Module « Veille » (préfixe vei) : à chaque chargement d'un classeur, la page
-   compare les épisodes de derives() à ceux du chargement précédent, les classe par enjeu,
-   instruit les N premiers à la suite (boucleAgent et jugerFiche d'origine) et rend un point
-   de situation que la personne annote. L'agent lit et rédige : il ne décide de rien.
+   Module « Veille » (préfixe vei) : à chaque chargement d'un classeur, compare les
+   épisodes de derives() à ceux du chargement précédent, les classe par enjeu, instruit
+   les N premiers à la suite (boucleAgent et jugerFiche d'origine) et garde les statuts que
+   la personne pose. L'agent lit et rédige : il ne décide de rien. L'affichage est celui de
+   la page Dérives (module idee-13-derives) : veiPeindre la redessine.
    ============================================================================ */
 const VEI_CLE = "revue-energetique.vei.memoire", VEI_CLE_REGLAGES = "revue-energetique.vei.reglages";
 const VEI_REGLE = { critere: "cout", projection: true, doublons: true, nouveautes: true, enCours: true, sur: true };
