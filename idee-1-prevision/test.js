@@ -203,7 +203,9 @@ async function test() {
   let texte = texteDe(page().querySelector(".feuille"));
   for (const attendu of ["Atterrissage", "Historique court", "moins de deux années", "La preuve : test rétrospectif", "méthode naïve", "Réels dans la fourchette", "Ce que la prévision suppose", "Coût estimé", "Émissions estimées", "Fourchette à 80 %"])
     verifier(texte.includes(attendu), "la page (français) contient « " + attendu + " »");
+  REPLIS_OUVERTS.add("prev-r-preuve"); rendre();   // la preuve est repliée par défaut : son graphique se dessine à l'ouverture
   verifier(trouver(page(), n => n.tagName === "SVG" && /Prévision de/.test(n.attrs["aria-label"] || "")).length === 1 && trouver(page(), n => n.tagName === "PATH" && n.attrs["stroke-dasharray"] === "5 5").length >= 2, "deux graphiques : la prévision centrale est tracée en tirets, à part du réel");
+  REPLIS_OUVERTS.clear(); rendre();
   const KS = prevCalcul(site);
   verifier(texte.includes(fmtEnergie(prevRond(KS.att.central, (KS.att.haut - KS.att.bas) / 2))) && texte.includes(fmtPct(KS.retro.global.erreur)) && texte.includes(fmtPct(KS.retro.global.erreurNaive)), "les chiffres de tête sont ceux du calcul : atterrissage arrondi, erreur de la méthode et de la méthode naïve");
   // boutons : un horizon permis se choisit, un horizon refusé est désactivé et ne change rien
