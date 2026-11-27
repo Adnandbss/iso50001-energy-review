@@ -21,7 +21,7 @@ Chaque page commence par une phrase calculée (classe `constat`), qui reprend le
 - **Mode d'emploi** : inchangé dans sa forme ; son sommaire cliquable est vérifié par le test (un lien par section, chaque lien se clique).
 - Pages **Détection, Instruction, Veille** : non touchées (l'autre agent les fusionne).
 
-`coeur.py` : cinq groupes de remplacements courts et commentés. Site/UES : les réglages rares forment un second groupe `rares`, et la page passe ses variables à `algNiveau` ; Facteurs, Graphiques, Arborescence : la page passe ses variables à `algFacteurs`, `algGraphiques`, `algArborescence`. Aucun calcul n'est refait dans le module. Enfin la phrase de confidentialité (voir plus bas).
+`coeur.py` : cinq groupes de remplacements courts et commentés. Site/UES : les réglages rares forment un second groupe `rares`, et la page passe ses variables à `algNiveau` ; Facteurs, Graphiques, Arborescence : la page passe ses variables à `algFacteurs`, `algGraphiques`, `algArborescence`. Aucun calcul n'est refait dans le module.
 
 ## Mesures avant / après
 
@@ -52,7 +52,7 @@ Objectif tenu pour Prévision et Simulateur (moins de 1,5 écran, moins du quart
 
 - **Réglages d'IA** : les textes qui renvoyaient à la page Instruction pour le fournisseur, la clé ou l'accord renvoient aux réglages d'IA, en français et en anglais, dans le simulateur, la revue, l'évaluation, l'intégration et le mode d'emploi ; leurs liens s'appellent « Réglages d'IA » et ouvrent le panneau (`iaOuvrir`, sinon la page Instruction si le module IA est absent). Le module Veille n'est pas modifié (autre agent).
 - **Accueil** : un seul bouton principal (« Essayer avec un site fictif ») ; « Choisir un fichier de données » (Intégration) devient secondaire ; nouveau bouton secondaire « Ouvrir un projet », à côté de « Choisir le classeur Excel », qui appelle `cntChoisirProjet()` s'il existe (remplacement dans `idee-10-accueil/coeur.py`).
-- **Phrase de confidentialité** (accueil et mode d'emploi) : « …accord explicite, donné dans les réglages d'IA (un accord, fonction par fonction) ou sur la page concernée… » (une fonction décochée dans le panneau garde son avis sur sa page). Le texte français vient de `assembler.py` (`CONFID_APRES`, hors de ma liste) : il est remplacé par `idee-14-allegement/coeur.py`, avec une vérification qu'il apparaît deux fois ; la traduction anglaise est dans `idee-9-assemblage`.
+- **Phrase de confidentialité** (accueil et mode d'emploi) : « …accord explicite, donné dans les réglages d'IA (un accord, fonction par fonction) ou sur la page concernée… » (une fonction décochée dans le panneau garde son avis sur sa page). Le texte français est dans `assembler.py` (`CONFID_APRES`) ; la traduction anglaise est dans `idee-9-assemblage`.
 - **Mode d'emploi** : sections 16 « Site fictif et vue d'ensemble », 17 « Réglages d'IA », 18 « Travail gardé et fichier projet » (textes des NOTES des modules 10, 11, 12 ; la dernière mentionne aussi « Ouvrir un projet » sur l'accueil), 19 « Page Dérives : un seul parcours » (une phrase prudente, à compléter par l'autre agent), puis 20 « Partager ». La numérotation est désormais calculée dans l'ordre des sections : une section ajoutée par un autre module s'y range sans trou ni doublon.
 
 ## Tests
@@ -67,10 +67,15 @@ Tests d'autres modules mis à jour, sans rien affaiblir : `idee-1-prevision/test
 
 ## Changements demandés ailleurs
 
-1. **Capture « agent » du mode d'emploi** (`images-guide`, figure de la section Instruction) : elle montre encore le choix du rédacteur sur la page Instruction, devenu une ligne « Réglages d'IA » ; à refaire (je ne l'ai pas refaite, comme demandé). Elle deviendra de toute façon fausse avec la page Dérives.
-2. **`outillage/assembler.py`** : mettre dans `CONFID_APRES` le texte que pose aujourd'hui `idee-14-allegement/coeur.py` (« …donné dans les réglages d'IA (un accord, fonction par fonction) ou sur la page concernée… »), puis retirer le remplacement n° 5 de ce `coeur.py` ; la traduction anglaise d'`idee-9-assemblage` reste juste.
-3. **`idee-11-ia/module.js`** : `IA_LIENS` n'a plus besoin des libellés « Changer de mode (page Instruction) », « Changer sur la page Instruction », « Changer d'agent sur la page Instruction », « Changer de mode sur la page Instruction » pour le simulateur, la revue, l'évaluation et l'intégration, qui affichent maintenant directement « Réglages d'IA ». À garder tant que la Veille en a besoin.
-4. **Page Dérives (autre agent)** : la section 19 du mode d'emploi (`id: "mod-derives"`, dans `idee-9-assemblage/module.js`) n'a qu'une phrase et un bouton vers `aller("derives")` ; à compléter, et à ajuster si la page change d'identifiant. Les sections 5, 6 et 12 (Détection, Instruction, Veille) décrivent encore les pages séparées. Si la page Dérives doit suivre le même principe, `algReponse` et la classe `alg-reponse` sont réutilisables, et `idee-14-allegement/test.js` peut l'ajouter à `ALG_PAGES` (avec son relevé de contrôles d'avant).
+Les points 2 (`CONFID_APRES`), 3 (`IA_LIENS` retiré) et 4 (section « Page Dérives » du mode d'emploi, sections Détection, Instruction et Veille retirées avec leurs captures) sont appliqués (branche `finitions-textes`). Le mode d'emploi compte désormais 17 sections numérotées ; le test vérifie qu'aucune page Détection, Instruction ou Veille n'y est citée et que chaque bouton « vers » ouvre une page qui existe.
+
+Restent, hors des fichiers des finitions, des textes visibles qui citent encore une page disparue :
+
+1. `idee-1-prevision/module.js` : « prix non renseigné pour cette énergie (page Détection) » → « (page Dérives) » ; anglais « (Detection page) » → « (Drifts page) ».
+2. `idee-5-simulateur/module.js` : « champ vide : valeur de référence, celle de la page Détection » → « celle de la page Dérives » ; anglais « the one from the Detection page » → « the one from the Drifts page ».
+3. `idee-3-evaluation/module.js` : « Une instruction est en cours sur la page Instruction : attendez sa fin. » → « Une instruction est en cours sur la page Dérives : attendez sa fin. » ; « les mêmes résultats que sur la page Instruction » → « les mêmes résultats que pour l'instruction d'une dérive » (et l'anglais « on the Investigation page » → « for a drift investigation »). Le second texte s'affiche aussi dans les réglages d'IA.
+
+Les captures `derives`, `episodes`, `serie`, `agent` et `evaluation` restent dans le script `images-guide` du prototype, sans plus être appelées : à retirer ou à refaire avec la page Dérives.
 
 ## Mode d'emploi
 
@@ -84,5 +89,5 @@ Tests d'autres modules mis à jour, sans rien affaiblir : `idee-1-prevision/test
 - Simulateur : cliquer « +10 % » sur un facteur replié le fait passer au-dessus, le repli restant ouvert ; la ligne « À lire avant de conclure » apparaît avec un réglage extrême.
 - Site : la phrase et les quatre tuiles disent la même chose ; « Autres réglages » ouvre « Comparer à », et la phrase passe à « l'année précédente ».
 - Accueil : un seul bouton sombre ; « Ouvrir un projet » ouvre le choix d'un fichier `.json`.
-- Mode d'emploi : le sommaire mène à chaque section, numérotée de 1 à 20.
+- Mode d'emploi : le sommaire mène à chaque section, numérotée de 1 à 17 ; la section 5 est la page Dérives.
 - Thème sombre et 390 px : replis lisibles, pas de débordement.
