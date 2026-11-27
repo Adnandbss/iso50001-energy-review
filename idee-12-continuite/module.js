@@ -186,7 +186,9 @@ function cntBandeau() {
   const lignes = cnt.retrouve.map(r => { const P = cntPartie(r.id), nom = Lg(P.fr, P.en);
     const texte = r.autreLangue ? Lg(nom + " du " + cntJour(r.quand) + " gardé : rédigé en " + (r.autreLangue === "en" ? "anglais" : "français") + ", il reviendra avec cette langue",
       nom + " from " + cntJour(r.quand) + " kept: written in " + (r.autreLangue === "en" ? "English" : "French") + ", it will come back with that language")
-      : Lg(nom + " du " + cntJour(r.quand) + (r.projet ? " repris du projet" : " retrouvé"), nom + " from " + cntJour(r.quand) + (r.projet ? " restored from the project" : " restored"));
+      : Lg(nom + " du " + cntJour(r.quand) + (r.projet ? " repris du projet" : " retrouvé"), nom + " from " + cntJour(r.quand) + (r.projet ? " restored from the project" : " restored"))
+        + (r.id === "rev" && typeof rev !== "undefined" && rev.revue && rev.revue.dossierChange ? Lg(" ; le dossier de faits a changé depuis (prix ou facteurs d'émission modifiés ?) : les contrôles portent sur le dossier actuel",
+          "; the fact file has changed since (prices or emission factors edited?): the checks use the current file") : "");
     return h("li", null, document.createTextNode(texte), " · ", h("button", { class: "lien", onclick: () => { if (confirm(tr(cntT("Effacer ce travail ? Il ne pourra pas être retrouvé.", "Delete this work? It cannot be recovered.")))) cntEffacer(r.id); } }, "Effacer")); });
   return h("div", { class: "avis cnt-bandeau", role: "status" },
     h("div", { class: "cnt-bandeau-tete" }, h("b", null, cntT("Travail retrouvé pour ce classeur", "Work restored for this workbook")),

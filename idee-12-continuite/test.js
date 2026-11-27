@@ -75,6 +75,13 @@ async function test() {
   verifier(sim.scenarios[0].reglages[f0] && sim.scenarios[0].reglages[f0].type === "abs", "le travail fait sur l'autre classeur avant de le quitter a été écrit et revient");
   charger(JSON.parse(JSON.stringify(G0)), d0, nom0, null);
 
+  const valo0 = JSON.stringify(valoSaisie), en0 = etat.modele.energies[0];
+  cntEnregistrer(); valoSaisie[en0] = Object.assign({}, valoSaisie[en0], { prix: 999 }); cacheDerives = null;
+  rechargerPage(G0);
+  verifier(rev.revue && rev.revue.dossierChange && /le dossier de faits a changé depuis/.test(page("site")), "prix modifié depuis la rédaction : le brouillon revient, et le bandeau dit que le dossier a changé");
+  valoSaisie = JSON.parse(valo0); cacheDerives = null; rechargerPage(G0);
+  verifier(rev.revue && !rev.revue.dossierChange, "prix rétabli : dossier identique");
+
   console.log("— 6. Effacer");
   const avantEff = photo();
   cntEffacer("evl");
