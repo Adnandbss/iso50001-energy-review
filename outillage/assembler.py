@@ -29,7 +29,15 @@ function ajouterPage(groupe, id, menu, titre, cheminIcone, rendu) {
   g.pages.push(entree); ONGLETS.push(entree);
   PAGES_MODULES[id] = rendu;
 }
-function ajouterTraductions(paires) { for (const [fr, en] of paires) EN.set(fr, en); CACHE_TR.clear(); }''')
+function ajouterTraductions(paires) { for (const [fr, en] of paires) EN.set(fr, en); CACHE_TR.clear(); }
+/* Bloc replié commun : la réponse d'abord, la méthode et les limites sous « Comment c'est calculé ». L'état ouvert est retenu par clé pendant la session. */
+const REPLIS_OUVERTS = new Set();
+function repli(cle, titre, ...enfants) {
+  const d = h("details", { class: "repli", open: REPLIS_OUVERTS.has(cle) || null, ontoggle: e => { e.currentTarget.open ? REPLIS_OUVERTS.add(cle) : REPLIS_OUVERTS.delete(cle); } },
+    h("summary", null, titre || "Comment c'est calculé"), h("div", { class: "repli-corps" }, ...enfants));
+  return d;
+}
+EN.set("Comment c'est calculé", "How it is computed"); EN.set("Limites", "Limits"); EN.set("Détails", "Details");''')
     js = remplacer(js, 'const page = etat.onglet === "site" ? pageNiveau("site")', 'const page = PAGES_MODULES[etat.onglet] ? PAGES_MODULES[etat.onglet]() : etat.onglet === "site" ? pageNiveau("site")')
     js = remplacer(js, 'const ICONES = {', 'const ICONES = {\n  /* les modules ajoutent leur icône ici : ICONES[id] = "chemin SVG 16x16" */')
     # 2. Rappel au chargement d'un classeur
@@ -82,6 +90,17 @@ function erreurReseauIA(api, ms) {
     return js
 
 def correctifs_css(css):
+    css += """
+/* bloc replié commun (repli) */
+details.repli { margin-top: 10px; border-top: 1px solid var(--bord); padding-top: 8px; }
+details.repli > summary { cursor: pointer; color: var(--encre2); font-size: .92em; list-style: none; display: inline-flex; align-items: center; gap: 6px; }
+details.repli > summary::-webkit-details-marker { display: none; }
+details.repli > summary::before { content: "▸"; display: inline-block; transition: transform .15s; }
+details.repli[open] > summary::before { transform: rotate(90deg); }
+details.repli > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 3px; }
+details.repli > .repli-corps { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { details.repli > summary::before { transition: none; } }
+"""
     # c. Sur petit écran, la grille à 12 colonnes débordait (11 gouttières de 36 px) : une seule colonne.
     return remplacer(css, "@media (max-width: 900px) { .carte.demi { grid-column: span 12; } }",
                      "@media (max-width: 900px) { .grille { grid-template-columns: minmax(0, 1fr); } .grille > * { grid-column: 1 / -1 !important; } }")
