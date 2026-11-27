@@ -1,4 +1,4 @@
-/* Assemblage des six modules : sections du mode d'emploi, noms de groupes et textes communs en anglais. Chargé en dernier. */
+/* Assemblage des modules : sections du mode d'emploi (numérotées ici, dans l'ordre), noms de groupes et textes communs en anglais. Chargé en dernier. */
 (function asmAssembler() {
   const sections = [
  {
@@ -44,30 +44,6 @@
       "simulateur",
       "Ouvrir la page Simulateur",
       "Open the Simulator page"
-     ]
-    ]
-   ]
-  ]
- },
- {
-  "id": "mod-veille",
-  "t": [
-   "12. Page Veille : trier et faire instruire les dérives",
-   "12. Watch page: sort the drifts and have them investigated"
-  ],
-  "b": [
-   [
-    "p",
-    "La page Veille travaille dès qu'un classeur est chargé. Elle compare les épisodes de dérive à ceux du chargement précédent et dit lesquels sont nouveaux, lesquels s'aggravent et lesquels se sont clos. Elle classe ensuite les épisodes à traiter selon une règle affichée, que vous pouvez régler : coût estimé, CO₂e ou ampleur, dérives en cours d'abord, projection à 3 mois comptée ou non. Un bouton fait instruire les premiers épisodes de la file, l'un après l'autre, dans la limite du budget que vous fixez ; vous pouvez arrêter à tout moment et reprendre ensuite. Le point de situation résume chaque fiche : cause la plus probable, confiance, relecture, action proposée, vérifications sur site. Vous donnez à chaque épisode un statut (à traiter, validé, écarté avec un motif), que ce navigateur retient pour le prochain chargement. L'agent lit et rédige ; il ne décide rien à votre place. En mode démonstration, les fiches et les relectures viennent d'un script, sans IA.",
-    "The Watch page starts working as soon as a workbook is loaded. It compares the drift episodes with those of the previous load and says which are new, which are getting worse and which have closed. It then ranks the episodes to handle by a displayed rule that you can adjust: estimated cost, CO₂e or magnitude, ongoing drifts first, 3-month projection counted or not. One button has the first episodes in the queue investigated one after the other, within the budget you set; you can stop at any time and resume later. The status report sums up each note: most likely cause, confidence, review, proposed action, on-site checks. You give each episode a status (to handle, validated, dismissed with a reason), which this browser keeps for the next load. The agent reads and writes; it decides nothing on your behalf. In demo mode, the notes and reviews come from a script, with no AI."
-   ],
-   [
-    "vers",
-    [
-     [
-      "veille",
-      "Ouvrir la page Veille",
-      "Open the Watch page"
      ]
     ]
    ]
@@ -154,8 +130,8 @@
   "b": [
    [
     "p",
-    "Pas de classeur sous la main ? Sur l'écran d'accueil, cliquez « Essayer avec un site fictif » : la page fabrique une usine inventée, avec deux ans de relevés hebdomadaires, deux compteurs généraux, six usages suivis et leurs modèles de référence, et charge le tableau de bord. Un bandeau rappelle sur chaque page que ces données sont fictives. Une visite guidée d'une minute montre où en est le site, la dérive qui coûte le plus, ce qu'en dit l'agent (en mode démonstration, sans IA), ce que prévoit la page Prévision et comment le banc d'évaluation vérifie l'IA ; relancez-la depuis le bandeau. Après chaque chargement, la page « Vue d'ensemble » répond à « où en est le site et que dois-je faire ? » : une phrase de synthèse, l'écart à la référence sur 12 mois, les dérives en cours et leur coût mensuel, l'atterrissage de l'année, la qualité des modèles, les trois dérives les plus coûteuses et les prochaines actions. Chaque chiffre vient des pages Détection et Prévision.",
-    "No workbook at hand? On the welcome screen, click “Try it with a fictitious site”: the page builds an invented plant, with two years of weekly readings, two main meters, six tracked uses and their baseline models, and loads the dashboard. A banner on every page reminds you that this data is fictitious. A one-minute guided tour shows where the site stands, the costliest drift, what the agent says about it (in demo mode, with no AI), what the Forecast page expects and how the evaluation bench checks the AI; restart it from the banner. After every load, the “Overview” page answers “where does the site stand and what should I do?”: a summary sentence, the gap to the baseline over 12 months, ongoing drifts and their monthly cost, the landing for the year, model quality, the three costliest drifts and the next actions. Every figure comes from the Detection and Forecast pages."
+    "Pas de classeur sous la main ? Sur l'écran d'accueil, cliquez « Essayer avec un site fictif » : la page fabrique une usine inventée, avec deux ans de relevés hebdomadaires, deux compteurs généraux, six usages suivis et leurs modèles de référence, et charge le tableau de bord. Un bandeau rappelle sur chaque page que ces données sont fictives. Une visite guidée d'une minute montre où en est le site, l'usage dont la dérive coûte le plus, ce qu'en dit l'agent (en mode démonstration, sans IA), ce que prévoit la page Prévision et comment le banc d'évaluation vérifie l'IA ; relancez-la depuis le bandeau. Après chaque chargement, la page « Vue d'ensemble » répond à « où en est le site et que dois-je faire ? » : une phrase de synthèse, l'écart à la référence sur 12 mois, les dérives en cours et leur coût mensuel, l'atterrissage de l'année, la qualité des modèles, les trois dérives les plus coûteuses et les prochaines actions. Chaque chiffre vient des pages Dérives et Prévision.",
+    "No workbook at hand? On the welcome screen, click “Try it with a fictitious site”: the page builds an invented plant, with two years of weekly readings, two main meters, six tracked uses and their baseline models, and loads the dashboard. A banner on every page reminds you that this data is fictitious. A one-minute guided tour shows where the site stands, the use whose drift costs the most, what the agent says about it (in demo mode, with no AI), what the Forecast page expects and how the evaluation bench checks the AI; restart it from the banner. After every load, the “Overview” page answers “where does the site stand and what should I do?”: a summary sentence, the gap to the baseline over 12 months, ongoing drifts and their monthly cost, the landing for the year, model quality, the three costliest drifts and the next actions. Every figure comes from the Drifts and Forecast pages."
    ],
    [
     "vers",
@@ -196,36 +172,79 @@
     "Your work is kept in this browser, for the open workbook: filter settings, simulator scenarios, the review draft (with your corrections, dismissed flags and reviewer's name) and evaluation bench runs. Reopen the same workbook, even after closing the page: a banner says what was restored, and each line can be deleted. Another workbook never picks up this work. No API key is kept. To take your work to another computer or hand it over, open “Project and kept work” at the bottom of the menu, then “Export the project”: the .json file holds the workbook data and your work. “Open a project”, in that menu or on the welcome screen, loads it back. The frozen copy is a page to pass on, which does not keep your work. In titles, words with a dotted underline have a definition: hover, tap or reach them with the Tab key."
    ]
   ]
- },
- {
-  "id": "mod-derives",
-  "t": [
-   "19. Page Dérives : un seul parcours",
-   "19. Drifts page: a single flow"
-  ],
-  "b": [
-   [
-    "p",
-    "La page Dérives réunit en un seul parcours ce que faisaient les pages Détection, Veille et Instruction : repérer les dérives, les classer, puis faire instruire par un agent celle qui vous intéresse.",
-    "The Drifts page brings together in a single flow what the Detection, Watch and Investigation pages did: spot the drifts, rank them, then have an agent investigate the one you care about."
+ }
+];
+  // Page Dérives : remplace les sections Détection, Instruction et Veille (texte des NOTES du module 13 ; les repères encore justes des anciennes captures, sans elles)
+  const derives = {
+   "id": "mod-derives",
+   "t": [
+    "5. Page Dérives : repérer, classer et faire instruire les dérives",
+    "5. Drifts page: spot, rank and investigate the drifts"
    ],
-   [
-    "vers",
+   "b": [
     [
+     "p",
+     "La page Dérives répond d'abord : combien de dérives sont en cours, la plus lourde et ce qu'elle coûte si rien ne change, puis ce que la veille a vu de neuf depuis le chargement précédent. Dessous, une seule liste de toutes les dérives, classées par enjeu sans compter deux fois la même dérive au compteur général et dans une UES : les nouvelles et celles en cours d'abord, puis par coût estimé. Filtrez par état, par sens ou par énergie. « Instruire » fait enquêter l'agent sur une dérive : sa fiche s'ouvre sous la ligne, avec ses causes probables, ses preuves chiffrées et les vérifications à faire ; « Instruire les N premières » le fait pour les premières de la liste, l'une après l'autre, et s'arrête quand vous le demandez. Dans le détail d'une dérive, donnez votre décision (à traiter, validée, écartée avec un motif), que ce navigateur retient, et ouvrez d'un clic sa prévision, sa simulation ou la revue de l'année qui la couvre. Les courbes (écarts cumulés, z), les tableaux de la détection, les hypothèses de prix, les règles de tri et de détection, la mémoire de la veille et l'évaluation de l'agent sont plus bas, sous des titres à déplier. En mode démonstration, les fiches viennent d'un script, sans IA.",
+     "The Drifts page answers first: how many drifts are ongoing, the largest one and what it costs if nothing changes, then what the watch has seen that is new since the previous load. Below, one list of all drifts, ranked by stake without counting the same drift twice on the main meter and on a significant energy use: new and ongoing ones first, then by estimated cost. Filter by state, direction or energy. “Investigate” has the agent look into one drift: its note opens under the line, with the probable causes, the figures that support them and the checks to make; “Investigate the first N” does it for the first ones in the list, one after the other, and stops when you ask. In a drift's details, record your decision (to handle, validated, dismissed with a reason), which this browser keeps, and open its forecast, its simulation or the review of the year that covers it in one click. The charts (cumulative gaps, z), the detection tables, the price assumptions, the ranking and detection rules, the watch memory and the agent evaluation are further down, under headings that expand. In demo mode, the notes come from a script, with no AI."
+    ],
+    [
+     "ul",
      [
-      "derives",
-      "Ouvrir les dérives",
-      "Open the drifts"
+      [
+       "La règle de détection rapporte l'écart à l'erreur du modèle (le z) et retient les suites de périodes du même côté de la référence ; elle est écrite sous « Règle de tri et règle de détection ». Une dérive « en cours » touche la dernière période de données.",
+       "The detection rule relates the gap to the model error (the z) and keeps runs of periods on the same side of the baseline; it is written under “Ranking rule and detection rule”. An “ongoing” drift reaches the last period of data."
+      ],
+      [
+       "« + 3 mois » et la projection à 3 mois prolongent simplement l'écart moyen d'une dérive en cours : ce n'est pas une prévision.",
+       "“+ 3 months” and the 3-month projection simply extend the average gap of an ongoing drift: it is not a forecast."
+      ],
+      [
+       "Pour une dérive d'un compteur site, le détail dit quelle part de l'écart aucune UES suivie n'explique : elle vient d'usages qui ne sont pas suivis.",
+       "For a site-meter drift, the details say what share of the gap no tracked SEU explains: it comes from uses that are not tracked."
+      ],
+      [
+       "Sous « Courbes » : le cumul des écarts (CUSUM), dont la pente monte pendant une surconsommation qui dure et descend pendant une économie, avec en tirets la projection de l'écart moyen sur 3 mois ; puis le z de chaque période, avec les limites à ± 2 en pointillés.",
+       "Under “Charts”: the cumulative sum of gaps (CUSUM), whose slope rises during a lasting overconsumption and falls during a saving, with the 3-month projection of the average gap as a dashed line; then each period's z, with the ± 2 limits as dashed lines."
+      ],
+      [
+       "Sous « Coût et carbone : hypothèses » : le prix et le facteur d'émission de chaque énergie. Remplacez les valeurs par défaut par celles du site : tous les montants se recalculent.",
+       "Under “Cost and carbon: assumptions”: each energy's price and emission factor. Replace the defaults with the site's values: every amount is recalculated."
+      ],
+      [
+       "Dans la fiche, l'écart, le coût, les émissions et la projection sont calculés par la page, pas par l'agent. Survolez un nombre souligné pour voir d'où il vient ; un nombre surligné n'a été retrouvé dans aucun résultat. Les contrôles disent si les nombres sont présents, si l'écart est identique à celui de la page et ce qu'en pense le second agent ; « Copier » place la fiche dans le presse-papiers.",
+       "In the note, the gap, cost, emissions and projection are computed by the page, not by the agent. Hover an underlined number to see where it comes from; a highlighted number was found in no result. The checks say whether the numbers are present, whether the gap matches the page's and what the second agent thinks; “Copy” puts the note on the clipboard."
+      ],
+      [
+       "Le journal de l'agent, sous la fiche : une étape par tour, avec ce que l'agent a lu ; chaque ligne se déplie pour montrer l'appel exact.",
+       "The agent log, under the note: one step per turn, with what the agent read; each line expands to show the exact call."
+      ],
+      [
+       "Le mode, le modèle, la clé et l'autorisation d'envoi se règlent dans les réglages d'IA (bouton « IA », en bas du menu) ; une ligne de la page en rappelle l'état. Gemini et Claude demandent une clé API, à créer dans Google AI Studio ou dans la Console Anthropic. Si le serveur est surchargé, l'agent attend et réessaie tout seul.",
+       "The mode, the model, the key and the authorisation to send are set in the AI settings (“AI” button, at the bottom of the menu); a line on the page shows their state. Gemini and Claude need an API key, created in Google AI Studio or in the Anthropic Console. If the server is overloaded, the agent waits and retries on its own."
+      ],
+      [
+       "« Évaluer l'agent sur les plus gros épisodes » instruit à la suite 3, 5 ou 10 épisodes et donne quatre scores : fiches au bon format, nombres retrouvés dans les résultats, écarts identiques à ceux de la page, fiches jugées conformes par le second agent. Un épisode en échec peut être relancé seul.",
+       "“Evaluate the agent on the largest episodes” investigates 3, 5 or 10 episodes in a row and gives four scores: notes in the right format, numbers found in the results, gaps matching the page's, notes the second agent finds compliant. A failed episode can be retried on its own."
+      ]
+     ]
+    ],
+    [
+     "vers",
+     [
+      [
+       "derives",
+       "Ouvrir la page Dérives",
+       "Open the Drifts page"
+      ]
      ]
     ]
    ]
-  ]
- }
-];
+  };
+  for (const id of ["detection", "instruction"]) { const k = GUIDE.findIndex(s => s.id === id); if (k >= 0) GUIDE.splice(k, 1); }   // trois pages devenues une
   const rang = GUIDE.findIndex(s => s.id === "partager");
   GUIDE.splice(rang < 0 ? GUIDE.length : rang, 0, ...sections);
-  const partager = GUIDE.find(s => s.id === "partager");
-  if (partager) partager.t = ["20. Partager", "20. Share"];
+  const apresUes = GUIDE.findIndex(s => s.id === "ues");                // dans l'ordre du menu : Site, UES, Dérives
+  GUIDE.splice(apresUes < 0 ? (rang < 0 ? GUIDE.length : rang) : apresUes + 1, 0, derives);
   // les sections numérotées le sont dans l'ordre du mode d'emploi, sans trou ni doublon (une section ajoutée par un autre module s'y range)
   let numero = 0;
   for (const s of GUIDE) if (/^\d+\. /.test(s.t[0])) { numero++; s.t = s.t.map(x => x.replace(/^\d+\. /, numero + ". ")); }

@@ -105,11 +105,24 @@ async function test() {
     let ok = true; for (const b of liens) { try { cliquer(b); } catch (e) { ok = false; } }
     verifier(ok, "mode d'emploi (" + l + ") : chaque lien du sommaire se clique sans erreur");
   }
+  const f2 = l => rendrePage("guide", l);
   for (const l of ["fr", "en"]) {
     const g = texteDe(rendrePage("guide", l));
-    verifier(["mod-accueil", "mod-ia", "mod-continuite", "mod-derives"].every(id => GUIDE.some(s => s.id === id)) && (l === "fr" ? /Réglages d'IA/.test(g) && /Exporter le projet/.test(g) && /Essayer avec un site fictif/.test(g) && /La page Dérives réunit/.test(g)
-      : /AI settings/.test(g) && /Export the project/.test(g) && /Try it with a fictitious site/.test(g) && /The Drifts page brings together/.test(g)), "mode d'emploi (" + l + ") : sections des modules 10, 11, 12 et de la page Dérives");
+    verifier(["mod-accueil", "mod-ia", "mod-continuite", "mod-derives"].every(id => GUIDE.some(s => s.id === id)) && (l === "fr" ? /Réglages d'IA/.test(g) && /Exporter le projet/.test(g) && /Essayer avec un site fictif/.test(g) && /La page Dérives répond d'abord/.test(g)
+      : /AI settings/.test(g) && /Export the project/.test(g) && /Try it with a fictitious site/.test(g) && /The Drifts page answers first/.test(g)), "mode d'emploi (" + l + ") : sections des modules 10, 11, 12 et de la page Dérives");
     verifier(!/(clé|fournisseur|accord|agent|autorisée)[^.]{0,60}sur la page Instruction|(key|provider|consent|agent|authorised it)[^.]{0,60}on the Investigation page/.test(g), "mode d'emploi (" + l + ") : les réglages d'IA ne renvoient plus à la page Instruction");
+    // Détection, Instruction et Veille sont devenues la page Dérives : une seule section, après la page UES, sans les captures des anciennes pages
+    const ids = GUIDE.map(s => s.id), figs = GUIDE.flatMap(s => s.b.filter(b => b[0] === "fig").map(b => b[1]));
+    verifier(!ids.some(id => ["detection", "instruction", "mod-veille"].includes(id)) && ids.indexOf("mod-derives") === ids.indexOf("ues") + 1, "mode d'emploi (" + l + ") : une section « Page Dérives », juste après la page UES, à la place de Détection, Instruction et Veille");
+    verifier(!figs.some(v => ["derives", "episodes", "serie", "agent", "evaluation"].includes(v)) && !trouver(f2(l), n => n.tagName === "IMG" && /Dérives|Drifts/.test(n.attrs.alt || "")).length, "mode d'emploi (" + l + ") : plus de capture des anciennes pages Détection et Instruction");
+    verifier(l === "fr" ? !/pages? (Détection|Instruction|Veille)\b|Détection des dérives|Instruction d'une dérive :/.test(g) : !/(Detection|Investigation|Watch) pages?\b/.test(g), "mode d'emploi (" + l + ") : aucune page Détection, Instruction ou Veille citée comme page séparée");
+    // chaque bouton « vers » mène à une page qui existe, et l'ouvre
+    const vers = GUIDE.flatMap(s => s.b.filter(b => b[0] === "vers").flatMap(b => b[1].map(x => x[0])));
+    verifier(vers.length >= 12 && new Set(vers).size === vers.length && vers.every(id => ONGLETS.some(o => o[0] === id)), "mode d'emploi (" + l + ") : les " + vers.length + " boutons « vers » visent des pages qui existent");
+    let versOk = true;
+    for (const id of vers) { const b = trouver(f2(l), n => n.tagName === "BUTTON" && n.parentNode && n.parentNode.classList.contains("vers"))[vers.indexOf(id)];
+      try { cliquer(b); } catch (e) { versOk = false; } if (etat.onglet !== id) versOk = false; }
+    verifier(versOk, "mode d'emploi (" + l + ") : chaque bouton « vers » ouvre sa page");
     const sauve = etat.modele; etat.modele = null; LANGUE = l; CACHE_TR.clear(); rendre();
     const acc = texteDe(app); etat.modele = sauve;
     verifier(l === "fr" ? /donné dans les réglages d'IA \(un accord, fonction par fonction\)/.test(acc) : /given in the AI settings \(one consent, feature by feature\)/.test(acc), "accueil (" + l + ") : la phrase de confidentialité dit où se donne l'accord");
