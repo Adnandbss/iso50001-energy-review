@@ -404,7 +404,10 @@ function iaFluxRepli(motif) {                                                   
   if (agent.enCours && etapeCourante) noter("attente", Lg("Réponse en continu indisponible (" + motif + ") : le même tour est refait sans flux.", "Streaming unavailable (" + motif + "): the same turn is run again without streaming."));
 }
 /* Ce qui arrive pendant un tour : texte du modèle, appel d'outil en préparation, ou une attente honnête avec un compteur. */
-const IA_ATTENTES = { "gemini-4-hydrogen": ["Avec ce modèle, un tour a pris de 32 à 76 s lors d'essais réels.", "With this model, a turn took 32 to 76 s in real tests."] };
+const IA_ATTENTES = {  // durées mesurées lors d'essais réels (26-27/11/2026), hors attentes dues aux limites de débit
+  "gemini-4-hydrogen": ["Avec ce modèle, un tour a pris de 32 à 76 s lors d'essais réels.", "With this model, a turn took 32 to 76 s in real tests."],
+  "gemini-3.8-flash": ["Avec ce modèle, un tour a pris de 10 à 94 s lors d'essais réels.", "With this model, a turn took 10 to 94 s in real tests."],
+  "gemini-3.5-flash-lite": ["Avec ce modèle, un tour a pris de 1 à 4 s lors d'essais réels.", "With this model, a turn took 1 to 4 s in real tests."] };
 function iaFluxDebut(api) {
   const c = { api, modele: api === "gemini" ? agent.modeleGemini : IA.modele, debut: Date.now(), texte: "", outil: null, ouvert: false, noeud: null };
   if (agent.enCours && etapeCourante) { c.noeud = h("div", { class: "ia-flux", "aria-live": "off" }); etapeCourante.noeud.append(c.noeud); }

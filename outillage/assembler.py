@@ -87,6 +87,10 @@ function erreurReseauIA(api, ms) {
     "The request to the " + api + " API was cut off after " + s + " s without a reply. The model was still thinking: some browsers, Safari among them, drop a request that stays silent for about a minute. Run it again in Chrome, Edge or Firefox, or pick a faster model.");
 }
 /* ---- Appel réel : API Messages d'Anthropic""")
+    # e. Modèle Gemini par défaut : le plus léger. Essais réels du 26-27/11/2026 : 1 à 4 s par tour et 26/26 au banc pour flash-lite,
+    #    contre 28 à 94 s de silence par tour pour les modèles qui réfléchissent longtemps (Safari coupe une requête muette vers une minute).
+    js = remplacer(js, 'modele: "gemini-4-hydrogen", modeles: ["gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"]',
+                       'modele: "gemini-3.5-flash-lite", modeles: ["gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-4-hydrogen"]')
     return js
 
 def correctifs_css(css):
