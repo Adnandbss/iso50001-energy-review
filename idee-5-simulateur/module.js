@@ -465,7 +465,7 @@ function simLignesPrix(sc) {
     onchange: e => { const x = Number(e.target.value); if (e.target.value.trim() === "" || !isFinite(x) || x < 0) delete sc[cle][en]; else sc[cle][en] = x; rendre(); } });
   const libelle = (lib, controle) => h("label", { class: "filtre" }, h("span", { style: "text-transform:none;letter-spacing:0" }, lib), controle);
   return h("div", { class: "sim-facteur" },
-    h("div", { class: "sim-nom" }, h("b", null, "Prix et facteur d'émission"), h("small", null, simT("champ vide : valeur de référence, celle de la page Détection", "empty field: reference value, the one from the Detection page"))),
+    h("div", { class: "sim-nom" }, h("b", null, "Prix et facteur d'émission"), h("small", null, simT("champ vide : valeur de référence, celle de la page Dérives", "empty field: reference value, the one from the Drifts page"))),
     h("div", { class: "filtres" }, m.energies.flatMap(en => { const v = valoDe(en); return [libelle(en + Lg(", prix (€/MWh)", ", price (€/MWh)"), champ(en, "prix", v.prix)), libelle(en + Lg(", facteur d'émission (kgCO₂e/kWh)", ", emission factor (kgCO₂e/kWh)"), champ(en, "fe", v.fe))]; })));
 }
 function simTuiles(res) {

@@ -400,7 +400,7 @@ function prevPage() {
     h("p", { class: "titre" }, titreT + Lg(" de « " + sr.nom + " » : ", " for “" + sr.nom + "”: ") + wh(T.central) + Lg(", entre ", ", between ") + wh(T.bas) + Lg(" et ", " and ") + wh(T.haut) + "."),
     h("p", { class: "suite" }, preuve));
 
-  const sansValo = valoDe(e).prix == null ? "prix non renseigné pour cette énergie (page Détection)" : null;
+  const sansValo = valoDe(e).prix == null ? "prix non renseigné pour cette énergie (page Dérives)" : null;
   let tuileCible;
   if (!K.cible) tuileCible = tuile("Objectif", "–", "aucun objectif pour cette série dans le classeur");
   else if (K.cible.total == null) tuileCible = tuile("Objectif", "–", K.cible.plausible ? "non comparé" : "valeur du classeur non exploitable, voir la note");
@@ -570,7 +570,7 @@ ajouterTraductions([
   ["L'erreur du modèle n'est pas renseignée dans le classeur et l'historique est trop court pour la mesurer.", "The workbook gives no model error and the history is too short to measure it."],
   ["Les facteurs influents couvrent moins d'un an : certaines périodes de l'année n'ont jamais été observées.", "The relevant variables cover less than a year: some times of year have never been observed."],
   ["Dont déjà consommé", "Of which already consumed"], ["Dont prévu", "Of which forecast"], ["Objectif", "Target"],
-  ["prix non renseigné pour cette énergie (page Détection)", "no price set for this energy (Detection page)"], ["facteur d'émission non renseigné", "no emission factor set"],
+  ["prix non renseigné pour cette énergie (page Dérives)", "no price set for this energy (Drifts page)"], ["facteur d'émission non renseigné", "no emission factor set"],
   ["aucun objectif pour cette série dans le classeur", "no target for this series in the workbook"], ["non comparé", "not compared"],
   ["valeur du classeur non exploitable, voir la note", "workbook value unusable, see the note"], ["dans la fourchette : la prévision ne permet pas de trancher", "within the range: the forecast cannot tell"],
   ["Historique court. ", "Short history. "], ["Historique. ", "History. "], ["Historique court", "Short history"], ["Historique", "History"],
