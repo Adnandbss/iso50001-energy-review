@@ -61,7 +61,7 @@ async function test() {
   verifier(/la description de l'épisode à instruire/.test(t) && /le dossier de faits de l'étape 1/.test(t) && /le texte d'une question du banc/.test(t) && /la phrase que vous avez écrite, telle quelle/.test(t) && /les intitulés des colonnes/.test(t),
     "le panneau reprend ce que liste l'avis de chaque page (Instruction, Revue, Évaluation, Simulateur, Intégration)");
   verifier(/Clé Gemini gratuite/.test(t) && /Ne sont pas envoyés/.test(t), "les mises en garde des avis d'origine sont reprises");
-  verifier(/Instruction d'une dérive, séries et évaluation de l'agent \(page Dérives\)/.test(t) && /pages qui font appel à une IA : Dérives, Revue/.test(t) && !/séries de la page Veille|: Instruction, Veille/.test(t),
+  verifier(/Instruction d'une dérive, séries et évaluation de l'agent \(page Dérives\)/.test(t) && /pages qui font appel à une IA : Dérives, Revue/.test(t) && /une série lancée depuis la page Dérives, répète ces envois/.test(t) && !/séries de la page Veille|: Instruction, Veille|lancée depuis la page Veille/.test(t),
     "le panneau nomme la page Dérives (plus les pages Instruction ni Veille)");
   const cases = trouver(iaDialogue, n => n.tagName === "INPUT" && /^f-/.test(n.getAttribute("data-ia") || ""));
   verifier(cases.length === IA_FONCTIONS.length && IA_FONCTIONS.length === 5 && cases.every(c => c.checked), "une case par fonction, cochée par défaut");
@@ -111,6 +111,7 @@ async function test() {
   verifier(/AI: Gemini · gemini-3\.5-flash-lite · consent needed/.test(iaBouton.textContent) && /Writer: Gemini/.test(t), "anglais : badge et rappel traduits");
   iaOuvrir(); t = texteDe(iaDialogue);
   verifier(/AI settings/.test(t) && /Keep the key until this tab is closed/.test(t) && /I authorise these sends for this session/.test(t) && !/Réglages d'IA|Garder la clé/.test(t), "anglais : le panneau est traduit");
+  verifier(/a run started from the Drifts page, repeats these sends/.test(t) && /\(Drifts page\)/.test(t) && !/Watch page/.test(t), "anglais : le panneau nomme la page Dérives (Drifts page)");
   iaFermer();
   iaCoches.add("simulateur"); iaAutoriser(); t = page("revue");
   verifier(/Sending authorised \(AI settings\) · Change/.test(t) && /AI: Gemini · gemini-3\.5-flash-lite · ready/.test(iaBouton.textContent), "anglais : la ligne d'accord et le badge « ready »");
