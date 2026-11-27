@@ -212,7 +212,9 @@ async function test() {
   console.log("— 13. Temps ajouté à rendre()");
   for (const o of ["derives", "prevision"]) {
     etat.onglet = o; const mesure = () => { const t0 = performance.now(); for (let k = 0; k < 8; k++) rendre(); return (performance.now() - t0) / 8; };
-    cnt.lexique = false; mesure(); const sans = mesure(); cnt.lexique = true; mesure(); const avec = mesure();
+    // meilleure de cinq mesures alternées : une seule mesure dépendait de la charge de la machine et échouait parfois
+    let sans = Infinity, avec = Infinity;
+    for (let n = 0; n < 5; n++) { cnt.lexique = false; mesure(); sans = Math.min(sans, mesure()); cnt.lexique = true; mesure(); avec = Math.min(avec, mesure()); }
     const t0 = performance.now(); for (let k = 0; k < 8; k++) { cnt.lexique = true; cntMarquer(app); } const seul = (performance.now() - t0) / 8;
     console.log("  page " + o + " : rendre() " + sans.toFixed(1) + " ms sans lexique, " + avec.toFixed(1) + " ms avec ; marquage seul sur page déjà marquée " + seul.toFixed(2) + " ms");
     verifier(avec - sans < 5, "page " + o + " : le lexique ajoute moins de 5 ms à rendre() (" + (avec - sans).toFixed(1) + " ms)");
