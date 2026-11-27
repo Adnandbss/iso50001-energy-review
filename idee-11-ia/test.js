@@ -13,7 +13,7 @@ async function test() {
   verifier(/Mode démonstration : aucun appel réseau/.test(t) && boutonsDe(app_, /^Réglages d'IA$/).length === 1, "Instruction : rappel du mode avec un lien vers le panneau");
   verifier(!trouver(app_, n => n.tagName === "INPUT" && n.getAttribute("type") === "password").length && !/Avant le premier envoi/.test(t), "Instruction : ni champ de clé ni avis d'envoi sur la page");
   verifier(boutonsDe(app_, /^Lancer l'instruction$/).length === 1, "Instruction : le lancement reste sur la page");
-  verifier(app_.querySelector(".pied").contains(iaBouton) && /IA : démonstration \(sans IA\)/.test(iaBouton.textContent), "bouton permanent dans le pied du menu, badge « démonstration »");
+  verifier(app_.querySelector(".panneau").contains(iaBouton) && /IA : démonstration \(sans IA\)/.test(iaBouton.textContent), "bouton permanent en bas du menu, badge « démonstration »");
 
   /* ---- 2. Panneau : boîte de dialogue accessible ---- */
   cliquer(iaBouton);
@@ -122,7 +122,7 @@ async function test() {
   iaSurveiller();
   verifier(!iaTravail.hidden && /Agent au travail : Instruction/.test(iaTravail.textContent) && boutonsDe(iaTravail, /^Arrêter$/).length === 1, "pendant l'instruction : indicateur « Agent au travail » avec « Arrêter »");
   page("site");
-  verifier(app_.querySelector(".pied").contains(iaTravail) && !iaTravail.hidden && boutonsDe(iaTravail, /^Voir$/).length === 1, "l'indicateur reste visible depuis une autre page");
+  verifier(app_.querySelector(".panneau").contains(iaTravail) && !iaTravail.hidden && boutonsDe(iaTravail, /^Voir$/).length === 1, "l'indicateur reste visible depuis une autre page");
   while (agent.enCours) await pause(50);
   iaSurveiller();
   verifier(iaTravail.hidden && document.body.contains(iaNotes) && /Fiche prête/.test(iaNotes.textContent), "à la fin : notification « Fiche prête » dans la page");

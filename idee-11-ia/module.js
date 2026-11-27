@@ -157,8 +157,8 @@ iaEnvelopperPeinture("evlPeindre", () => evlNoeud, "banc");
 iaEnvelopperPeinture("itgPeindre", () => itgNoeud, "integration");
 iaEnvelopperPeinture("veiPeindre", () => veiNoeud, null);
 APRES_RENDU.push(() => {
-  const pied = app.querySelector(".pied");
-  if (pied && iaPied.parentNode !== pied) pied.prepend(iaPied);
+  const panneau = app.querySelector(".panneau");                                // dernier élément du panneau, collé en bas quand le menu défile
+  if (panneau && iaPied.parentNode !== panneau) panneau.append(iaPied);
   iaMajBadge(); iaSurveiller();
   iaRetoucher(app.querySelector(".feuille"), null);
 });
@@ -418,11 +418,12 @@ function iaFluxDebut(api) {
 function iaFluxFin(c) { if (c.noeud) c.noeud.remove(); if (iaFlux.courant === c) iaFlux.courant = null; iaFluxPeindre(); }
 function iaFluxTexte(t) { const c = iaFlux.courant; if (c && t) { c.texte = (c.texte + t).slice(-4000); iaFluxPeindre(); } }
 function iaFluxOutil(nom) { const c = iaFlux.courant; if (c) { c.outil = nom || "?"; iaFluxPeindre(); } }
-function iaFluxPhrase(c) {
-  const s = nf(Math.max(0, (Date.now() - c.debut) / 1000), 0) + " s";
-  if (c.texte.trim()) return Lg("Le modèle écrit (" + s + ") : ", "The model is writing (" + s + "): ") + "« " + (c.texte.length > 280 ? "…" + c.texte.slice(-280) : c.texte).trim() + " »";
+function iaFluxPhrase(c, court) {                                               // court : version pour l'indicateur du menu
+  const s = nf(Math.max(0, (Date.now() - c.debut) / 1000), 0) + " s", n = court ? 90 : 280;
+  if (c.texte.trim()) return Lg("Le modèle écrit (" + s + ") : ", "The model is writing (" + s + "): ") + "« " + (c.texte.length > n ? "…" + c.texte.slice(-n) : c.texte).trim() + " »";
   if (c.outil) return Lg("Le modèle prépare un appel d'outil (« " + c.outil + " »), " + s + ".", "The model is preparing a tool call (“" + c.outil + "”), " + s + ".");
   const a = IA_ATTENTES[c.modele];
+  if (court) return Lg("Le modèle réfléchit : " + s + ".", "The model is thinking: " + s + ".") + (a ? " " + Lg("Avec ce modèle, 32 à 76 s par tour lors d'essais réels.", "With this model, 32 to 76 s per turn in real tests.") : "");
   return Lg("Le modèle réfléchit depuis " + s + " : rien ne s'affiche tant qu'il n'a pas commencé à écrire. ", "The model has been thinking for " + s + ": nothing shows until it starts writing. ")
     + (a ? Lg(a[0], a[1]) : Lg("Un tour peut prendre plus d'une minute.", "A turn can take more than a minute."));
 }
@@ -475,7 +476,7 @@ function iaPeindreTravail() {
   const a = iaVu;
   if (!a) { if (!iaTravail.hidden) { iaTravail.hidden = true; iaTravail.setAttribute("hidden", ""); iaTravail.replaceChildren(); } iaTexteTravail = ""; return; }
   const titre = Lg("Agent au travail : ", "Agent at work: ") + a.nom + (a.etape ? ", " + a.etape : "");
-  const c = iaFlux.courant, detail = c ? iaFluxPhrase(c) : "";
+  const c = iaFlux.courant, detail = c ? iaFluxPhrase(c, true) : "";
   if (iaTravail.hidden) { iaTravail.hidden = false; iaTravail.removeAttribute("hidden"); }
   if (titre + etat.onglet !== iaTexteTravail) {
     iaTexteTravail = titre + etat.onglet;
