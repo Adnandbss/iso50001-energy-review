@@ -1,6 +1,6 @@
 # ISO 50001 energy review — from a Power BI report to a single-file tool with agents
 
-**Live demo: https://adnandbss.github.io/iso50001-energy-review/** — click *Try it with a fictitious site*; nothing to install, no data leaves your browser.
+**Live demo: https://adnandbss.github.io/iso50001-energy-review/** — click *Try it with a fictitious site*. Nothing to install; in the default demo mode, no data leaves your browser.
 
 An energy review dashboard for industrial sites, rebuilt from a Power BI report into **one HTML file with no dependencies and no server**. It reads the site's Excel workbook in the browser, recomputes the regression baselines, finds drifts, forecasts the coming months, and lets tool-using AI agents investigate drifts and draft the review — with every figure computed by the page, never by the model.
 
