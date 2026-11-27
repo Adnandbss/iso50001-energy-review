@@ -129,9 +129,16 @@ async function test() {
   verifier(boutonsBulle().join("|") === "Passer la visite|Suivant", "étape 1 : Passer et Suivant, pas de Précédent");
   verifier(!V.spot.hidden && V.ancre && V.ancre.classList.contains("acc-synthese"), "étape 1 : le projecteur vise la phrase de synthèse");
   touche("ArrowRight");
-  verifier(V.i === 1 && etat.onglet === "derives" && etat.derSerie === N.air, "flèche droite : page Détection, filtrée sur « " + N.air + " »");
+  verifier(V.i === 1 && etat.onglet === "derives" && etat.derSerie === N.air, "flèche droite : page Dérives, sur « " + N.air + " »");
   verifier(texteDe(V.bulle).includes(N.air) && texteDe(V.bulle).includes(fmtEuros(premiereUes.euroMois)), "étape 2 : la bulle cite la dérive et son coût mensuel");
-  verifier(V.ancre && V.ancre.classList.contains("constat"), "étape 2 : le projecteur vise le constat de la Détection");
+  verifier(V.ancre && V.ancre.classList.contains("constat"), "étape 2 : le projecteur vise le constat de la page Dérives");
+  // le titre dit ce que la visite montre : l'usage le plus coûteux, pas la plus lourde des dérives du constat (le compteur général)
+  const lourde = drvConstat(derives()).lourde, tB = texteDe(V.bulle);
+  verifier(lourde && lourde.serie === N.siteElec && texteDe(V.bulle.querySelector("h2")) === "L'usage dont la dérive coûte le plus" && !/La dérive qui coûte le plus/.test(tB),
+    "étape 2 : titre « L'usage dont la dérive coûte le plus » (le constat nomme « " + (lourde && lourde.serie) + " »)");
+  verifier(tB.includes("En tête, la plus lourde est « " + N.siteElec + " », au compteur général.") && tB.includes("Parmi les usages suivis, « " + N.air + " » coûte le plus"), "étape 2 : la bulle distingue la plus lourde du constat et l'usage suivi");
+  verifier(/Sa ligne s'ouvre plus bas ; la courbe des écarts cumulés \(CUSUM\), sous « Courbes », monte/.test(tB), "étape 2 : la courbe CUSUM est annoncée sous « Courbes »");
+  verifier(drv.ouverte === veiCle(air2) && !!app.querySelector(".drv-item.ouverte") && !agent.enCours, "étape 2 : la ligne de la dérive suivie est ouverte, sans instruction lancée");
   touche("ArrowRight");
   verifier(V.i === 2 && etat.onglet === "agent" && agent.episode === air2, "étape 3 : page Instruction, sur la dérive de « " + N.air + " »");
   await repos();

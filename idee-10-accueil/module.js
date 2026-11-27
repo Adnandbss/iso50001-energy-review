@@ -142,6 +142,18 @@ function accInstruit(ep) {
 const accPage1 = id => ONGLETS.some(o => o[0] === id);
 /* choisirEpisode suppose la page Instruction prête pour ce classeur (la page Détection s'en charge d'habitude). */
 function accInstruire(ep) { if (agent.modele !== etat.modele) reinitialiserAgent(etat.modele); choisirEpisode(ep); }
+/* La page Dérives s'ouvrira sur cette dérive, dépliée sous sa ligne, sans lancer d'instruction (sans le module Dérives : sa série). */
+function accOuvrirDerive(ep) {
+  etat.derSerie = ep.serie;
+  try {
+    if (typeof drvOuvrirLigne !== "function") return;
+    if (vei.modele !== etat.modele) veiAuChargement(etat.modele);
+    const lignes = drvLignes(), l = lignes.find(x => x.cle === veiCle(ep));
+    if (l) { drvOuvrirLigne(l, lignes); drv.choisi = true; }
+  } catch (e) { console.error(e); }
+}
+/* La dérive que le constat de la page Dérives nomme « la plus lourde ». */
+function accPlusLourde() { try { return typeof drvConstat === "function" ? drvConstat(derives()).lourde : null; } catch (e) { return null; } }
 
 /* Écart à la référence sur les 12 derniers mois de données, par énergie, au niveau Site (à défaut, somme des UES). */
 function accBilan(m) {
@@ -314,11 +326,18 @@ function accVisiteEtapes() {
     { page: "ensemble", cible: () => accQ(".acc-synthese"), titre: () => accT("Où en est le site", "Where the site stands"),
       texte: () => Lg((accFictif() ? "Une usine inventée : " : "Le site : ") + nS + " compteur(s) général(aux) et " + nU + " usages suivis (UES). Cette phrase est calculée par la page : l'écart à la référence sur 12 mois, et ce que coûtent les dérives en cours.",
         (accFictif() ? "An invented plant: " : "The site: ") + nS + " main meter(s) and " + nU + " tracked uses (SEUs). This sentence is computed by the page: the gap to the baseline over 12 months, and what the ongoing drifts cost.") },
-    { page: "derives", avant: () => { if (ep) { Object.assign(etat, { derSerie: ep.serie, derSens: "*", derEtat: "*" }); if (ep.fin < etat.de || ep.debut > etat.a) Object.assign(etat, { de: m.debut, a: m.fin }); } },
-      cible: () => accQ(".constat"), titre: () => accT("La dérive qui coûte le plus", "The costliest drift"),
-      texte: () => !ues ? accT("Aucune dérive en cours : la page Détection liste les épisodes passés, classés par écart.", "No ongoing drift: the Detection page lists past episodes, ranked by gap.")
-        : Lg("« " + ep.serie + " » dépasse sa référence depuis " + ep.libDebut + " : " + (ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois)) + " par mois si rien ne change. Plus bas, la courbe des écarts cumulés (CUSUM) monte : une surconsommation qui dure, pas un accident.",
-          "“" + ep.serie + "” has been above its baseline since " + ep.libDebut + ": " + (ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois)) + " per month if nothing changes. Further down, the cumulative gap (CUSUM) keeps rising: a lasting overconsumption, not an accident.") },
+    { page: "derives", avant: () => { if (ep) { Object.assign(etat, { derSerie: ep.serie, derSens: "*", derEtat: "*" }); if (ep.fin < etat.de || ep.debut > etat.a) Object.assign(etat, { de: m.debut, a: m.fin }); accOuvrirDerive(ep); } },
+      // la visite suit un usage (UES) : le constat de la page, lui, nomme la plus lourde des dérives comptées une fois, souvent au compteur général
+      cible: () => accQ(".constat"), titre: () => !ues ? accT("Les dérives", "The drifts") : ep.groupe === "ues" ? accT("L'usage dont la dérive coûte le plus", "The use whose drift costs the most") : accT("La dérive qui coûte le plus", "The costliest drift"),
+      texte: () => {
+        if (!ues) return accT("Aucune dérive en cours : la page Dérives liste les dérives passées, classées par enjeu.", "No ongoing drift: the Drifts page lists past drifts, ranked by stake.");
+        const cout = ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois), lourde = accPlusLourde();
+        const tete = ep.groupe !== "ues" || !lourde || lourde === ep ? "" : Lg("En tête, la plus lourde est « " + lourde.serie + " »" + (lourde.groupe === "site" ? ", au compteur général. " : ". "), "At the top, the largest is “" + lourde.serie + "”" + (lourde.groupe === "site" ? ", on the main meter. " : ". "));
+        return tete + (ep.groupe === "ues"
+          ? Lg("Parmi les usages suivis, « " + ep.serie + " » coûte le plus : il dépasse sa référence depuis " + ep.libDebut + ", " + cout + " par mois si rien ne change. ", "Among the tracked uses, “" + ep.serie + "” costs the most: it has been above its baseline since " + ep.libDebut + ", " + cout + " per month if nothing changes. ")
+          : Lg("« " + ep.serie + " » dépasse sa référence depuis " + ep.libDebut + " : " + cout + " par mois si rien ne change. ", "“" + ep.serie + "” has been above its baseline since " + ep.libDebut + ": " + cout + " per month if nothing changes. "))
+          + Lg("Sa ligne s'ouvre plus bas ; la courbe des écarts cumulés (CUSUM), sous « Courbes », monte : une surconsommation qui dure, pas un accident.", "Its line opens further down; the cumulative gap (CUSUM), under “Charts”, keeps rising: a lasting overconsumption, not an accident.");
+      } },
     { page: "agent", avant: () => {
         if (!ep || agent.enCours) return;
         if (agent.modele !== m) reinitialiserAgent(m);
