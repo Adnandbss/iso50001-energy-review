@@ -298,7 +298,7 @@ async function test() {
     const q = evlJeu().find(x => evlDemande(x) === req.messages[0].content), tour = req.messages.filter(x => x.role === "assistant").length + 1;
     return { type: "message", role: "assistant", model: "modele-de-test", content: tour === 1 ? q.calcul.map(c => appel(c[0], c[1])) : [appel("repondre", bonne(q))], stop_reason: "tool_use", usage: { input_tokens: 1000, output_tokens: 200 } };
   } });
-  verifier(/Réglez d'abord l'envoi sur la page Instruction/.test(texteDe(evlNoeud)) && trouver(evlNoeud, n => n.tagName === "BUTTON" && /^Lancer une passe/.test(n.textContent))[0].disabled, "mode IA sans réglage : bouton désactivé, avec le message");
+  verifier(/Réglez d'abord l'envoi dans les réglages d'IA/.test(texteDe(evlNoeud)) && trouver(evlNoeud, n => n.tagName === "BUTTON" && /^Lancer une passe/.test(n.textContent))[0].disabled, "mode IA sans réglage : bouton désactivé, avec le message");
   await evlLancer();
   verifier(nbAppels === 0 && evl.passes.length === 3, "sans réglage sur la page Instruction : rien n'est appelé");
   agent.accord = "gemini"; champCleGemini.value = "cle-factice-du-banc"; evlPeindre();
