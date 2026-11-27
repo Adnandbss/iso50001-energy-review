@@ -1,6 +1,8 @@
 # Module « Veille » (idee-4-veille, préfixe `vei`)
 
-Page « Veille » du groupe « Agents » (identifiant `veille`). Fichiers : `module.js` (59,5 Ko), `module.css`, `test.js`. Aucune modification du coeur.
+**Vague 2 : la page Veille n'existe plus en tant que telle.** Elle est fondue avec la Détection et l'Instruction dans la page « Dérives » (module `idee-13-derives`, voir ses notes). Ce module garde le moteur : mémoire, comparaison entre chargements, tri par enjeu, total sans double compte, série d'instructions, juge de démonstration, statuts, texte du point de situation. L'adresse `#onglet=veille` mène à la page Dérives ; `veiPeindre` la redessine. Les textes qui renvoyaient à la page Instruction parlent maintenant des réglages d'IA. `test.js` (175 vérifications) vérifie la même chose qu'avant à travers la nouvelle page. Ce qui suit décrit la vague 1 ; la méthode et les limites restent valables, la description de l'écran (cartes, file, tuiles) ne l'est plus.
+
+Fichiers : `module.js` (37 Ko), `module.css`, `test.js`. Aucune modification du coeur.
 
 ## Ce que fait le module
 
