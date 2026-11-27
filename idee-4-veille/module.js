@@ -1,15 +1,16 @@
 /* ============================================================================
-   Module « Veille » (préfixe vei) : à chaque chargement d'un classeur, la page
-   compare les épisodes de derives() à ceux du chargement précédent, les classe par enjeu,
-   instruit les N premiers à la suite (boucleAgent et jugerFiche d'origine) et rend un point
-   de situation que la personne annote. L'agent lit et rédige : il ne décide de rien.
+   Module « Veille » (préfixe vei) : à chaque chargement d'un classeur, compare les
+   épisodes de derives() à ceux du chargement précédent, les classe par enjeu, instruit
+   les N premiers à la suite (boucleAgent et jugerFiche d'origine) et garde les statuts que
+   la personne pose. L'agent lit et rédige : il ne décide de rien. L'affichage est celui de
+   la page Dérives (module idee-13-derives) : veiPeindre la redessine.
    ============================================================================ */
 const VEI_CLE = "revue-energetique.vei.memoire", VEI_CLE_REGLAGES = "revue-energetique.vei.reglages";
 const VEI_REGLE = { critere: "cout", projection: true, doublons: true, nouveautes: true, enCours: true, sur: true };
 const VEI_BUDGETS = [1, 3, 5, 10], VEI_TOURS_JUGE = 3, VEI_ECHECS_DE_SUITE = 2, VEI_JEUX_MAX = 6;     // jugerFiche fait au plus 3 tours
 const vei = { modele: null, jeu: null, memo: null, comparaison: null, regle: Object.assign({}, VEI_REGLE), n: 3, serie: null, resultats: new Map(),
-  ouverte: null, motif: null, erreur: null, guet: null, langue: null, retirees: 0, journalOuvert: false };
-const veiNoeud = h("div", { class: "vei" });
+  ouverte: null, motif: null, erreur: null, langue: null, retirees: 0, composition: false };
+const veiNoeud = h("div", { class: "vei" });                             // gardé vide : le module IA retouche ce noeud après chaque veiPeindre
 const veiJour = () => { const d = new Date(); return isoJour(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); };     // date du jour, à l'heure du poste
 
 /* ---- Mémoire locale : sobre, sans nom de série ni valeur de consommation ----
@@ -141,7 +142,7 @@ function veiChoisirStatut(l, v, lieu) {
   if (v === "ecarte") vei.motif = { cle: l.cle, lieu, texte: l.statut.s === "ecarte" ? l.statut.motif : "" };
   else { vei.motif = null; veiFixerStatut(l.cle, v, ""); }
   veiPeindre();
-  const champ = veiNoeud.querySelector(".vei-motif");
+  const champ = app.querySelector(".vei-motif");
   if (champ) champ.focus();
 }
 
@@ -169,7 +170,7 @@ async function veiJugeDemo(requete, signal) {
 }
 
 /* ---- Instruction en série ----
-   Même discipline que lancerEvaluation : un seul verrou (agent.enCours), un seul arrêt (agent.arret), le journal et la progression de la page Instruction.
+   Même discipline que lancerEvaluation : un seul verrou (agent.enCours), un seul arrêt (agent.arret), le journal et la progression de l'instruction.
    cles : épisodes à reprendre (sinon les N premiers de la file sans fiche). redacteurEssai : rédacteur de remplacement, pour les tests. */
 async function veiLancerSerie(cles, redacteurEssai) {
   const m = etat.modele;
@@ -227,13 +228,14 @@ async function veiLancerSerie(cles, redacteurEssai) {
     S.active = false; S.arrete = signal.aborted; sansReperes();
     arreterSuivi(signal.aborted ? "arrêté" : S.cles.some(c => resultats.get(c).etat !== "fiche") ? "échec" : "terminé");
     agent.enCours = false; agent.arret = null;
-    if (etat.onglet === "agent") peindreAgent(); else veiPeindre();
+    veiPeindre();
   }
 }
-/* La fiche complète est celle de la page Instruction : montrerFiche la compose dans zoneFiche, d'où on la retire sans rien y laisser ni y perdre. */
+/* La fiche complète est celle de l'instruction : montrerFiche la compose dans zoneFiche, d'où on la retire sans rien y laisser ni y perdre. */
 function veiNoeudFiche(l) {
   const r = l.resultat, garde = [...zoneFiche.childNodes];
-  montrerFiche(l.ep, r.res, r.redacteur, r.jugement);
+  vei.composition = true;                                                 // la page Dérives ne prend pas cette composition pour une nouvelle fiche
+  try { montrerFiche(l.ep, r.res, r.redacteur, r.jugement); } finally { vei.composition = false; }
   const noeud = zoneFiche.firstChild;
   zoneFiche.replaceChildren(...garde);
   return noeud;
@@ -325,11 +327,11 @@ function veiTexte(lignes, file, C, D, tot) {
     out.push("   " + Lg("Statut : ", "Status: ") + veiNomStatut(l.statut) + (l.statut.s === "ecarte" ? Lg(" (motif : ", " (reason: ") + l.statut.motif + ")" : "") + (l.statut.plus ? Lg(", à revoir : l'épisode s'est allongé depuis", ", to review: the episode has grown since") : ""));
   });
   out.push("", Lg("FILE D'ATTENTE : " + veiNb(file.length, "épisode", "") + " à traiter. ", "QUEUE: " + veiNb(file.length, "", "episode") + " to handle. ") + veiPhraseRegle(vei.regle),
-    Lg("Coûts et émissions : estimations, avec les hypothèses de la page Détection. Les causes sont des hypothèses, à confirmer sur site.", "Costs and emissions: estimates, with the assumptions of the Detection page. Causes are hypotheses, to be confirmed on site."));
+    Lg("Coûts et émissions : estimations, avec les hypothèses de prix de la page Dérives. Les causes sont des hypothèses, à confirmer sur site.", "Costs and emissions: estimates, with the price assumptions of the Drifts page. Causes are hypotheses, to be confirmed on site."));
   return out.map(t => LANGUE === "en" ? valeursEN(t) : t).join("\n");
 }
 
-/* ---- Page ---- */
+/* ---- Affichage : la page Dérives (module idee-13-derives) montre la veille ; veiPeindre la redessine ---- */
 function veiSaisieMotif() {
   const mo = vei.motif, valider = () => { if (veiFixerStatut(mo.cle, "ecarte", mo.texte)) { vei.motif = null; veiPeindre(); } };
   const ok = h("button", { class: "btn petit principal", disabled: !mo.texte.trim(), title: "Un motif est obligatoire pour écarter un épisode", onclick: valider }, "Écarter");
@@ -337,183 +339,35 @@ function veiSaisieMotif() {
     oninput: e => { mo.texte = e.target.value; ok.disabled = !mo.texte.trim(); }, onkeydown: e => { if (e.key === "Enter") valider(); } }), ok,
     h("button", { class: "btn petit", onclick: () => { vei.motif = null; veiPeindre(); } }, "Annuler"));
 }
-const VEI_STATUTS = [{ v: "atraiter", t: "À traiter" }, { v: "valide", t: "Validé" }, { v: "ecarte", t: "Écarté" }];
-function veiControleStatut(l, lieu) {
-  if (vei.motif && vei.motif.cle === l.cle && vei.motif.lieu === lieu) return veiSaisieMotif();
-  const courant = lieu === "file" && l.statut.plus ? "atraiter" : l.statut.s;      // dans la file, une décision à revoir se présente comme « à traiter »
-  const c = (lieu === "file" ? liste : segments)(VEI_STATUTS, courant, v => veiChoisirStatut(l, v, lieu));
-  c.setAttribute("aria-label", Lg("Statut : ", "Status: ") + l.ep.serie + ", " + l.ep.libDebut);
-  return c;
-}
 const veiMarque = (texte, fort) => h("span", { class: "vei-marque" + (fort ? " fort" : "") }, texte);
-function veiBlocEpisode(l, rang) {
-  const ep = l.ep, r = l.resultat, f = r.res && r.res.fiche, ouverte = vei.ouverte === l.cle && !!r.res, rec = veiRecoupe(l);
-  const basculer = () => { vei.ouverte = ouverte ? null : l.cle; veiPeindre(); };
-  const tete = h("button", { type: "button", class: "vei-tete", "aria-expanded": String(ouverte), disabled: !r.res, title: r.res ? (ouverte ? "Refermer la fiche complète" : "Ouvrir la fiche complète") : "La fiche n'est pas encore rédigée", onclick: basculer },
-    h("span", { class: "vei-titre" }, rang + ". " + ep.serie), h("span", { class: "vei-periode" }, veiLib(ep) + " ", ep.ouvert ? h("span", { class: "en-cours" }, "en cours") : null, " ", veiMarque(veiNouveaute(l), l.neuf)),
-    h("span", { class: "vei-sous" }, veiResume(l) + (rec ? ". " + rec[0].toUpperCase() + rec.slice(1) + "." : ".")));
-  const statut = h("div", { class: "vei-pied" }, h("span", { class: "vei-libelle" }, "Votre décision :"), veiControleStatut(l, "point"),
-    h("span", { class: "vei-impr" }, veiNomStatut(l.statut)), l.statut.s === "ecarte" && !(vei.motif && vei.motif.cle === l.cle) ? h("span", { class: "note", style: "margin:0" }, Lg("Motif : ", "Reason: ") + l.statut.motif) : null,
-    l.statut.plus ? veiMarque(Lg("à revoir : +" + veiNb(l.statut.plus, "période", "") + " depuis votre décision", "to review: +" + veiNb(l.statut.plus, "", "period") + " since your decision"), true) : null,
-    r.res ? h("button", { class: "btn petit", onclick: basculer }, ouverte ? "Refermer la fiche complète" : "Ouvrir la fiche complète") : null,
-    !f && ["echec", "arrete", "non-lance", "hors-format"].includes(r.etat) ? h("button", { class: "btn petit", disabled: agent.enCours, title: agent.enCours ? "Une instruction est déjà en cours" : null, onclick: () => veiLancerSerie([l.cle]) }, "Relancer cet épisode") : null);
-  const corps = f ? h("dl", { class: "vei-dl" },
-      h("dt", null, "Cause la plus probable"), h("dd", null, f.causes_probables[0].cause, h("span", { class: "vei-detail" }, Lg("Preuve chiffrée : ", "Evidence: ") + f.causes_probables[0].preuve_chiffree
-        + (f.causes_probables.length > 1 ? Lg(". Autres hypothèses dans la fiche complète : ", ". Other hypotheses in the full note: ") + (f.causes_probables.length - 1) + "." : ""))),
-      h("dt", null, "Confiance"), h("dd", null, Lg(f.niveau_confiance, M(f.niveau_confiance)) + ". " + f.justification_confiance),
-      h("dt", null, "Relecture"), h("dd", null, veiVerdict(r), h("span", { class: "vei-detail" }, Lg("Contrôles de la page : ", "Page checks: ") + veiControles(r))),
-      h("dt", null, "Action proposée"), h("dd", null, f.action_proposee),
-      h("dt", null, "Vérifications sur site"), h("dd", null, h("ul", null, f.verifications_sur_site.map(v => h("li", null, v)))),
-      h("dt", null, "Rédaction"), h("dd", null, Lg("Brouillon rédigé par " + r.redacteur + ", en " + veiNb(r.tours, "tour", "") + ". À relire et valider.", "Draft written by " + M(r.redacteur) + ", in " + veiNb(r.tours, "", "turn") + ". To be reviewed and validated.")))
-    : h("p", { class: "vei-etat" + (r.etat === "echec" ? " erreur" : "") }, r.etat === "cours" ? h("span", { class: "voyant actif" }) : null, " " + veiEtatTexte(r));
-  return h("div", { class: "vei-ep vei-" + r.etat }, tete, h("div", { class: "vei-corps" }, corps, statut, ouverte ? veiNoeudFiche(l) : null));
+/* Comme la page Instruction : une fiche rédigée dans l'autre langue ne se relit pas avec les règles de celle-ci. */
+function veiSuivreLangue() {
+  if (vei.langue === LANGUE) return;
+  vei.retirees = [...vei.resultats.values()].filter(r => r.res).length; vei.resultats = new Map(); vei.serie = null; vei.langue = LANGUE;
 }
-function veiCarteSerie(file, S, actif) {
-  const aFiche = l => !!(l.resultat && l.resultat.etat === "fiche"), prochains = file.filter(l => !aFiche(l)).slice(0, vei.n), np = prochains.length;
-  const manquants = S && !actif ? S.cles.filter(c => { const r = vei.resultats.get(c); return !r || r.etat !== "fiche"; }) : [], ailleurs = agent.enCours && !actif, pret = blocageEnvoi();
-  const motif = ailleurs ? VEI_T.ailleurs[0] : pret ? VEI_T.pasPret[0]
-    : !np ? (file.length ? "Tous les épisodes à traiter ont déjà leur fiche." : "Aucun épisode à traiter dans la file.") : null;
-  if (ailleurs && !vei.guet) vei.guet = setInterval(() => { if (!agent.enCours) { clearInterval(vei.guet); vei.guet = null; veiPeindre(); } }, 500);     // le bouton se libère quand l'autre exécution finit
-  const juge = agent.demo || agent.juge, appels = np * (IA.tours + (juge ? VEI_TOURS_JUGE : 0)), arretEnCours = actif && agent.arret && agent.arret.signal.aborted;
-  const boutons = actif ? [h("button", { class: "btn", disabled: arretEnCours, onclick: () => { if (agent.arret) agent.arret.abort(); veiPeindre(); } }, arretEnCours ? "Arrêt en cours…" : "Arrêter la série")]
-    : [manquants.length ? h("button", { class: "btn principal", disabled: ailleurs || !!pret, title: ailleurs || pret ? motif : null, onclick: () => veiLancerSerie(manquants) },
-        Lg(manquants.length === 1 ? "Reprendre l'épisode sans fiche" : "Reprendre les " + manquants.length + " épisodes sans fiche", manquants.length === 1 ? "Resume the episode without a note" : "Resume the " + manquants.length + " episodes without a note")) : null,
-      h("button", { class: "btn" + (manquants.length ? "" : " principal"), disabled: !!motif, title: motif, onclick: () => veiLancerSerie() },
-        Lg(np <= 1 ? "Instruire le premier épisode de la file" : "Instruire les " + np + " premiers épisodes de la file", np <= 1 ? "Investigate the first episode in the queue" : "Investigate the first " + np + " episodes in the queue"))];
-  const fiches = S ? S.cles.filter(c => (vei.resultats.get(c) || {}).etat === "fiche").length : 0;
-  const bilan = !S || actif ? null : Lg((S.arrete ? "Série arrêtée" : S.interrompue ? "Série interrompue après " + VEI_ECHECS_DE_SUITE + " échecs de suite" : "Série terminée") + " : " + veiNb(fiches, "fiche", "") + " sur " + S.cles.length + "."
-      + (manquants.length ? " Les fiches déjà rendues sont gardées ; vous pouvez reprendre les autres." : ""), (S.arrete ? "Run stopped" : S.interrompue ? "Run interrupted after " + VEI_ECHECS_DE_SUITE + " failures in a row" : "Run finished") + ": " + fiches + " of " + veiNb(S.cles.length, "", "note")
-      + "." + (manquants.length ? " The notes already returned are kept; you can resume the others." : ""));
-  const mode = agent.demo ? VEI_T.demo[0]
-    : Lg("Rédacteur : " + F().nom + " (" + modeleIA() + "), par " + F().api + ". Relecture par un second agent : " + (agent.juge ? "oui" : "non") + ". Pour chaque épisode, la série envoie ce que liste l'avis de la page Instruction, rien de plus.",
-      "Writer: " + F().nom + " (" + modeleIA() + "), through " + M(F().api) + ". Review by a second agent: " + (agent.juge ? "yes" : "no") + ". For each episode, the run sends what the notice on the Investigation page lists, nothing more.");
-  const budget = Lg("Budget de la prochaine série : " + veiNb(np, "épisode", "") + ", " + IA.tours + " tours au plus par épisode" + (juge ? ", " + VEI_TOURS_JUGE + " pour la relecture" : "") + ", soit au plus " + appels + " appels "
-    + (agent.demo ? "au script (aucun appel réseau)" : "au modèle, hors nouveaux essais quand le serveur est surchargé") + ". " + VEI_ECHECS_DE_SUITE + " échecs de suite arrêtent la série.",
-    "Budget of the next run: " + veiNb(np, "", "episode") + ", at most " + IA.tours + " turns per episode" + (juge ? ", " + VEI_TOURS_JUGE + " for the review" : "") + ", i.e. at most " + appels + " calls "
-    + (agent.demo ? "to the script (no network call)" : "to the model, not counting retries when the server is overloaded") + ". " + VEI_ECHECS_DE_SUITE + " failures in a row stop the run.");
-  const suivi = S && (actif || (journal.firstChild && journal.firstChild === S.marque)) ? [zoneProgres, h("details", { class: "vei-journal", open: vei.journalOuvert, ontoggle: e => { vei.journalOuvert = !!e.target.open; } },
-    h("summary", null, "Journal détaillé de la série"), journal, h("div", { class: "note", style: "margin-top:0" }, "Chaque ligne se déplie : elle montre l'appel exact et ce qui a été transmis au modèle."))] : null;
-  const c = carte({ id: "vei-serie", titre: "Instruire en série",
-    contenu: h("div", null,
-      h("div", { class: "filtres" }, filtre("Épisodes par série (budget)", segments(VEI_BUDGETS.map(n => ({ v: n, t: String(n) })), vei.n, v => veiRegler("n", v))), boutons),
-      !actif && motif ? h("div", { class: "note attention vei-motif-bloc" }, motif) : null, vei.erreur && vei.erreur !== motif ? h("div", { class: "erreur", style: "margin:0 0 10px" }, vei.erreur) : null,
-      bilan ? h("p", { class: "vei-bilan" }, bilan) : null,
-      vei.retirees ? h("div", { class: "note attention" }, VEI_T.retirees[0]) : null,
-      suivi,
-      h("ul", { class: "vei-gardes" },
-        h("li", null, mode + " ", h("button", { class: "lien", onclick: () => aller("agent") }, "Changer de mode (page Instruction)")),
-        np ? h("li", null, budget) : null,
-        h("li", null, VEI_T.lecture[0]),
-        h("li", null, VEI_T.arret[0]))) });
-  c.classList.add("vei-ecran");
-  return c;
-}
-function veiCartePoint(lignes, file, C, D, tot) {
-  const parCle = new Map(lignes.map(l => [l.cle, l])), blocs = [...vei.resultats.keys()].map(c => parCle.get(c)).filter(Boolean), redigees = blocs.filter(l => l.resultat.res && l.resultat.res.fiche);
-  const copier = h("button", { class: "btn", onclick: () => copierTexte(veiTexte(lignes, file, C, D, tot), copier).then(() => setTimeout(() => { copier.textContent = tr("Copier le point de situation"); }, 1650)) }, "Copier le point de situation");
-  return carte({ id: "vei-point", titre: "Épisodes instruits", sous: VEI_T.sousPoint[0],
-    contenu: h("div", null,
-      redigees.some(l => l.resultat.demo) ? h("div", { class: "note attention", style: "margin:0 0 12px" }, VEI_T.script[0])
-        : redigees.length ? h("div", { class: "note", style: "margin:0 0 12px" }, VEI_T.ia[0]) : null,
-      blocs.length ? blocs.map((l, k) => veiBlocEpisode(l, k + 1)) : h("div", { class: "vide" }, VEI_T.aucun[0]),
-      h("div", { class: "vei-pied vei-export" }, copier, h("button", { class: "btn", onclick: () => print() }, "Imprimer le point de situation"))),
-    note: VEI_T.notePoint[0] });
-}
-function veiCarteFile(file, traites) {
-  const R = vei.regle, coche = (cle, texte) => h("label", { class: "vei-coche" }, h("input", { type: "checkbox", checked: R[cle], onchange: e => veiRegler(cle, !!e.target.checked) }), h("span", null, texte));
-  const prochains = new Set(file.filter(l => !(l.resultat && l.resultat.etat === "fiche")).slice(0, vei.n).map(l => l.cle));
-  const nom = l => { const rec = veiRecoupe(l); return h("span", null, l.ep.serie, rec ? h("span", { class: "vei-detail" }, rec) : null); };
-  const periode = l => h("span", null, veiLib(l.ep) + " ", l.ep.ouvert ? h("span", { class: "en-cours" }, "en cours") : null);
-  const sens = l => h("span", null, h("span", { class: "fleche " + (l.ep.ecart > 0 ? "plus" : "moins") }, l.ep.ecart > 0 ? "▲" : "▼"), l.ep.sens);
-  const lignes = file.map((l, k) => { const e = l.enjeu, r = l.resultat;
-    return [h("span", { class: "vei-rang" + (prochains.has(l.cle) ? " prochain" : ""), title: prochains.has(l.cle) ? "Sera instruit par la prochaine série" : null }, String(k + 1)), nom(l), periode(l),
-      [veiMarque(veiNouveaute(l), l.neuf), l.statut.plus ? veiMarque(Lg("décision à revoir", "decision to review"), true) : null], sens(l), fmtEuros(e.cout, true), fmtCO2(e.co2, true),
-      e.wh3 == null ? "–" : e.cout3 == null ? fmtEnergie(e.wh3, true) : fmtEuros(e.cout3, true), nf(l.ep.zmax, 1),
-      !r ? "–" : r.etat === "fiche" ? h("button", { class: "lien", onclick: () => { vei.ouverte = l.cle; veiPeindre(); } }, "fiche prête") : r.etat === "cours" ? Lg("en cours…", "running…") : r.etat === "attente" ? Lg("en attente", "waiting") : Lg("sans fiche", "no note"),
-      veiControleStatut(l, "file")]; });
-  const c = carte({ id: "vei-file", titre: "File d'attente", sous: Lg(veiNb(file.length, "épisode", "") + " à traiter, classés par enjeu", veiNb(file.length, "", "episode") + " to handle, ranked by stake"),
-    contenu: h("div", null,
-      h("div", { class: "filtres", style: "margin-bottom:10px" }, filtre("Classer par", segments([{ v: "cout", t: "Coût estimé" }, { v: "co2", t: "CO₂e" }, { v: "z", t: "Ampleur (|z| max)" }], R.critere, v => veiRegler("critere", v)))),
-      h("div", { class: "vei-coches" }, coche("doublons", "Site et UES : une seule fois la même dérive"), coche("nouveautes", "Nouveautés d'abord"), coche("enCours", "Dérives en cours d'abord"), coche("sur", "Surconsommations d'abord"),
-        R.critere === "z" ? null : coche("projection", "Compter la projection à 3 mois")),
-      h("p", { class: "vei-regle" }, veiPhraseRegle(R)),
-      file.length ? tableau(["Rang", "Série", "Épisode", "Depuis le relevé", "Sens", "Coût estimé", "CO₂e", "Coût sur 3 mois", "|z| max", "Fiche", "Statut"], lignes) : h("div", { class: "vide" }, VEI_T.fileVide[0]),
-      traites.length ? h("details", { class: "vei-traites" }, h("summary", null, Lg("Épisodes déjà traités : " + traites.length, "Episodes already handled: " + traites.length)),
-        tableau(["Série", "Épisode", "Statut", "Motif", "Décidé le", "Action"], traites.map(l => [nom(l), periode(l), veiNomStatut(l.statut), l.statut.motif || "–", dateFr(l.statut.le) || "–",
-          h("button", { class: "btn petit", onclick: () => veiChoisirStatut(l, "atraiter", "file") }, "Remettre à traiter")]))) : null),
-    note: VEI_T.noteFile[0] });
-  c.classList.add("vei-ecran");
-  return c;
-}
-function veiCarteMemoire(C) {
-  const J = vei.memo, nbStatuts = Object.keys(J.statuts).length, vide = !C.avant && !nbStatuts;
-  const etatMemoire = etat.figee ? VEI_T.figee[0]
-    : Lg("Relevé précédent : " + (C.avant ? "le " + (dateFr(C.avant.le) || "–") + ", données jusqu'au " + (dateFr(C.avant.fin) || "–") : "aucun") + ". Relevé de ce chargement : " + veiNb(Object.keys(J.courant.eps).length, "épisode", "") + ". Statuts gardés : " + nbStatuts + ".",
-      "Previous record: " + (C.avant ? (dateFr(C.avant.le) || "–") + ", data up to " + (dateFr(C.avant.fin) || "–") : "none") + ". Record of this load: " + veiNb(Object.keys(J.courant.eps).length, "", "episode") + ". Statuses kept: " + nbStatuts + ".");
-  const c = carte({ id: "vei-memoire", titre: "Mémoire de la veille", sous: "ce que ce navigateur garde d'un chargement à l'autre, sur ce poste",
-    contenu: h("div", null, h("p", { class: "vei-bilan" }, etatMemoire),
-      h("div", { class: "vei-pied" }, h("button", { class: "btn", disabled: !!etat.figee || vide, title: etat.figee ? "Une copie figée ne garde aucune mémoire" : vide ? "La mémoire ne contient que le relevé de ce chargement" : null, onclick: veiOublier }, "Oublier la mémoire de la veille"))),
-    note: VEI_T.noteMemoire[0] });
-  c.classList.add("vei-ecran");
-  return c;
-}
-function veiPeindre() {
-  const m = etat.modele;
-  if (etat.onglet !== "veille" || !m) return;
-  if (vei.modele !== m) veiAuChargement(m);
-  if (vei.langue !== LANGUE) {                                            // comme la page Instruction : une fiche rédigée dans l'autre langue ne se relit pas avec les règles de celle-ci
-    vei.retirees = [...vei.resultats.values()].filter(r => r.res).length; vei.resultats = new Map(); vei.serie = null; vei.ouverte = null; vei.langue = LANGUE;
-  }
-  const D = derives(), C = vei.comparaison, S = vei.serie, actif = !!(S && S.active), lignes = veiLignes();
-  const file = veiTrier(lignes.filter(l => l.aTraiter), vei.regle), traites = lignes.filter(l => !l.aTraiter);
-  const tot = veiTotal(file, new Set(D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie))), c = veiConstat(C, D);
-  const enCoursParmi = eps => eps.filter(ep => ep.ouvert).length, sans = "pas de relevé antérieur";
-  veiNoeud.replaceChildren(
-    h("div", { class: "constat" + (c.alerte ? " alerte" : "") }, h("p", { class: "titre" }, c.titre), h("p", { class: "suite" }, c.suite)),
-    h("div", { class: "tuiles" },
-      tuile("Nouveaux épisodes", String(C.nouveau.length), Lg("dont " + enCoursParmi(C.nouveau) + " en cours", enCoursParmi(C.nouveau) + " of them ongoing")),
-      tuile("En cours, aggravés ou prolongés", C.premier ? "–" : String(C.aggrave.length), C.premier ? sans : "plus de périodes, ou un |z| plus fort, qu'au relevé précédent"),
-      tuile("Clos depuis le relevé", C.premier ? "–" : String(C.clos.length), C.premier ? sans : "ils étaient en cours au relevé précédent"),
-      tuile("Surconsommations à traiter", tot.cout == null ? fmtEnergie(tot.wh, true) : fmtEuros(tot.cout, true), (tot.co2 == null ? "" : fmtCO2(tot.co2, true) + " · ") + Lg(veiNb(tot.n, "épisode", "") + ", au niveau Site, sans double compte", veiNb(tot.n, "", "episode") + ", at Site level, no double counting")),
-      tuile("Si rien ne change, en 3 mois", tot.cout3 == null ? "–" : fmtEuros(tot.cout3, true), tot.enCours ? "projection simple des surconsommations en cours, pas une prévision" : "aucune surconsommation en cours à ce niveau")),
-    h("div", { class: "grille" }, veiCarteSerie(file, S, actif), veiCartePoint(lignes, file, C, D, tot), veiCarteFile(file, traites), veiCarteMemoire(C)));
-}
-function veiPage() {
-  const m = etat.modele;
-  derives();
-  if (agent.modele !== m) reinitialiserAgent(m);                         // comme la page Instruction : l'état de l'agent suit le classeur chargé
-  veiPeindre();
-  return [h("p", { class: "chapeau" }, VEI_T.chapeau[0]), veiNoeud];
-}
+function veiPeindre() { if (typeof drvPeindre === "function") drvPeindre(); }
 
 AU_CHARGEMENT.push(veiAuChargement);
-ICONES.veille = "M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8s-2.5 4.5-6.5 4.5S1.5 8 1.5 8zM8 9.75a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5z";
-ajouterPage("Agents", "veille", "Veille", "Veille des dérives", ICONES.veille, veiPage);
 /* Textes longs, écrits une seule fois : [français, anglais]. Le code les appelle par leur nom. */
 const VEI_T = {
-  chapeau: ["À chaque chargement, la veille compare les épisodes de dérive à ceux du chargement précédent, les classe par enjeu, instruit les premiers à la suite et rend un point de situation. Elle lit et rédige : aucune action n'est prise à votre place.",
-    "Each time a workbook is loaded, the watch compares the drift episodes with those of the previous load, ranks them by stake, investigates the first ones in a row and returns a status report. It reads and writes: no action is taken on your behalf."],
   oubli: ["Oublier la mémoire de la veille ? Les relevés des chargements précédents, tous les statuts et vos réglages de tri seront effacés de ce navigateur.", "Forget the watch memory? The records of previous loads, all statuses and your ranking settings will be erased from this browser."],
-  ailleurs: ["Une instruction ou une évaluation est déjà en cours : attendez sa fin, ou arrêtez-la sur la page Instruction.", "An investigation or an evaluation is already running: wait for it to finish, or stop it on the Investigation page."],
-  pasPret: ["L'envoi à l'IA n'est pas prêt (accord ou clé manquants) : réglez-le sur la page Instruction, ou passez en mode démonstration.", "Sending to the AI is not ready (consent or key missing): set it up on the Investigation page, or switch to demo mode."],
+  ailleurs: ["Une instruction ou une évaluation est déjà en cours : attendez sa fin, ou arrêtez-la.", "An investigation or an evaluation is already running: wait for it to finish, or stop it."],
+  pasPret: ["L'envoi à l'IA n'est pas prêt (accord ou clé manquants) : réglez-le dans les réglages d'IA (bouton « IA », en bas du menu), ou passez en mode démonstration.", "Sending to the AI is not ready (consent or key missing): set it up in the AI settings (“AI” button, at the bottom of the menu), or switch to demo mode."],
   demo: ["Mode démonstration : un script joue le rôle du modèle, sans IA ni réseau. Les fiches et les relectures de cette page viennent de ce script.",
     "Demo mode: a script plays the model's part, with no AI and no network. The notes and reviews on this page come from that script."],
-  lecture: ["L'agent lit le classeur avec cinq outils de lecture seule et rédige des brouillons. Il ne modifie aucune donnée, n'envoie aucun message et n'ouvre aucune action : vous fixez le statut de chaque épisode.",
-    "The agent reads the workbook with five read-only tools and writes drafts. It changes no data, sends no message and opens no action: you set the status of each episode."],
-  arret: ["Vous pouvez arrêter la série à tout moment. Une erreur sur un épisode n'efface pas les fiches des autres.", "You can stop the run at any time. An error on one episode does not erase the notes of the others."],
-  retirees: ["Les fiches rédigées dans l'autre langue ont été retirées, comme sur la page Instruction : relancez la série.", "The notes written in the other language were removed, as on the Investigation page: start the run again."],
-  sousPoint: ["l'essentiel de chaque fiche, à lire en une minute ; chaque ligne ouvre la fiche complète", "the essentials of each note, readable in a minute; each line opens the full note"],
+  lecture: ["L'agent lit le classeur avec cinq outils de lecture seule et rédige des brouillons. Il ne modifie aucune donnée, n'envoie aucun message et n'ouvre aucune action : vous fixez le statut de chaque dérive.",
+    "The agent reads the workbook with five read-only tools and writes drafts. It changes no data, sends no message and opens no action: you set the status of each drift."],
+  arret: ["Vous pouvez arrêter la série à tout moment. Une erreur sur une dérive n'efface pas les fiches des autres ; deux échecs de suite arrêtent la série.", "You can stop the run at any time. An error on one drift does not erase the notes of the others; two failures in a row stop the run."],
+  retirees: ["Les fiches rédigées dans l'autre langue ont été retirées : relancez l'instruction.", "The notes written in the other language were removed: run the investigation again."],
   script: ["Fiches et relectures produites par un script de démonstration, sans IA : elles montrent la chaîne et le format, pas une analyse.", "Notes and reviews produced by a demo script, no AI: they show the pipeline and the format, not an analysis."],
   ia: ["Brouillons rédigés par une IA à partir des résultats d'outils. La page a calculé tous les chiffres ; les causes restent des hypothèses, à confirmer sur site.", "Drafts written by an AI from the tool results. The page computed every figure; the causes remain hypotheses, to be confirmed on site."],
-  aucun: ["Aucun épisode instruit pour l'instant. Lancez la série ci-dessus : la synthèse de chaque fiche s'affichera ici.", "No episode investigated yet. Start the run above: the summary of each note will appear here."],
-  notePoint: ["Les fiches ne sont pas conservées d'un chargement à l'autre : seuls vos statuts et vos motifs le sont. Le texte copié et l'impression reprennent le constat, l'enjeu, chaque épisode instruit et son statut.",
-    "Notes are not kept from one load to the next: only your statuses and reasons are. The copied text and the printout carry the finding, the stake, each investigated episode and its status."],
-  fileVide: ["Aucun épisode à traiter : tous ont un statut, ou aucune dérive n'est détectée.", "No episode to handle: all have a status, or no drift is detected."],
-  noteFile: ["Le numéro sur fond sombre marque les épisodes que la prochaine série instruira. Un épisode validé ou écarté quitte la file ; il y revient, marqué « décision à revoir », s'il s'allonge après votre décision. "
-    + "Coûts et émissions : estimations, avec les hypothèses de la page Détection. La projection à 3 mois suppose que l'écart moyen se maintient : ce n'est pas une prévision. "
+  notePoint: ["Les fiches ne sont pas conservées d'un chargement à l'autre : seuls vos statuts et vos motifs le sont. Le texte copié et l'impression reprennent le constat, l'enjeu, chaque dérive instruite et son statut.",
+    "Notes are not kept from one load to the next: only your statuses and reasons are. The copied text and the printout carry the finding, the stake, each investigated drift and its status."],
+  noteFile: ["Une dérive validée ou écartée passe en fin de liste ; elle revient parmi les dérives à traiter, marquée « à revoir », si elle s'allonge après votre décision. "
+    + "Coûts et émissions : estimations, avec les hypothèses de prix de cette page. La projection à 3 mois suppose que l'écart moyen se maintient : ce n'est pas une prévision. "
     + "« Même dérive que le Site » : même énergie, même sens, dates qui se recoupent ; c'est un indice, pas une preuve. L'historique est court : un |z| élevé sur une seule période peut venir d'un relevé isolé.",
-    "The number on a dark background marks the episodes the next run will investigate. A validated or dismissed episode leaves the queue; it comes back, marked “decision to review”, if it grows after your decision. "
-    + "Costs and emissions: estimates, with the assumptions of the Detection page. The 3-month projection assumes the average gap holds: it is not a forecast. "
+    "A validated or dismissed drift moves to the end of the list; it comes back among the drifts to handle, marked “to review”, if it grows after your decision. "
+    + "Costs and emissions: estimates, with the price assumptions of this page. The 3-month projection assumes the average gap holds: it is not a forecast. "
     + "“Same drift as the Site”: same energy, same direction, overlapping dates; it is a clue, not a proof. The history is short: a high |z| on a single period may come from one isolated reading."],
   figee: ["Copie figée : la veille ne lit et n'écrit aucune mémoire. Chaque ouverture est un premier passage et vos statuts ne durent que le temps de la session.", "Frozen copy: the watch reads and writes no memory. Each opening is a first pass and your statuses last only for the session."],
   noteMemoire: ["Sont gardés, pour chaque épisode : une empreinte (un code, sans le nom de la série), son nombre de périodes, son |z| maximal, sa date de fin et s'il était en cours ; vos statuts, vos motifs et vos réglages de tri. "
@@ -524,23 +378,8 @@ const VEI_T = {
     + "An episode is recognised by its series, its direction and its first period; if past data or the model change, it may come back as new."]
 };
 const VEI_TRADUCTIONS = Object.values(VEI_T).concat([
-  ["Veille", "Watch"], ["Veille des dérives", "Drift watch"],
-  ["Nouveaux épisodes", "New episodes"], ["En cours, aggravés ou prolongés", "Ongoing, worse or longer"], ["Clos depuis le relevé", "Closed since last record"], ["Surconsommations à traiter", "Overconsumption to handle"], ["Si rien ne change, en 3 mois", "If nothing changes, over 3 months"],
-  ["pas de relevé antérieur", "no earlier record"], ["plus de périodes, ou un |z| plus fort, qu'au relevé précédent", "more periods, or a higher |z|, than at the previous record"], ["ils étaient en cours au relevé précédent", "they were ongoing at the previous record"],
-  ["projection simple des surconsommations en cours, pas une prévision", "simple projection of ongoing overconsumption, not a forecast"], ["aucune surconsommation en cours à ce niveau", "no ongoing overconsumption at this level"],
-  ["Instruire en série", "Investigate in a row"], ["Épisodes par série (budget)", "Episodes per run (budget)"], ["Arrêter la série", "Stop the run"], ["Arrêt en cours…", "Stopping…"],
-  ["Tous les épisodes à traiter ont déjà leur fiche.", "Every episode to handle already has its note."], ["Aucun épisode à traiter dans la file.", "No episode to handle in the queue."],
-  ["Changer de mode (page Instruction)", "Change mode (Investigation page)"], ["Journal détaillé de la série", "Detailed log of the run"], ["Épisodes instruits", "Episodes investigated"],
-  ["Copier le point de situation", "Copy the status report"], ["Imprimer le point de situation", "Print the status report"],
-  ["Cause la plus probable", "Most likely cause"], ["Confiance", "Confidence"], ["Relecture", "Review"], ["Vérifications sur site", "On-site checks"], ["Rédaction", "Drafting"], ["Votre décision :", "Your decision:"],
-  ["Ouvrir la fiche complète", "Open the full note"], ["Refermer la fiche complète", "Close the full note"], ["La fiche n'est pas encore rédigée", "The note is not written yet"], ["Relancer cet épisode", "Retry this episode"], ["Une instruction est déjà en cours", "An investigation is already running"],
-  ["À traiter", "To handle"], ["Validé", "Validated"], ["Écarté", "Dismissed"], ["Écarter", "Dismiss"], ["Annuler", "Cancel"], ["Motif (obligatoire)", "Reason (required)"], ["Motif de la mise à l'écart", "Reason for dismissing"],
-  ["Un motif est obligatoire pour écarter un épisode", "A reason is required to dismiss an episode"],
-  ["File d'attente", "Queue"], ["Classer par", "Rank by"], ["Ampleur (|z| max)", "Magnitude (max |z|)"], ["Site et UES : une seule fois la même dérive", "Site and SEU: the same drift only once"], ["Nouveautés d'abord", "What is new first"],
-  ["Dérives en cours d'abord", "Ongoing drifts first"], ["Surconsommations d'abord", "Overconsumption first"], ["Compter la projection à 3 mois", "Count the 3-month projection"],
-  ["Rang", "Rank"], ["Depuis le relevé", "Since last record"], ["Statut", "Status"], ["Motif", "Reason"], ["Décidé le", "Decided on"], ["fiche prête", "note ready"], ["Remettre à traiter", "Put back to handle"],
-  ["Sera instruit par la prochaine série", "Will be investigated by the next run"],
-  ["Mémoire de la veille", "Watch memory"], ["ce que ce navigateur garde d'un chargement à l'autre, sur ce poste", "what this browser keeps from one load to the next, on this computer"],
-  ["Oublier la mémoire de la veille", "Forget the watch memory"], ["Une copie figée ne garde aucune mémoire", "A frozen copy keeps no memory"], ["La mémoire ne contient que le relevé de ce chargement", "The memory holds only the record of this load"]
+  ["Tous les épisodes à traiter ont déjà leur fiche.", "Every episode to handle already has its note."],
+  ["Écarter", "Dismiss"], ["Annuler", "Cancel"], ["Motif (obligatoire)", "Reason (required)"], ["Motif de la mise à l'écart", "Reason for dismissing"],
+  ["Un motif est obligatoire pour écarter un épisode", "A reason is required to dismiss an episode"]
 ]);
 ajouterTraductions(VEI_TRADUCTIONS.filter(([fr]) => !EN.has(fr)));       // sans remplacer une traduction d'origine ou d'un autre module
