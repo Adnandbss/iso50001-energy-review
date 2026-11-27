@@ -6,17 +6,20 @@ The interface is in French with an English toggle.
 
 ## What it does
 
+Open it, click **"Try with a fictitious site"**, and a guided tour walks you through a made-up factory in about a minute.
+
 | Page | What you get |
 |---|---|
-| Site, SEUs | Actual vs baseline per meter, error tunnel, gap in energy, € and CO₂e |
-| Detection | Drift episodes (z-score on the model error), ongoing drifts and what they cost if nothing changes |
-| Investigation | An agent investigates one drift with five read-only tools; a second agent reviews the note in a separate conversation; the page checks every number against the tool results |
+| Overview | One screen: how the site compares with its baseline, the three drifts that cost the most, the year-end landing, and what to do next |
+| Site, SEUs, variables, charts | Actual vs baseline per meter, error tunnel, gap in energy, € and CO₂e; each page opens with a one-sentence answer, methods folded under "How it is computed" |
+| Drifts | One list of drift episodes ranked by stake without double counting. "Investigate" opens the agent's note in place: five read-only tools, a second agent reviewing in a separate conversation, every number checked against the tool results. Links open the drift's forecast, simulation or review, already set |
 | Forecast | 3–12 month forecast with an 80 % band, year-end landing in energy, € and CO₂e, and a rolling-origin backtest against a naive method |
 | Simulator | "What if production rose 10 % and the winter were cold?" — replays the baseline models, flags extrapolation, accepts a scenario written in one sentence |
-| Watch | Compares drifts with the previous load, ranks them by stake without double counting, investigates the top N in a row |
-| Review | Agents draft the ISO 50001 review from a file of 53 computed facts; two checks (deterministic and a second agent) before human sign-off and PDF export |
+| Review | Agents draft the ISO 50001 review from computed facts; a deterministic check and a second agent before human sign-off and PDF export |
 | Evaluation | A 26-question bench whose answers the page computes itself: reading, comparison, multi-step reasoning, and 7 traps where the right answer is "I cannot know" |
 | Integration | Any CSV or Excel export → profiled, columns mapped (rules or AI), baseline regressions fitted, dashboard loaded |
+
+Around the pages: one AI settings panel (demo mode, Gemini or Claude, one consent screen listing exactly what each feature sends; the key never goes to persistent storage), answers streamed as they arrive with a "working agent" indicator on every page, work kept per workbook in the browser with a project file to export and reopen, and an inline glossary for terms such as SEU, z-score or CUSUM.
 
 ## Results with a real model
 
@@ -30,7 +33,7 @@ Details: [`recherche/4-resultats-ia-reelle.md`](recherche/4-resultats-ia-reelle.
 
 ## Try it
 
-Open [`livrables/Tableau de bord revue énergétique - agents et prévision.html`](livrables/) in a browser, then load `donnees/SER PBI générique - valeurs figées.xlsm`. Demo mode (no AI, no network) is the default. To use a real model, paste a Gemini or Anthropic API key on the Investigation page: the key stays in the page's memory, and nothing is sent before an explicit consent that lists what leaves the machine.
+Open [`livrables/Tableau de bord revue énergétique - agents et prévision.html`](livrables/) in a browser and click **Try with a fictitious site**, or load `donnees/SER PBI générique - valeurs figées.xlsm`. Demo mode (no AI, no network) is the default. To use a real model, open **AI** at the bottom of the menu and paste a Gemini or Anthropic API key: it stays in the page's memory, and nothing is sent before an explicit consent that lists what leaves the machine.
 
 ## How it is built
 
@@ -48,10 +51,10 @@ CONTRAT.md            the contract every module follows (hooks, rules, tests)
 outillage/tout-tester.sh .     # assemble everything and run every test suite (Node, no browser)
 ```
 
-The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,190 checks, no network allowed.
+The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,795 checks across 13 suites, no network allowed.
 
 ## Notes
 
 - Baselines and drift rules come from the original Excel model; the page reproduces its calculation exactly (checked to 1e-9 on every series).
 - The sample workbook is a generic template; file metadata has been cleared.
-- Built with Claude Code (Anthropic) as a pair-programmer and as parallel sub-agents, each working on one module against a written contract.
+- Built with Claude Code (Anthropic) as a pair-programmer and as parallel sub-agents, each working on one module against a written contract (`CONTRAT.md`, `VAGUE1.md`, `VAGUE2.md`), on its own branch, merged after the full suite passed.
