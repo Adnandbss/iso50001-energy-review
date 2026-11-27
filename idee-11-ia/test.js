@@ -110,6 +110,9 @@ async function test() {
   iaOuvrir(); t = texteDe(iaDialogue);
   verifier(/AI settings/.test(t) && /Keep the key until this tab is closed/.test(t) && /I authorise these sends for this session/.test(t) && !/Réglages d'IA|Garder la clé/.test(t), "anglais : le panneau est traduit");
   iaFermer();
+  iaCoches.add("simulateur"); iaAutoriser(); t = page("revue");
+  verifier(/Sending authorised \(AI settings\) · Change/.test(t) && /AI: Gemini · gemini-3\.5-flash-lite · ready/.test(iaBouton.textContent), "anglais : la ligne d'accord et le badge « ready »");
+  iaRetirer();
   LANGUE = "fr"; CACHE_TR.clear(); cacheDerives = null;
 
   /* ---- 7. Réponse en continu ---- */

@@ -92,7 +92,7 @@ for (const c of [champCle, champCleGemini]) c.addEventListener("input", () => { 
 function iaAvantDeQuitter(e) {
   const cle = !iaGarder && !!(champCle.value.trim() || champCleGemini.value.trim());
   if (!cle && !iaActivite()) return undefined;
-  if (e) { e.preventDefault(); e.returnValue = ""; }
+  if (e) { e.preventDefault(); e.returnValue = true; }                         // le navigateur affiche son propre message
   return "";
 }
 addEventListener("beforeunload", iaAvantDeQuitter);
@@ -107,7 +107,7 @@ function iaEtat() {
   return { classe: "pret", texte: Lg("IA : " + nom + " · " + iaNomModele() + " · prête", "AI: " + nom + " · " + iaNomModele() + " · ready") };
 }
 const iaBouton = h("button", { type: "button", class: "ia-bouton", "aria-haspopup": "dialog", onclick: () => iaOuvrir() });
-const iaTravail = h("div", { class: "ia-travail", hidden: true });
+const iaTravail = h("div", { class: "ia-travail", hidden: true, "aria-live": "polite" });
 const iaPied = h("div", { class: "ia-pied" }, iaBouton, iaTravail);
 function iaMajBadge() {
   const e = iaEtat();
@@ -482,7 +482,7 @@ function iaPeindreTravail() {
     iaTexteTravail = titre + etat.onglet;
     const s = a.arret(), arretEnCours = iaArretDemande || (s && s.signal && s.signal.aborted);
     iaTravail.replaceChildren(
-      h("div", { class: "ia-titre-travail", role: "status" }, h("span", { class: "voyant actif", "aria-hidden": "true" }), h("span", null, titre)),
+      h("div", { class: "ia-titre-travail" }, h("span", { class: "voyant actif", "aria-hidden": "true" }), h("span", null, titre)),
       h("div", { class: "ia-actions" },
         etat.onglet !== a.page ? h("button", { type: "button", class: "lien", onclick: () => aller(a.page) }, "Voir") : null,
         h("button", { type: "button", class: "lien", disabled: !!arretEnCours, onclick: e => { const x = a.arret(); if (x) x.abort(); iaArretDemande = true; e.target.disabled = true; e.target.textContent = tr("Arrêt demandé…"); } }, arretEnCours ? "Arrêt demandé…" : "Arrêter")),
