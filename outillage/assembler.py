@@ -54,7 +54,7 @@ def remplacer_tout(texte, ancien, nouveau, attendu):
     return texte.replace(ancien, nouveau)
 
 CONFID_AVANT = "Seule exception (prototype) : dans l'onglet Dérives, l'instruction d'un épisode par l'IA envoie des valeurs à l'API d'IA que vous choisissez (Google Gemini ou Anthropic), uniquement après votre accord explicite."
-CONFID_APRES = "Exceptions, uniquement après votre accord explicite, donné sur la page concernée, et vers l'API d'IA que vous choisissez (Google Gemini ou Anthropic) : l'instruction d'une dérive, la veille, la revue et l'évaluation envoient des valeurs du classeur ; le simulateur envoie la phrase que vous écrivez, avec les noms et les plages des facteurs ; l'intégration d'un fichier envoie les intitulés des colonnes et quelques valeurs."
+CONFID_APRES = "Exceptions, uniquement après votre accord explicite, donné dans les réglages d'IA (un accord, fonction par fonction) ou sur la page concernée, et vers l'API d'IA que vous choisissez (Google Gemini ou Anthropic) : l'instruction d'une dérive, la veille, la revue et l'évaluation envoient des valeurs du classeur ; le simulateur envoie la phrase que vous écrivez, avec les noms et les plages des facteurs ; l'intégration d'un fichier envoie les intitulés des colonnes et quelques valeurs."
 EVAL_AVANT = "Une évaluation répète ces envois pour chaque épisode évalué."
 EVAL_APRES = "Une évaluation, ou une série lancée depuis la page Veille, répète ces envois pour chaque épisode."
 
