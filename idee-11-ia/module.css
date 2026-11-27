@@ -1,0 +1,56 @@
+/* Réglages d'IA : bouton et indicateur en bas du menu, panneau modal, attente pendant un tour, notifications. */
+.ia-pied { display: flex; flex-direction: column; gap: 6px; min-width: 0; position: sticky; bottom: -16px; margin: -12px 0 -16px; padding: 12px 2px 16px; background: var(--plan); }
+.ia-bouton { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 1px solid var(--axe); background: var(--surface); border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: 12.5px; line-height: 1.35; color: var(--encre); }
+.ia-bouton:hover { border-color: var(--encre); }
+.ia-bouton.attention { border-color: var(--alerte); }
+.ia-bouton > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.voyant.ia-gris { background: var(--neutre); }
+.ia-travail { background: var(--creux); border: 1px solid var(--bord); border-left: 4px solid var(--signal); border-radius: 0 4px 4px 0; padding: 7px 9px; font-size: 12.5px; }
+.ia-travail[hidden] { display: none; }
+.ia-titre-travail { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+.ia-actions { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 3px; }
+.ia-detail-travail { color: var(--encre2); font-size: 11.5px; margin-top: 4px; overflow-wrap: anywhere; max-height: 6.2em; overflow: hidden; }
+.ia-detail-travail:empty { display: none; }
+
+body.ia-modal { overflow: hidden; }
+.ia-voile { position: fixed; inset: 0; z-index: 50; background: rgba(14, 20, 26, .45); display: flex; align-items: flex-start; justify-content: center; padding: 5vh 16px; overflow-y: auto; }
+.ia-dialogue { background: var(--surface); color: var(--encre); border: 1px solid var(--bord); border-radius: 6px; box-shadow: 0 12px 40px rgba(0, 0, 0, .25); width: min(760px, 100%); max-width: 100%; }
+.ia-dialogue:focus { outline: none; }
+.ia-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--bord); position: sticky; top: 0; background: var(--surface); border-radius: 6px 6px 0 0; }
+.ia-tete h2 { font: 700 20px/1.2 var(--f-chiffre); margin: 0; }
+.ia-corps { padding: 12px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
+.ia-corps .filtres { margin: 0; }
+.ia-sans-marge { margin: 0; }
+.ia-fixe { padding: 6px 0; font-family: var(--f-chiffre); }
+.ia-cle { display: flex; flex-direction: column; gap: 6px; }
+.ia-cle input[type=password] { width: min(420px, 100%); padding: 6px 8px; border: 1px solid var(--axe); border-radius: 4px; background: var(--surface); }
+.ia-case { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.ia-case input { margin-top: 3px; flex: none; }
+.ia-accord { margin: 0; }
+.ia-donne p { margin: 4px 0; }
+.ia-fonction { border-top: 1px solid var(--bord); padding: 10px 0 2px; margin-top: 8px; }
+.ia-fonction.ia-off .ia-avis { opacity: .55; }
+.ia-avis { margin: 4px 0 0 24px; font-size: 12.5px; }
+.ia-avis > p:first-child { margin-top: 2px; }
+.ia-avis pre { max-height: 220px; overflow: auto; white-space: pre-wrap; font-size: 11px; }
+.ia-flux { color: var(--encre2); font-size: 12px; font-style: italic; margin-top: 4px; overflow-wrap: anywhere; }
+.ia-ligne { margin-top: 4px; }
+.ia-detail summary { cursor: pointer; font-size: 12px; color: var(--encre2); }
+.ia-detail pre { max-height: 220px; overflow: auto; white-space: pre-wrap; font-size: 11px; }
+
+.ia-notes { position: fixed; right: 16px; bottom: 16px; z-index: 40; display: flex; flex-direction: column; gap: 8px; max-width: min(380px, calc(100vw - 32px)); }
+.ia-note { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--bord); border-left: 4px solid var(--bon); border-radius: 0 5px 5px 0; box-shadow: 0 6px 20px rgba(0, 0, 0, .18); padding: 9px 10px 9px 12px; font-size: 13px; }
+.ia-note > span { flex: 1; min-width: 0; }
+.ia-note .lien { font-size: 16px; text-decoration: none; padding: 0 4px; }
+
+@media (max-width: 700px) {
+  .ia-pied { position: static; margin: 0; padding: 0; background: none; }
+  .ia-travail:not([hidden]) { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; border-radius: 0; border-width: 1px 0 0; border-top: 3px solid var(--signal); box-shadow: 0 -4px 14px rgba(0, 0, 0, .15); }
+  .ia-notes { bottom: 84px; }
+  .ia-voile { padding: 0; }
+  .ia-dialogue { border-radius: 0; min-height: 100%; }
+  .ia-tete { border-radius: 0; padding: 12px 16px; }
+  .ia-corps { padding: 10px 16px 18px; }
+  .ia-avis { margin-left: 0; }
+}
+@media print { .ia-notes, .ia-voile { display: none !important; } }
