@@ -5,7 +5,8 @@ const titre = t => console.log("— " + t);
 const pause = ms => new Promise(ok => setTimeout(ok, ms));
 async function attendreQue(cond, quoi, ms = 15000) { const t0 = Date.now(); while (!cond()) { if (Date.now() - t0 > ms) throw new Error("délai dépassé : " + quoi); await pause(15); } }
 const boutons = texte => trouver(app_, n => n.tagName === "BUTTON" && n.textContent.includes(texte));
-const voir = () => { etat.onglet = "veille"; rendre(); return texteDe(app_); };
+const voir = () => { etat.onglet = "veille"; rendre(); return texteDe(app_); };      // l'adresse « veille » mène à la page Dérives (module idee-13-derives)
+const ouvrirDerive = cle => { drv.ouverte = cle; drv.limite = Infinity; return voir(); };       // ouvre le détail d'une dérive, sous sa ligne
 const recharger = (grilles, figee) => charger(grilles || grillesChargees, d1904Charge, etat.fichier, figee || null);
 const memoire = () => JSON.parse(localStorage.getItem(VEI_CLE) || "null");
 const file_ = () => veiTrier(veiLignes().filter(l => l.aTraiter), vei.regle);
@@ -22,8 +23,7 @@ async function test() {
   const complet = grillesChargees, nomsSeries = etat.modele.series.map(sr => sr.nom), nbEp = derives().episodes.length;
 
   titre("1. Premier passage (chargement fait par le banc)");
-  verifier(ONGLETS.some(o => o[0] === "veille") && PAGES.some(g => g.groupe === "Agents" && g.pages.some(p => p[0] === "veille")), "la page « veille » est dans le groupe « Agents »");
-  verifier(typeof ICONES.veille === "string" && ICONES.veille.length > 10, "la page a une icône");
+  verifier(ONGLETS.some(o => o[0] === "veille") && PAGES_MODULES.veille === drvPage && !PAGES.some(g => g.pages.some(p => p[0] === "veille")), "l'adresse « veille » mène à la page Dérives, qui remplace la page Veille dans le menu");
   verifier(vei.comparaison && vei.comparaison.premier === true, "premier passage reconnu");
   verifier(vei.comparaison.nouveau.length === nbEp && nbEp > 0, "au premier passage, tous les épisodes sont nouveaux (" + nbEp + ")");
   const brut = localStorage.getItem(VEI_CLE) || "";
@@ -155,17 +155,17 @@ async function test() {
   verifier(res3.every(r => r.mesures.identique && r.mesures.ctrl.nbAbsents === 0 && r.tours === 4), "contrôles de la page : nombres retrouvés, écart identique, 4 tours");
   verifier(__reseau.length === 0, "aucun appel réseau pendant la série en démonstration");
   page = voir();
-  verifier(page.includes("script de démonstration, sans IA") && page.includes("Cause la plus probable") && page.includes("Vérifications sur site") && page.includes("Action proposée"), "le point de situation résume chaque fiche et dit qu'elle vient d'un script");
-  verifier(res3.every(r => page.includes(r.res.fiche.causes_probables[0].cause) && page.includes(r.res.fiche.action_proposee)), "cause la plus probable et action proposée de chaque fiche sont affichées");
-  verifier(page.includes("Série terminée : 3 fiches sur 3.") && page.includes("fiche prête"), "bilan de la série et état de la file à jour");
+  verifier(page.includes("Série terminée : 3 fiches sur 3.") && cibles.every(c => texteDe(app_.querySelector('[data-cle="' + c + '"]')).includes("Instruite")), "bilan de la série, et les 3 dérives marquées « Instruite » dans la liste");
   zoneFiche.replaceChildren(marqueur);
-  const tetes = trouver(app_, n => n.classList.contains("vei-tete"));
-  verifier(tetes.length === 3, "une ligne par épisode instruit");
-  cliquer(tetes[0]);
-  verifier(trouver(app_, n => n.classList.contains("fiche")).length === 1 && texteDe(app_).includes("Fiche de dérive : brouillon à valider"), "cliquer une ligne ouvre la fiche complète (celle de montrerFiche)");
-  verifier(zoneFiche.childNodes.length === 1 && zoneFiche.firstChild === marqueur, "ouvrir une fiche dans la veille ne touche pas à la zone de fiche de la page Instruction");
-  cliquer(trouver(app_, n => n.classList.contains("vei-tete"))[0]);
-  verifier(trouver(app_, n => n.classList.contains("fiche")).length === 0, "recliquer referme la fiche");
+  const voirFiche = trouver(app_, n => n.tagName === "BUTTON" && n.textContent === "Voir la fiche");
+  verifier(voirFiche.length === 3, "un bouton « Voir la fiche » par dérive instruite");
+  cliquer(voirFiche[0]);
+  page = texteDe(app_);
+  verifier(trouver(app_, n => n.classList.contains("fiche")).length === 1 && page.includes("Fiche de dérive : brouillon à valider") && page.includes("script de démonstration (sans IA)"), "la fiche complète (celle de montrerFiche) s'ouvre sous sa ligne et dit qu'elle vient d'un script");
+  verifier(res3.some(r => page.includes(r.res.fiche.causes_probables[0].cause) && page.includes(r.res.fiche.action_proposee)), "causes et action proposée de la fiche sont affichées");
+  verifier(zoneFiche.childNodes.length === 1 && zoneFiche.firstChild === marqueur, "ouvrir une fiche de la série ne touche pas à la zone de fiche de l'instruction");
+  cliquer(trouver(app_, n => n.tagName === "BUTTON" && n.textContent === "Refermer")[0]);
+  verifier(trouver(app_, n => n.classList.contains("fiche")).length === 0, "« Refermer » referme la fiche");
   zoneFiche.replaceChildren();
   etat.onglet = "agent"; rendre();
   verifier(texteDe(app_).includes("Épisode 3 sur 3") && agent.progres && agent.progres.fin === "terminé", "après la série, la page Instruction reste cohérente (journal de la série, progression terminée)");
@@ -189,11 +189,13 @@ async function test() {
   verifier(vei.serie === serieAvant && vei.resultats.size === 3, "pendant une instruction lancée ailleurs, la série ne démarre pas");
   page = voir();
   const bBloque = boutons("Instruire le")[0];
-  verifier(bBloque && bBloque.disabled && page.includes("Une instruction ou une évaluation est déjà en cours") && vei.guet !== null, "le bouton de la veille est désactivé, avec le motif");
-  await pi; await attendreQue(() => vei.guet === null, "libération du bouton");
+  verifier(bBloque && bBloque.disabled && page.includes("Une instruction ou une évaluation est déjà en cours"), "le bouton de la série est désactivé, avec le motif");
+  await pi;
   verifier(!boutons("Instruire le")[0].disabled && !texteDe(app_).includes("Une instruction ou une évaluation est déjà en cours"), "dès que l'instruction finit, la page se remet à jour et le bouton se libère");
+  const avantSerie = vei.resultats.size;
+  verifier(avantSerie === 3 + (cibles.includes(veiCle(derives().episodes[0])) ? 0 : 1), "la fiche de l'instruction est gardée avec celles de la série");
   veiRegler("n", 1); await veiLancerSerie();
-  verifier(vei.resultats.size === 4 && [...vei.resultats.values()].every(r => r.etat === "fiche") && vei.resultats.get(cibles[0]) === res3[0], "une nouvelle série continue la file (4e épisode) sans refaire les fiches déjà rendues");
+  verifier(vei.resultats.size === avantSerie + 1 && [...vei.resultats.values()].every(r => r.etat === "fiche") && vei.resultats.get(cibles[0]) === res3[0], "une nouvelle série continue la file sans refaire les fiches déjà rendues");
 
   titre("7. Arrêt en cours de route, puis reprise");
   recharger(); veiRegler("n", 3); voir();
@@ -208,8 +210,8 @@ async function test() {
   verifier(c7.map(c => vei.resultats.get(c).etat).join(",") === "fiche,arrete,non-lance", "arrêt pendant l'épisode 2 : la fiche 1 est gardée, l'épisode 2 est arrêté, le 3 n'est pas lancé");
   verifier(vei.serie.arrete && !agent.enCours && agent.progres.fin === "arrêté", "la série est marquée arrêtée et le verrou est rendu");
   page = voir();
-  verifier(page.includes("Série arrêtée : 1 fiche sur 3.") && boutons("Reprendre les 2 épisodes sans fiche").length === 1, "le bilan le dit et propose de reprendre les 2 épisodes sans fiche");
-  cliquer(boutons("Reprendre les 2 épisodes sans fiche")[0]);
+  verifier(page.includes("Série arrêtée : 1 fiche sur 3.") && boutons("Reprendre les 2 dérives sans fiche").length === 1, "le bilan le dit et propose de reprendre les 2 épisodes sans fiche");
+  cliquer(boutons("Reprendre les 2 dérives sans fiche")[0]);
   await attendreQue(() => !agent.enCours, "fin de la reprise");
   verifier(c7.every(c => vei.resultats.get(c).etat === "fiche") && vei.resultats.get(c7[0]) === fiche1 && vei.serie.cles.length === 2, "reprise : les 2 épisodes manquants sont instruits, la fiche 1 n'est pas refaite");
   verifier([...vei.resultats.keys()].join() === c7.join(), "l'ordre des épisodes du point de situation est conservé");
@@ -223,8 +225,10 @@ async function test() {
   await veiLancerSerie(null, redacteurFaux(false));
   verifier(c8.map(l => vei.resultats.get(l.cle).etat).join(",") === "fiche,echec,fiche", "une erreur sur l'épisode 2 n'empêche ni la fiche 1 ni la fiche 3");
   verifier(vei.resultats.get(c8[1].cle).erreur === "Panne simulée du modèle" && !vei.serie.interrompue && agent.progres.fin === "échec", "l'erreur est gardée avec son message");
-  page = voir();
-  verifier(page.includes("échec : Panne simulée du modèle") && page.includes("Série terminée : 2 fiches sur 3.") && boutons("Reprendre l'épisode sans fiche").length === 1 && boutons("Relancer cet épisode").length === 1, "la page montre l'échec et propose la reprise");
+  page = ouvrirDerive(c8[1].cle);
+  verifier(page.includes("échec : Panne simulée du modèle") && page.includes("Série terminée : 2 fiches sur 3.") && boutons("Reprendre la dérive sans fiche").length === 1 && boutons("Lancer l'instruction").length === 1, "la page montre l'échec dans le détail de la dérive et propose la reprise");
+  verifier(texteDe(app_.querySelector('[data-cle="' + c8[1].cle + '"]')).includes("À traiter · sans fiche"), "dans la liste, la dérive en échec reste à traiter, sans fiche");
+  drv.ouverte = null;
   const g1 = vei.resultats.get(c8[0].cle), g3 = vei.resultats.get(c8[2].cle);
   panne = false;
   await veiLancerSerie([c8[1].cle], redacteurFaux(false));
@@ -255,9 +259,9 @@ async function test() {
   const f10 = file_(), la = f10[0], lb = f10[1], lc = f10[2], taille = f10.length;
   verifier(veiFixerStatut(la.cle, "ecarte", "  ") === false && veiStatut(la.cle, la.ep).s === "atraiter", "écarter sans motif est refusé");
   verifier(veiFixerStatut(la.cle, "inconnu", "x") === false && veiFixerStatut("pas-une-cle", "valide", "") === false, "statut ou épisode inconnu : refusé");
-  // parcours à l'écran : choisir « Écarté » dans la file, saisir le motif, confirmer
-  let sel = trouver(app_, n => n.tagName === "SELECT")[0];
-  sel.value = "ecarte"; sel.dispatchEvent({ type: "change", target: sel });
+  // parcours à l'écran : ouvrir la dérive, choisir « Écartée », saisir le motif, confirmer
+  ouvrirDerive(la.cle);
+  cliquer(trouver(app_.querySelector(".drv-detail"), n => n.tagName === "BUTTON" && n.textContent === "Écartée")[0]);
   const champ = trouver(app_, n => n.classList.contains("vei-motif"))[0], okb = boutons("Écarter")[0];
   verifier(champ && okb && okb.disabled, "choisir « Écarté » ouvre la saisie du motif, bouton désactivé tant qu'il est vide");
   cliquer(okb);
@@ -268,16 +272,18 @@ async function test() {
   verifier(veiStatut(la.cle, la.ep).s === "ecarte" && veiStatut(la.cle, la.ep).motif === "Arrêt technique planifié", "l'épisode est écarté avec son motif");
   verifier(veiFixerStatut(lb.cle, "valide", "") === true, "valider un épisode");
   verifier(file_().length === taille - 2 && !file_().some(l => l.cle === la.cle || l.cle === lb.cle), "les épisodes validés ou écartés quittent la file");
-  page = voir();
-  verifier(page.includes("Épisodes déjà traités : 2") && page.includes("Arrêt technique planifié"), "ils sont listés à part, avec le motif");
+  page = ouvrirDerive(la.cle);
+  const fin2 = drvLignes().slice(-2).map(l => l.cle);
+  verifier(fin2.includes(la.cle) && fin2.includes(lb.cle) && page.includes("Arrêt technique planifié") && texteDe(app_.querySelector('[data-cle="' + lb.cle + '"]')).includes("Validée")
+    && texteDe(app_.querySelector('[data-cle="' + la.cle + '"]')).includes("Écartée"), "elles passent en fin de liste, avec leur statut et le motif");
   const st = memoire().jeux[vei.jeu].statuts;
   verifier(st[la.cle].s === "ecarte" && st[la.cle].motif === "Arrêt technique planifié" && st[lb.cle].s === "valide" && Object.keys(st).length === 2, "les statuts sont écrits en mémoire locale");
   recharger(); voir();
   verifier(veiStatut(la.cle, la.ep).s === "ecarte" && veiStatut(la.cle, la.ep).motif === "Arrêt technique planifié" && veiStatut(lb.cle, lb.ep).s === "valide" && file_().length === taille - 2, "après un nouveau chargement, statuts et motif sont retrouvés");
   vei.memo.statuts[lb.cle].n = lb.ep.n - 2;
   const lb2 = veiLignes().find(l => l.cle === lb.cle);
-  verifier(lb2.aTraiter && lb2.statut.plus === 2 && lb2.neuf && voir().includes("décision à revoir"), "un épisode validé qui s'allonge ensuite revient dans la file, marqué « décision à revoir »");
-  cliquer(boutons("Remettre à traiter")[0]);
+  verifier(lb2.aTraiter && lb2.statut.plus === 2 && lb2.neuf && texteDe((voir(), app_.querySelector('[data-cle="' + lb.cle + '"]'))).includes("Validée · à revoir"), "un épisode validé qui s'allonge ensuite revient dans la file, marqué « à revoir »");
+  ouvrirDerive(la.cle); cliquer(trouver(app_.querySelector(".drv-detail"), n => n.tagName === "BUTTON" && n.textContent === "À traiter")[0]); drv.ouverte = null;
   verifier(veiStatut(la.cle, la.ep).s === "atraiter" && !(la.cle in memoire().jeux[vei.jeu].statuts), "« Remettre à traiter » efface le statut");
   // copie figée : rien n'est lu ni écrit
   const avantFigee = localStorage.getItem(VEI_CLE), nbEcritures = ecritures.length;
@@ -296,9 +302,11 @@ async function test() {
 
   titre("11. Rendu en français et en anglais");
   page = voir();
-  for (const t of ["Veille des dérives", "Premier passage sur ce jeu de données", "Instruire en série", "File d'attente", "Mémoire de la veille", "Règle appliquée, dans l'ordre", "Mode démonstration", "Budget de la prochaine série : 3 épisodes, 8 tours au plus par épisode, 3 pour la relecture, soit au plus 33 appels au script"])
+  for (const t of ["Dérives", "Premier passage sur ce jeu de données", "Instruire en série", "Instruire les 3 premières", "Veille : nouveautés, mémoire et point de situation", "Règle appliquée, dans l'ordre", "Mode démonstration"])
     verifier(page.includes(t), "français : « " + t + " »");
-  verifier(trouver(app_, n => n.tagName === "TR").length >= file_().length && trouver(app_, n => n.classList.contains("vei-rang") && n.classList.contains("prochain")).length === 3, "la file liste tous les épisodes et marque les 3 prochains");
+  verifier(boutons("Instruire les 3 premières")[0].getAttribute("title") === "Au plus 8 tours par dérive, 3 pour la relecture, soit au plus 33 appels au script (aucun appel réseau).", "le budget de la série est dit sur son bouton");
+  drv.limite = Infinity; voir();
+  verifier(trouver(app_, n => n.classList.contains("drv-item")).length === veiLignes().length, "la liste montre toutes les dérives");
   const cases = trouver(app_, n => n.tagName === "INPUT" && n.attrs.type === "checkbox");
   verifier(cases.length === 5, "cinq réglages à cocher");
   const premierAvant = file_()[0].cle; cases[2].checked = false; cases[2].dispatchEvent({ type: "change", target: cases[2] });
@@ -307,10 +315,11 @@ async function test() {
   verifier(file_()[0].cle === premierAvant, "recocher rétablit l'ordre");
   LANGUE = "en"; CACHE_TR.clear(); rendre();
   veiRegler("n", 1);
-  await veiLancerSerie();
-  cliquer(trouver(app_, n => n.classList.contains("vei-tete"))[0]);
+  const s1 = veiLancerSerie(); voir(); await s1;
+  drv.ouverte = null; voir();
+  cliquer(trouver(app_.querySelector('[data-cle="' + vei.serie.cles[0] + '"]'), n => n.tagName === "BUTTON" && n.textContent === "See the note")[0]);
   let en = texteDe(app_);
-  for (const t of ["Drift watch", "First pass on this dataset", "Investigate in a row", "Queue", "Watch memory", "Rule applied, in order", "Demo mode", "Most likely cause", "On-site checks", "by a script, no AI", "Run finished: 1 of 1 note."])
+  for (const t of ["Drifts", "First pass on this dataset", "Investigate in a row", "Watch: what is new, memory and status report", "Rule applied, in order", "Demo mode", "Drift note: draft to validate", "On-site checks", "Investigated", "Run finished: 1 of 1 note."])
     verifier(en.includes(t), "anglais : « " + t + " »");
   // aucun texte français ne doit rester : on retire d'abord les données du classeur (noms de séries, d'énergies, de facteurs)
   const texteHorsJournal = n => n.nodeType === 3 ? n.textContent : n.classList.contains("journal") ? "" : n.children.length ? n.children.map(texteHorsJournal).join("\n") : n.textContent;   // le journal (page d'origine) montre des résultats d'outils bruts
