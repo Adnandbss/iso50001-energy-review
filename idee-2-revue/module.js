@@ -262,7 +262,7 @@ function revZero(m) {
 }
 AU_CHARGEMENT.push(revZero);
 /* Ce module envoie plus que ce que liste avisEnvoi() : il lui faut son propre accord, en plus des réglages de la page Instruction. */
-const revBlocage = () => agent.demo ? null : blocageEnvoi() ? revT("Réglez d'abord le fournisseur, la clé et l'accord sur la page Instruction.", "First set the provider, the key and the consent on the Investigation page.")
+const revBlocage = () => agent.demo ? null : blocageEnvoi() ? revT("Réglez d'abord le fournisseur, la clé et l'accord dans les réglages d'IA (bouton « IA », en bas du menu).", "First set the provider, the key and the consent in the AI settings (“AI” button, at the bottom of the menu).")
   : rev.accord !== agent.fournisseur ? revT("Autorisez d'abord l'envoi du dossier de faits (encadré ci-dessus).", "First authorise sending the fact file (box above).") : null;
 function revNoter(etat_, detail, ...texte) { const e = { etat: etat_, texte: revF(...texte), detail }; rev.journal.push(e); revPeindre(); return e; }
 const REV_ABSENT = ["« {0} » : nombre introuvable dans le dossier de faits", "“{0}”: number not found in the fact file"];
@@ -401,8 +401,8 @@ function revAvis() {
         "the fact file of step 1, in full (unfold it to read it): names of the consumption series, energy types and relevant variables; consumption, baselines and gaps; model quality; drift episodes, estimated costs and emissions; ranges of the variables; your price and emission factor assumptions; dates of the data;")),
       h("li", null, revT("une consigne de travail fixe, écrite dans cette page ;", "a fixed set of instructions, written in this page;")),
       h("li", null, revT("puis, à chaque vérification, dans une seconde conversation : le texte de la revue, corrections comprises, et le même dossier.", "then, at each check, in a second conversation: the text of the review, corrections included, and the same file."))),
-    h("p", null, revT("Ne sont pas envoyés : le fichier Excel, son nom, les valeurs période par période, les équations des modèles, le nom du relecteur. Le message exact s'affiche dans le journal. L'accord de la page Instruction ne couvre pas cet envoi ; son avertissement sur les clés Gemini gratuites vaut ici aussi.",
-      "Not sent: the Excel file, its name, the period-by-period values, the model equations, the reviewer's name. The exact message is shown in the log. The consent on the Investigation page does not cover this; its warning about free Gemini keys applies here too.")),
+    h("p", null, revT("Ne sont pas envoyés : le fichier Excel, son nom, les valeurs période par période, les équations des modèles, le nom du relecteur. Le message exact s'affiche dans le journal. L'accord pour l'instruction d'une dérive ne couvre pas cet envoi ; l'avertissement sur les clés Gemini gratuites vaut ici aussi.",
+      "Not sent: the Excel file, its name, the period-by-period values, the model equations, the reviewer's name. The exact message is shown in the log. The consent for investigating a drift does not cover this; the warning about free Gemini keys applies here too.")),
     h("p", null, h("button", { class: "btn principal", onclick: () => { rev.accord = agent.fournisseur; rev.erreur = null; revPeindre(); } }, revL("J'autorise l'envoi du dossier de faits à {0} pour cette session", "I authorise sending the fact file to {0} for this session", revM(f.api))),
       revT(" Rien n'est envoyé avant ce clic.", " Nothing is sent before this click.")));
 }
@@ -437,7 +437,7 @@ function revPeindre() {
   const e2 = carte({ id: "rev-2", titre: revT("2. Rédaction", "2. Writing"),
     contenu: h("div", null,
       h("p", { class: "rev-marge" }, h("b", null, revT("Rédacteur et vérificateur : ", "Writer and verifier: ")), demo ? revT("script de démonstration, sans IA ni réseau", "demo script, no AI and no network") : revBrut(f.nom + " (" + modeleIA() + ")"), " ",
-        h("button", { class: "lien", onclick: () => aller("agent") }, revT("Changer sur la page Instruction", "Change on the Investigation page"))),
+        h("button", { class: "lien", onclick: () => typeof iaOuvrir === "function" ? iaOuvrir() : aller("agent") }, revT("Réglages d'IA", "AI settings"))),
       demo ? h("div", { class: marge }, revT("Un script assemble la revue en recopiant des faits, sans raisonnement ; un second joue le vérificateur. Ils montrent la chaîne et ses contrôles, pas un modèle.", "A script assembles the review by copying facts, without reasoning; a second one plays the verifier. They show the chain and its checks, not a model."))
         : rev.accord === agent.fournisseur ? h("div", { class: marge }, revL("Envoi du dossier de faits à {0} autorisé pour cette session. ", "Sending the fact file to {0} is authorised for this session. ", revM(f.api)), h("button", { class: "lien", onclick: () => { rev.accord = false; revPeindre(); } }, "Retirer l'autorisation"))
         : revAvis(),
@@ -456,8 +456,8 @@ function revPeindre() {
       actions(h("button", { class: "btn", disabled: rev.enCours || !!bloc, title: bloc, onclick: () => revRelancerVerification() }, revT("Relancer la vérification", "Run the checks again")),
         v.demo && demo ? h("button", { class: "btn", disabled: rev.enCours, onclick: () => revPieger() }, v.piege ? revT("Retirer l'erreur introduite", "Remove the introduced error") : revT("Introduire une erreur", "Introduce an error")) : null,
         v.demo && demo ? note(v.piege ? revL("« {0} » a été remplacé par « {1} » dans la section {2}.", "“{0}” was replaced by “{1}” in section {2}.", v.piege.avant, v.piege.apres, revTitre(v.piege.id)) : revT("Altère un nombre juste du brouillon, pour voir les deux contrôles l'attraper.", "Alters a correct number in the draft, to see both checks catch it.")) : null)),
-    note: revT("La page lit chaque nombre avec son unité et le cherche dans les faits que sa phrase cite ; elle ne contrôle ni le signe, ni le sens, ni les entiers sans unité inférieurs à 100. En mode démonstration, le second agent est un script, qui ne juge pas le sens.",
-      "The page reads each number with its unit and looks for it in the facts its sentence cites; it checks neither sign, nor meaning, nor unit-less integers below 100. In demo mode the second agent is a script, which does not judge meaning.") });
+    note: repli("rev-controles", revT("Ce que les contrôles vérifient", "What the checks verify"), revT("La page lit chaque nombre avec son unité et le cherche dans les faits que sa phrase cite ; elle ne contrôle ni le signe, ni le sens, ni les entiers sans unité inférieurs à 100. En mode démonstration, le second agent est un script, qui ne juge pas le sens.",
+      "The page reads each number with its unit and looks for it in the facts its sentence cites; it checks neither sign, nor meaning, nor unit-less integers below 100. In demo mode the second agent is a script, which does not judge meaning.")) });
   const valide = v && v.valide, bValider = !v || valide ? null : h("button", { class: "btn principal", onclick: () => { v.valide = { par: rev.relecteur.trim(), date: revJour() }; rev.edition = null; revPeindre(); } }, revT("Valider la revue", "Validate the review")), motif = !v ? null : E.ouverts.length ? revT("Corrigez ou levez d'abord les signalements ouverts.", "First fix or dismiss the open flags.") : !rev.relecteur.trim() ? revT("Saisissez d'abord le nom du relecteur.", "First enter the reviewer's name.") : null;
   if (bValider) bValider.disabled = !!motif || rev.enCours;
   const bCopie = h("button", { class: "btn", onclick: () => copierTexte(revEnTexte(revDocument(v, revEtat(v))).trim(), bCopie) }, "Copier");
@@ -476,14 +476,27 @@ function revPeindre() {
         note(valide ? revL("Revue validée par {0} le {1}.", "Review validated by {0} on {1}.", valide.par, valide.date) : motif || revT("La validation s'inscrit dans le document.", "The validation is recorded in the document."))),
       actions(h("button", { class: "btn principal", onclick: () => window.print() }, revT("Imprimer ou enregistrer en PDF", "Print or save as PDF")), bCopie,
         note(E.ouverts.length ? revBrut(revAvertir(E.ouverts.length)) : revT("L'impression ne garde que le document ci-dessous.", "Printing keeps only the document below.")))) });
-  revNoeud.replaceChildren(h("div", { class: "rev-ecran" }, h("div", { class: "filtres" }, filtresCommuns(false)), h("div", { class: "grille" }, e1, e2, e3, e4)), v ? revDocument(v, E) : "");
+  revNoeud.replaceChildren(h("div", { class: "rev-ecran" }, revReponse(D, v, E), h("div", { class: "filtres" }, filtresCommuns(false)), h("div", { class: "grille" }, e1, e2, e3, e4),
+    repli("rev-methode", null, h("p", { class: "chapeau" }, revT("La page calcule les faits, un agent rédige en citant ses sources, deux contrôles vérifient, une personne valide et exporte. Aucun chiffre ne vient d'un modèle.",
+      "The page computes the facts, an agent writes and cites its sources, two checks verify, a person validates and exports. No figure comes from a model.")))), v ? revDocument(v, E) : "");
   if (typeof cntPlusTard === "function") cntPlusTard();   // sauvegarde (module Continuité)
 }
 function revPage() {
   if (rev.modele !== etat.modele) revZero(etat.modele);
   revPeindre();
-  return [h("p", { class: "chapeau rev-ecran" }, revT("La page calcule les faits, un agent rédige en citant ses sources, deux contrôles vérifient, une personne valide et exporte. Aucun chiffre ne vient d'un modèle.",
-    "The page computes the facts, an agent writes and cites its sources, two checks verify, a person validates and exports. No figure comes from a model.")), revNoeud];
+  return [revNoeud];
+}
+/* La réponse, en tête : où en est la revue de la période, avec les chiffres des étapes, et ce qu'il reste à faire. */
+function revReponse(D, v, E) {
+  const periode = revF("du {0} au {1}", "from {0} to {1}", fmtDate(etat.de), fmtDate(etat.a)), p = (titre, suite) => h("div", { class: "constat rev-reponse" + (v && E.ouverts.length ? " alerte" : "") }, h("p", { class: "titre" }, titre), h("p", { class: "suite" }, suite));
+  if (!v) return p(revL("Revue {0} : pas encore rédigée.", "Review {0}: not written yet.", periode),
+    revL("Le dossier compte {0} faits calculés et {1} épisodes de dérive. Étape suivante : « Rédiger la revue », plus bas.", "The file holds {0} computed facts and {1} drift episodes. Next step: “Write the review”, below.", D.faits.length, D.nbEpisodes));
+  if (v.valide) return p(revL("Revue validée par {0} le {1}.", "Review validated by {0} on {1}.", v.valide.par, v.valide.date),
+    revL("{0} nombres sur {1} retrouvés dans le dossier. Imprimez-la ou copiez-la, en bas de page.", "{0} of {1} numbers found in the file. Print or copy it, at the bottom of the page.", E.ok, E.total));
+  return p(E.ouverts.length ? revL("Brouillon du {0} : {1} signalement(s) ouvert(s) sur {2} nombres contrôlés.", "Draft of {0}: {1} open flag(s) over {2} numbers checked.", v.date, E.ouverts.length, E.total)
+      : revL("Brouillon du {0} : aucun signalement ouvert, {1} nombres sur {2} retrouvés.", "Draft of {0}: no open flag, {1} of {2} numbers found.", v.date, E.ok, E.total),
+    E.ouverts.length ? revT("Étape suivante : corrigez ou levez chaque signalement, puis saisissez le relecteur et validez.", "Next step: fix or dismiss each flag, then enter the reviewer and validate.")
+      : revT("Étape suivante : saisissez le nom du relecteur et validez.", "Next step: enter the reviewer's name and validate."));
 }
 
 ICONES.revue = "M4 2.5h5l3 3v8H4zM9 2.5v3h3M6 10l1.5 1.5L10 8.5";

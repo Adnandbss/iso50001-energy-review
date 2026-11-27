@@ -69,3 +69,7 @@
   .rev-grille-faits dd, .rev-document li { break-inside: avoid; }
   @page rev-revue { margin: 18mm 17mm 16mm; }
 }
+/* Vague 2 : la réponse d'abord */
+.rev-reponse { margin-bottom: 14px; }
+.rev-reponse .titre { font-size: 24px; }
+@media print { .rev-reponse { display: none; } }
