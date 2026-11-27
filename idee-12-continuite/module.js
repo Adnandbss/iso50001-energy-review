@@ -72,7 +72,8 @@ function cntFiltresOublier() { const d = cnt.defauts; if (!d) return; const x = 
 const CNT_PARTIES = [
   { id: "filtres", fr: "Réglages des filtres", en: "Filter settings", garder: cntFiltresAGarder, reprendre: cntFiltresReprendre, oublier: cntFiltresOublier },
   { id: "sim", fr: "Scénarios du simulateur", en: "Simulator scenarios", garder: p => typeof simAGarder === "function" ? simAGarder(p) : null, reprendre: d => typeof simReprendre === "function" && simReprendre(d), oublier: () => typeof simOublier === "function" && simOublier() },
-  { id: "rev", fr: "Brouillon de revue", en: "Review draft", garder: p => typeof revAGarder === "function" ? revAGarder(p) : null, reprendre: d => typeof revReprendre === "function" && revReprendre(d), oublier: () => typeof revOublier === "function" && revOublier(), langue: true },
+  { id: "rev", fr: "Brouillon de revue", en: "Review draft", garder: p => typeof revAGarder === "function" ? revAGarder(p) : null, reprendre: d => typeof revReprendre === "function" && revReprendre(d), oublier: () => typeof revOublier === "function" && revOublier(), langue: true,
+    sansBrouillon: () => typeof rev === "undefined" || !rev.revue },
   { id: "evl", fr: "Passes du banc d'évaluation", en: "Evaluation bench runs", garder: p => typeof evlAGarder === "function" ? evlAGarder(p) : null, reprendre: d => typeof evlReprendre === "function" && evlReprendre(d), oublier: () => typeof evlOublier === "function" && evlOublier(),
     reduire: d => { if (Array.isArray(d.passes) && d.passes.length > 1) { d.passes.shift(); return true; } return false; } }];
 const cntPartie = id => CNT_PARTIES.find(p => p.id === id);
@@ -159,7 +160,7 @@ function cntApresLangue() {
   for (const P of CNT_PARTIES) {
     if (!P.langue || !E || !E.parties[P.id]) continue;
     const x = E.parties[P.id];
-    if (x.d.langue !== LANGUE || P.garder(null) != null) continue;   // dans l'autre langue, ou un brouillon déjà en mémoire
+    if (x.d.langue !== LANGUE || !P.sansBrouillon()) continue;   // dans l'autre langue, ou un brouillon déjà en mémoire
     let ok = false; try { ok = P.reprendre(x.d); } catch (e) { ok = false; }
     if (ok) { cnt.retrouve = cnt.retrouve.filter(r => r.id !== P.id); cnt.retrouve.push({ id: P.id, quand: x.quand }); cnt.bandeauFerme = false; }
   }
