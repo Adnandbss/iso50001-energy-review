@@ -23,3 +23,6 @@
 .itg summary { cursor: pointer; color: var(--encre2); }
 .itg pre { font: 12px ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 260px; overflow: auto; margin: 6px 0; padding: 6px 8px; background: var(--surface); border: 1px solid var(--bord); border-radius: 3px; }
 @media (max-width: 700px) { .itg-accueil { padding: 18px 16px 20px; } }
+/* Vague 2 : la réponse d'abord, sur la page (pas sur l'accueil) */
+.itg-reponse { margin-bottom: 14px; }
+.itg-reponse .titre { font-size: 22px; overflow-wrap: anywhere; }
