@@ -1,12 +1,14 @@
 # ISO 50001 energy review — from a Power BI report to a single-file tool with agents
 
+**Live demo: https://adnandbss.github.io/iso50001-energy-review/** — click *Try it with a fictitious site*; nothing to install, no data leaves your browser.
+
 An energy review dashboard for industrial sites, rebuilt from a Power BI report into **one HTML file with no dependencies and no server**. It reads the site's Excel workbook in the browser, recomputes the regression baselines, finds drifts, forecasts the coming months, and lets tool-using AI agents investigate drifts and draft the review — with every figure computed by the page, never by the model.
 
 The interface is in French with an English toggle.
 
 ## What it does
 
-Open it, click **"Try with a fictitious site"**, and a guided tour walks you through a made-up factory in about a minute.
+Open it, click **"Try it with a fictitious site"**, and a guided tour walks you through a made-up factory in about a minute.
 
 | Page | What you get |
 |---|---|
@@ -33,7 +35,7 @@ Details: [`recherche/4-resultats-ia-reelle.md`](recherche/4-resultats-ia-reelle.
 
 ## Try it
 
-Open [`livrables/Tableau de bord revue énergétique - agents et prévision.html`](livrables/) in a browser and click **Try with a fictitious site**, or load `donnees/SER PBI générique - valeurs figées.xlsm`. Demo mode (no AI, no network) is the default. To use a real model, open **AI** at the bottom of the menu and paste a Gemini or Anthropic API key: it stays in the page's memory, and nothing is sent before an explicit consent that lists what leaves the machine.
+Open the [live demo](https://adnandbss.github.io/iso50001-energy-review/) (or `livrables/Tableau de bord revue énergétique - agents et prévision.html` locally) and click **Try it with a fictitious site**, or load `donnees/SER PBI générique - valeurs figées.xlsm`. Demo mode (no AI, no network) is the default. To use a real model, open **AI** at the bottom of the menu and paste a Gemini or Anthropic API key: it stays in the page's memory, and nothing is sent before an explicit consent that lists what leaves the machine.
 
 ## How it is built
 
