@@ -2300,7 +2300,7 @@ function controlerChiffres(textes, sources) {
    ============================================================================ */
 const IA = { url: "https://api.anthropic.com/v1/messages", version: "2026-10-21", modele: "claude-opus-5-5", beta: "server-side-fallback-2026-07-01", maxTokens: 16000, effort: "medium", tours: 8 };
 /* Gemini : API generateContent, clé Google AI Studio. Les quatre modèles listés ont un palier gratuit (tarifs lus le 23/11/2026). */
-const GEMINI = { url: "https://generativelanguage.googleapis.com/v1beta/models/", modele: "gemini-4-hydrogen", modeles: ["gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"], maxTokens: 16000 };
+const GEMINI = { url: "https://generativelanguage.googleapis.com/v1beta/models/", modele: "gemini-3.5-flash-lite", modeles: ["gemini-3.5-flash-lite", "gemini-3.6-flash", "gemini-3.8-flash", "gemini-4-hydrogen"], maxTokens: 16000 };
 const FOURNISSEURS = {
   anthropic: { nom: "Claude", api: "l'API d'Anthropic", court: "API Anthropic", hote: "api.anthropic.com", societe: "Anthropic" },
   gemini: { nom: "Gemini", api: "l'API Gemini de Google", court: "API Gemini", hote: "generativelanguage.googleapis.com", societe: "Google" }
@@ -7625,7 +7625,10 @@ function iaFluxRepli(motif) {                                                   
   if (agent.enCours && etapeCourante) noter("attente", Lg("Réponse en continu indisponible (" + motif + ") : le même tour est refait sans flux.", "Streaming unavailable (" + motif + "): the same turn is run again without streaming."));
 }
 /* Ce qui arrive pendant un tour : texte du modèle, appel d'outil en préparation, ou une attente honnête avec un compteur. */
-const IA_ATTENTES = { "gemini-4-hydrogen": ["Avec ce modèle, un tour a pris de 32 à 76 s lors d'essais réels.", "With this model, a turn took 32 to 76 s in real tests."] };
+const IA_ATTENTES = {  // durées mesurées lors d'essais réels (26-27/11/2026), hors attentes dues aux limites de débit
+  "gemini-4-hydrogen": ["Avec ce modèle, un tour a pris de 32 à 76 s lors d'essais réels.", "With this model, a turn took 32 to 76 s in real tests."],
+  "gemini-3.8-flash": ["Avec ce modèle, un tour a pris de 10 à 94 s lors d'essais réels.", "With this model, a turn took 10 to 94 s in real tests."],
+  "gemini-3.5-flash-lite": ["Avec ce modèle, un tour a pris de 1 à 4 s lors d'essais réels.", "With this model, a turn took 1 to 4 s in real tests."] };
 function iaFluxDebut(api) {
   const c = { api, modele: api === "gemini" ? agent.modeleGemini : IA.modele, debut: Date.now(), texte: "", outil: null, ouvert: false, noeud: null };
   if (agent.enCours && etapeCourante) { c.noeud = h("div", { class: "ia-flux", "aria-live": "off" }); etapeCourante.noeud.append(c.noeud); }
