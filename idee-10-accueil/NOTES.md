@@ -73,3 +73,7 @@
 - À 390 px : bulle en bas, lisible, boutons accessibles au pouce ; vue d'ensemble sans débordement horizontal.
 - Thème sombre : le fond assombri reste perceptible autour du projecteur.
 - Vue d'ensemble : tient en un écran et demi à 1 280 px ; la tuile « Atterrissage » et la page Prévision donnent le même chiffre.
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.

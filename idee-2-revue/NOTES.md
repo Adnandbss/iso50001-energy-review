@@ -95,3 +95,7 @@ Remplacement :
 - **Signalement ou remarque.** Un nombre `hors` (dans le dossier, mal rattaché) est compté et souligné, mais n'est pas un signalement bloquant. Seuls bloquent la validation : nombre introuvable, renvoi inconnu, point bloquant du vérificateur.
 - **Consigne des agents en français**, comme celles d'origine ; en anglais, une phrase demande la rédaction en anglais et les faits sont fournis en anglais.
 - **Un seul appel par agent** (rédaction, puis vérification), pour ménager les quotas d'une clé gratuite.
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.
