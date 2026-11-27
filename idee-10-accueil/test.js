@@ -50,6 +50,13 @@ async function test() {
   verifier(tA.indexOf("Essayer avec un site fictif") >= 0 && tA.indexOf("Essayer avec un site fictif") < tA.indexOf("Choisir le classeur Excel"), "accueil : « Essayer avec un site fictif » au-dessus du choix de fichier");
   verifier(principaux[0] && principaux[0].textContent === "Essayer avec un site fictif", "accueil : le premier bouton principal est l'essai");
   verifier(trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Choisir le classeur Excel")[0].className === "btn", "accueil : le choix du classeur devient un bouton secondaire");
+  verifier(principaux.length === 1, "accueil : un seul bouton principal (" + principaux.map(n => n.textContent).join(", ") + ")");
+  verifier(trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Choisir un fichier de données")[0].className === "btn", "accueil : le choix d'un fichier brut (Intégration) est un bouton secondaire");
+  const bProjet = trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Ouvrir un projet")[0];
+  let ouvert = 0; cntChoixProjet.click = () => { ouvert++; };      // cntChoisirProjet() ouvre le sélecteur de projet du module Continuité
+  if (bProjet) cliquer(bProjet);
+  delete cntChoixProjet.click;
+  verifier(bProjet && bProjet.className === "btn" && ouvert === 1, "accueil : « Ouvrir un projet », bouton secondaire, appelle cntChoisirProjet()");
   etat.modele = modeleReel;
 
   /* ---- 3. Le site fictif est identique d'un chargement à l'autre ---- */
@@ -140,7 +147,7 @@ async function test() {
   touche("ArrowRight");
   verifier(V.i === 3 && etat.onglet === "prevision" && prevEtat.serie === N.siteElec, "étape 4 : Prévision du compteur général de la même énergie");
   touche("ArrowRight");
-  verifier(V.i === 4 && etat.onglet === "evaluation" && V.ancre && V.ancre.classList.contains("chapeau"), "étape 5 : banc d'évaluation");
+  verifier(V.i === 4 && etat.onglet === "evaluation" && V.ancre && V.ancre.classList.contains("evl-reponse"), "étape 5 : banc d'évaluation, éclairé sur sa réponse");
   cliquer(trouver(V.bulle, n => n.tagName === "BUTTON" && n.textContent === "Précédent")[0]);
   verifier(V.i === 3 && etat.onglet === "prevision", "bouton Précédent : retour à la Prévision");
   touche("ArrowRight"); touche("ArrowRight");

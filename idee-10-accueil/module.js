@@ -287,9 +287,9 @@ function accPage() {
     h("ol", { class: "acc-liste acc-actions" }, K.actions.map(x => h("li", { "data-action": x.id },
       h("div", { class: "acc-quoi" }, h("b", null, x.titre)), h("div", { class: "acc-chiffres" }, x.det),
       h("button", { class: "btn petit" + (x === K.actions[0] ? " principal" : ""), type: "button", onclick: x.faire }, x.bouton)))));
-  const note = h("div", { class: "note" }, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Détection. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Détection ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
+  const note = repli("acc-methode", null, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Détection. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Détection ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
     "Method: gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Detection page's assumptions. Monthly cost of an ongoing drift = the Detection page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
-  return [visite ? h("div", { class: "acc-outils" }, visite) : null, constat, tuiles, h("div", { class: "grille" }, derivesCarte, suiteCarte), note];
+  return [constat, visite ? h("div", { class: "acc-outils" }, visite) : null, tuiles, h("div", { class: "grille" }, derivesCarte, suiteCarte), note];   // la réponse d'abord, la méthode repliée
 }
 
 /* ---- 3. Bandeau « données fictives », sur chaque page tant que le site fictif est chargé ---- */
@@ -333,7 +333,7 @@ function accVisiteEtapes() {
     { page: "prevision", avant: () => { if (site && typeof prevEtat !== "undefined") prevEtat.serie = site.nom; }, cible: () => accQ(".constat"), titre: () => accT("Ce qui va se passer", "What happens next"),
       texte: () => accT("La page Prévision estime l'atterrissage de l'année : réel déjà relevé, plus les semaines restantes calculées avec les facteurs des mêmes semaines passées, dans une fourchette à 80 %. Un test sur le passé dit si la méthode fait mieux qu'une méthode naïve.",
         "The Forecast page estimates the landing for the year: actuals already recorded, plus the remaining weeks computed with the variables of the same past weeks, within an 80% range. A test on past data says whether the method beats a naive one.") },
-    { page: "evaluation", cible: () => accQ(".chapeau"), titre: () => accT("Comment on vérifie l'IA", "How the AI is checked"),
+    { page: "evaluation", cible: () => accQ(".evl-reponse") || accQ(".chapeau"), titre: () => accT("Comment on vérifie l'IA", "How the AI is checked"),
       texte: () => accT("Le banc d'évaluation pose à l'agent des questions dont la page calcule elle-même la réponse, y compris des pièges où il faut savoir s'abstenir. Il note chaque réponse et son coût : on mesure l'IA au lieu de la croire.",
         "The evaluation bench asks the agent questions whose answer the page computes itself, including traps where it must abstain. It scores every answer and its cost: the AI is measured instead of trusted.") },
     { page: "ensemble", cible: () => accQ(".acc-suite"), titre: () => accT("Et maintenant", "Now what"),
