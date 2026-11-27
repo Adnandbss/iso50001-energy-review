@@ -130,7 +130,7 @@ function accAccueil() {
 const ACC_R2 = 0.75;                                                      // seuil d'usage courant pour dire un modèle de régression utilisable
 let accMemo = null, accInstruits = new Set(), accPremier = true;
 const accCleEp = ep => ep.serie + "|" + ep.debut + "|" + (ep.ecart > 0 ? "+" : "-");
-/* Une dérive est instruite si sa fiche est affichée sur la page Instruction, ou rédigée par la Veille. */
+/* Une dérive est instruite si sa fiche est affichée (page Dérives), ou gardée par la veille. */
 function accNoterInstruits() {
   try { if (agent.episode && zoneFiche.querySelector("dl")) accInstruits.add(accCleEp(agent.episode)); } catch (e) {}
 }
@@ -140,8 +140,20 @@ function accInstruit(ep) {
   return false;
 }
 const accPage1 = id => ONGLETS.some(o => o[0] === id);
-/* choisirEpisode suppose la page Instruction prête pour ce classeur (la page Détection s'en charge d'habitude). */
+/* choisirEpisode suppose l'agent prêt pour ce classeur (la page Dérives s'en charge d'habitude). */
 function accInstruire(ep) { if (agent.modele !== etat.modele) reinitialiserAgent(etat.modele); choisirEpisode(ep); }
+/* La page Dérives s'ouvrira sur cette dérive, dépliée sous sa ligne, sans lancer d'instruction (sans le module Dérives : sa série). */
+function accOuvrirDerive(ep) {
+  etat.derSerie = ep.serie;
+  try {
+    if (typeof drvOuvrirLigne !== "function") return;
+    if (vei.modele !== etat.modele) veiAuChargement(etat.modele);
+    const lignes = drvLignes(), l = lignes.find(x => x.cle === veiCle(ep));
+    if (l) { drvOuvrirLigne(l, lignes); drv.choisi = true; }
+  } catch (e) { console.error(e); }
+}
+/* La dérive que le constat de la page Dérives nomme « la plus lourde ». */
+function accPlusLourde() { try { return typeof drvConstat === "function" ? drvConstat(derives()).lourde : null; } catch (e) { return null; } }
 
 /* Écart à la référence sur les 12 derniers mois de données, par énergie, au niveau Site (à défaut, somme des UES). */
 function accBilan(m) {
@@ -157,11 +169,11 @@ function accBilan(m) {
   const reel = somme(lignes.map(e => e.reel)), ref = somme(lignes.map(e => e.ref));
   return { niveau: site.length ? "site" : "ues", de, mois: Math.round((m.fin - de) / JOUR / 30.44), lignes, reel, ref, ecart: reel - ref, pct: ref > 0 ? (reel - ref) / ref : null, cout: tous("cout"), co2: tous("co2") };
 }
-/* Dérives en cours : mêmes règles que la page Détection (sur toutes les données), coût mensuel = projection sur 3 mois ÷ 3. */
+/* Dérives en cours : mêmes règles que le constat de la page Dérives (sur toutes les données), coût mensuel = projection sur 3 mois ÷ 3. */
 function accDerives() {
   const D = derives(), avecSite = new Set(D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie));
   const ouverts = D.episodes.filter(ep => ep.ouvert && ep.ecart > 0);
-  const comptes = ouverts.filter(ep => ep.groupe === "site" || !avecSite.has(ep.energie));     // sans double compte, comme la page Détection
+  const comptes = ouverts.filter(ep => ep.groupe === "site" || !avecSite.has(ep.energie));     // sans double compte, comme la page Dérives
   const c3 = comptes.map(ep => coutDe(ep.energie, projectionDe(ep).wh3mois)).filter(v => v != null);
   const fiche = ep => { const p = projectionDe(ep), wh = p.wh3mois / 3; return { ep, p, whMois: wh, euroMois: coutDe(ep.energie, wh), co2Mois: co2De(ep.energie, wh), instruit: accInstruit(ep) }; };
   const liste = ouverts.map(fiche), parCout = liste.every(x => x.euroMois != null);
@@ -213,10 +225,10 @@ function accActions(K) {
   if (accPage1("revue") && typeof rev !== "undefined" && !rev.revue) a.push({ id: "revue", titre: accT("Rédiger la revue énergétique de la période", "Draft the energy review for the period"),
     det: accT("Aucune revue n'a encore été rédigée pour ces données.", "No review has been drafted yet for this data."), bouton: accT("Ouvrir la Revue", "Open the Review"), faire: () => aller("revue") });
   if (agent.demo) a.push({ id: "ia", titre: accT("Brancher une IA", "Connect an AI"),
-    det: accT("Vous êtes en mode démonstration : un script joue l'agent, sans IA ni réseau.", "You are in demo mode: a script plays the agent, with no AI and no network."), bouton: accT("Régler l'IA", "Set up the AI"), faire: () => aller("agent") });
+    det: accT("Vous êtes en mode démonstration : un script joue l'agent, sans IA ni réseau.", "You are in demo mode: a script plays the agent, with no AI and no network."), bouton: accT("Régler l'IA", "Set up the AI"), faire: () => typeof iaOuvrir === "function" ? iaOuvrir() : aller("agent") });
   if (accPage1("evaluation") && typeof evl !== "undefined" && !evl.passes.length) a.push({ id: "evaluation", titre: accT("Vérifier l'agent sur le banc d'évaluation", "Check the agent on the evaluation bench"),
     det: accT("Des questions dont la page connaît la réponse : on mesure ce que l'agent répond juste.", "Questions whose answer the page knows: it measures what the agent gets right."), bouton: accT("Ouvrir le banc", "Open the bench"), faire: () => aller("evaluation") });
-  if (!a.length) a.push({ id: "detection", titre: accT("Parcourir la détection des dérives", "Browse the drift detection"), det: accT("Rien d'urgent : les épisodes passés restent à lire.", "Nothing urgent: past episodes are still worth reading."), bouton: accT("Ouvrir la Détection", "Open Detection"), faire: () => aller("derives") });
+  if (!a.length) a.push({ id: "derives", titre: accT("Parcourir les dérives", "Browse the drifts"), det: accT("Rien d'urgent : les dérives passées restent à lire.", "Nothing urgent: past drifts are still worth reading."), bouton: accT("Ouvrir les dérives", "Open the drifts"), faire: () => aller("derives") });
   return a.slice(0, 3);
 }
 function accCalcul() {
@@ -254,7 +266,7 @@ function accPage() {
   const B = K.bilan, d = K.der, A = K.att, Q = K.qualite;
   const visite = accFictif() ? h("button", { class: "btn acc-bouton-visite", type: "button", onclick: () => accVisiteOuvrir(0) }, accT("Visite guidée (1 min)", "Guided tour (1 min)")) : null;
   const constat = h("div", { class: "constat acc-synthese" + (d.nb ? " alerte" : "") }, h("p", { class: "titre" }, accPhrase(K)),
-    h("p", { class: "suite" }, accT("Où en est le site, et que faire ensuite : chaque chiffre vient des pages Détection et Prévision.", "Where the site stands, and what to do next: every figure comes from the Detection and Forecast pages.")));
+    h("p", { class: "suite" }, accT("Où en est le site, et que faire ensuite : chaque chiffre vient des pages Dérives et Prévision.", "Where the site stands, and what to do next: every figure comes from the Drifts and Forecast pages.")));
   // indicateurs
   const enjeu = [B.cout == null ? null : fmtEuros(B.cout, true), B.co2 == null ? null : fmtCO2(B.co2, true)].filter(Boolean).join(" · ");
   const tEcart = tuile(accT("Écart à la référence, 12 derniers mois", "Gap to baseline, last 12 months"), B.pct == null ? "–" : fmtPct(B.pct, true), [fmtEnergie(B.ecart, true), enjeu].filter(Boolean).join(" · "));
@@ -277,7 +289,7 @@ function accPage() {
   const derivesCarte = h("section", { class: "carte demi acc-top" }, h("div", { class: "carte-tete" }, h("h2", null, accT("Les dérives en cours qui coûtent le plus", "The costliest ongoing drifts"),
     h("span", { class: "sous" }, accT("coût par mois si l'écart moyen de l'épisode se maintient", "cost per month if the episode's average gap persists")))),
     top.length ? h("ol", { class: "acc-liste" }, top.map(x => h("li", null,
-      h("div", { class: "acc-quoi" }, h("b", null, x.ep.serie), " ", h("span", { class: "badge" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie), x.instruit ? h("span", { class: "badge acc-fait" }, accT("fiche rédigée", "report written")) : null),
+      h("div", { class: "acc-quoi" }, h("b", null, h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie)), " ", h("span", { class: "badge" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie), x.instruit ? h("span", { class: "badge acc-fait" }, accT("fiche rédigée", "report written")) : null),
       h("div", { class: "acc-chiffres" }, h("span", { class: "acc-montant" }, x.euroMois != null ? fmtEuros(x.euroMois, true) : fmtEnergie(x.whMois, true)), Lg(" par mois · depuis ", " per month · since ") + x.ep.libDebut + " · " + fmtPct(x.ep.pct, true)),
       h("button", { class: "btn petit", type: "button", onclick: () => accInstruire(x.ep) }, x.instruit ? accT("Voir la fiche", "See the report") : accT("Instruire", "Investigate")))))
       : h("div", { class: "vide" }, accT("Aucune surconsommation en cours.", "No overconsumption under way."), " ", h("button", { class: "lien", type: "button", onclick: () => aller("derives") }, accT("Voir tous les épisodes", "See all episodes"))),
@@ -287,8 +299,8 @@ function accPage() {
     h("ol", { class: "acc-liste acc-actions" }, K.actions.map(x => h("li", { "data-action": x.id },
       h("div", { class: "acc-quoi" }, h("b", null, x.titre)), h("div", { class: "acc-chiffres" }, x.det),
       h("button", { class: "btn petit" + (x === K.actions[0] ? " principal" : ""), type: "button", onclick: x.faire }, x.bouton)))));
-  const note = repli("acc-methode", null, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Détection. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Détection ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
-    "Method: gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Detection page's assumptions. Monthly cost of an ongoing drift = the Detection page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
+  const note = repli("acc-methode", null, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Dérives. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Dérives ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
+    "Method: gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Drifts page's assumptions. Monthly cost of an ongoing drift = the Drifts page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
   return [constat, visite ? h("div", { class: "acc-outils" }, visite) : null, tuiles, h("div", { class: "grille" }, derivesCarte, suiteCarte), note];   // la réponse d'abord, la méthode repliée
 }
 
@@ -314,11 +326,18 @@ function accVisiteEtapes() {
     { page: "ensemble", cible: () => accQ(".acc-synthese"), titre: () => accT("Où en est le site", "Where the site stands"),
       texte: () => Lg((accFictif() ? "Une usine inventée : " : "Le site : ") + nS + " compteur(s) général(aux) et " + nU + " usages suivis (UES). Cette phrase est calculée par la page : l'écart à la référence sur 12 mois, et ce que coûtent les dérives en cours.",
         (accFictif() ? "An invented plant: " : "The site: ") + nS + " main meter(s) and " + nU + " tracked uses (SEUs). This sentence is computed by the page: the gap to the baseline over 12 months, and what the ongoing drifts cost.") },
-    { page: "derives", avant: () => { if (ep) { Object.assign(etat, { derSerie: ep.serie, derSens: "*", derEtat: "*" }); if (ep.fin < etat.de || ep.debut > etat.a) Object.assign(etat, { de: m.debut, a: m.fin }); } },
-      cible: () => accQ(".constat"), titre: () => accT("La dérive qui coûte le plus", "The costliest drift"),
-      texte: () => !ues ? accT("Aucune dérive en cours : la page Détection liste les épisodes passés, classés par écart.", "No ongoing drift: the Detection page lists past episodes, ranked by gap.")
-        : Lg("« " + ep.serie + " » dépasse sa référence depuis " + ep.libDebut + " : " + (ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois)) + " par mois si rien ne change. Plus bas, la courbe des écarts cumulés (CUSUM) monte : une surconsommation qui dure, pas un accident.",
-          "“" + ep.serie + "” has been above its baseline since " + ep.libDebut + ": " + (ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois)) + " per month if nothing changes. Further down, the cumulative gap (CUSUM) keeps rising: a lasting overconsumption, not an accident.") },
+    { page: "derives", avant: () => { if (ep) { Object.assign(etat, { derSerie: ep.serie, derSens: "*", derEtat: "*" }); if (ep.fin < etat.de || ep.debut > etat.a) Object.assign(etat, { de: m.debut, a: m.fin }); accOuvrirDerive(ep); } },
+      // la visite suit un usage (UES) : le constat de la page, lui, nomme la plus lourde des dérives comptées une fois, souvent au compteur général
+      cible: () => accQ(".constat"), titre: () => !ues ? accT("Les dérives", "The drifts") : ep.groupe === "ues" ? accT("L'usage dont la dérive coûte le plus", "The use whose drift costs the most") : accT("La dérive qui coûte le plus", "The costliest drift"),
+      texte: () => {
+        if (!ues) return accT("Aucune dérive en cours : la page Dérives liste les dérives passées, classées par enjeu.", "No ongoing drift: the Drifts page lists past drifts, ranked by stake.");
+        const cout = ues.euroMois != null ? fmtEuros(ues.euroMois) : fmtEnergie(ues.whMois), lourde = accPlusLourde();
+        const tete = ep.groupe !== "ues" || !lourde || lourde === ep ? "" : Lg("En tête, la plus lourde est « " + lourde.serie + " »" + (lourde.groupe === "site" ? ", au compteur général. " : ". "), "At the top, the largest is “" + lourde.serie + "”" + (lourde.groupe === "site" ? ", on the main meter. " : ". "));
+        return tete + (ep.groupe === "ues"
+          ? Lg("Parmi les usages suivis, « " + ep.serie + " » coûte le plus : il dépasse sa référence depuis " + ep.libDebut + ", " + cout + " par mois si rien ne change. ", "Among the tracked uses, “" + ep.serie + "” costs the most: it has been above its baseline since " + ep.libDebut + ", " + cout + " per month if nothing changes. ")
+          : Lg("« " + ep.serie + " » dépasse sa référence depuis " + ep.libDebut + " : " + cout + " par mois si rien ne change. ", "“" + ep.serie + "” has been above its baseline since " + ep.libDebut + ": " + cout + " per month if nothing changes. "))
+          + Lg("Sa ligne s'ouvre plus bas ; la courbe des écarts cumulés (CUSUM), sous « Courbes », monte : une surconsommation qui dure, pas un accident.", "Its line opens further down; the cumulative gap (CUSUM), under “Charts”, keeps rising: a lasting overconsumption, not an accident.");
+      } },
     { page: "agent", avant: () => {
         if (!ep || agent.enCours) return;
         if (agent.modele !== m) reinitialiserAgent(m);

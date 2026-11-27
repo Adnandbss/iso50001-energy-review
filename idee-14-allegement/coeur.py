@@ -1,6 +1,6 @@
 # Correctifs du coeur portés par le module « Allègement » (préfixe alg) : pages Site, UES, Facteurs influents, Graphiques, Arborescence.
 # Aucun calcul ne change. Chaque page passe ce qu'elle a déjà calculé à une fonction du module, qui pose la phrase de réponse en tête
-# et range les réglages rares sous un repli. Les pages Détection, Instruction et Veille ne sont pas touchées.
+# et range les réglages rares sous un repli. (La phrase de confidentialité est posée par l'assembleur, CONFID_APRES.)
 
 def patch(js, remplacer):
     # 1. Site et UES : les réglages rares (comparaison, unité de l'écart, seuil) forment un second groupe de filtres...
@@ -33,9 +33,4 @@ def patch(js, remplacer):
                    'return algArborescence(totalSite, algParts, [filtres, h("div", { class: "tuiles" }, tuile("Consommation totale du site')
     js = remplacer(js, '''fmtDate(etat.de) + " au " + fmtDate(etat.a), true)), h("div", { class: "grille" }, cartes)];''',
                    '''fmtDate(etat.de) + " au " + fmtDate(etat.a), true)), h("div", { class: "grille" }, cartes)]);''')
-    # 5. Phrase de confidentialité (accueil et mode d'emploi, deux occurrences posées par l'assembleur) : depuis le panneau unique,
-    #    l'accord se donne dans les réglages d'IA ; une fonction décochée garde son avis sur sa page. Traduction anglaise : idee-9-assemblage.
-    avant = "Exceptions, uniquement après votre accord explicite, donné sur la page concernée, et vers l'API"
-    assert js.count(avant) == 2, "phrase de confidentialité introuvable ou ambiguë"
-    js = js.replace(avant, "Exceptions, uniquement après votre accord explicite, donné dans les réglages d'IA (un accord, fonction par fonction) ou sur la page concernée, et vers l'API")
     return js

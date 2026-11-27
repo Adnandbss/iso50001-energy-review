@@ -13,6 +13,7 @@
 .acc-liste li:first-child { border-top: 0; padding-top: 0; }
 .acc-liste .acc-quoi { grid-column: 1; min-width: 0; overflow-wrap: anywhere; }
 .acc-liste .acc-quoi .badge { margin-left: 4px; white-space: nowrap; }
+.acc-liste .acc-nom { font: inherit; color: var(--encre); white-space: normal; text-align: left; overflow-wrap: anywhere; }   /* nom de la dérive : lien vers son détail */
 .acc-liste .acc-chiffres { grid-column: 1; font-size: 12.5px; color: var(--encre2); }
 .acc-liste .btn { grid-column: 2; grid-row: 1 / span 2; white-space: nowrap; }
 .acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
@@ -34,4 +35,4 @@
 .acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .acc-espace { flex: 1; }
 .acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
-@media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } }
+@media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } .acc-liste .acc-nom { display: inline !important; text-decoration: none; } }   /* le nom de la dérive reste imprimé */

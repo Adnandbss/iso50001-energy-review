@@ -129,9 +129,16 @@ async function test() {
   verifier(boutonsBulle().join("|") === "Passer la visite|Suivant", "étape 1 : Passer et Suivant, pas de Précédent");
   verifier(!V.spot.hidden && V.ancre && V.ancre.classList.contains("acc-synthese"), "étape 1 : le projecteur vise la phrase de synthèse");
   touche("ArrowRight");
-  verifier(V.i === 1 && etat.onglet === "derives" && etat.derSerie === N.air, "flèche droite : page Détection, filtrée sur « " + N.air + " »");
+  verifier(V.i === 1 && etat.onglet === "derives" && etat.derSerie === N.air, "flèche droite : page Dérives, sur « " + N.air + " »");
   verifier(texteDe(V.bulle).includes(N.air) && texteDe(V.bulle).includes(fmtEuros(premiereUes.euroMois)), "étape 2 : la bulle cite la dérive et son coût mensuel");
-  verifier(V.ancre && V.ancre.classList.contains("constat"), "étape 2 : le projecteur vise le constat de la Détection");
+  verifier(V.ancre && V.ancre.classList.contains("constat"), "étape 2 : le projecteur vise le constat de la page Dérives");
+  // le titre dit ce que la visite montre : l'usage le plus coûteux, pas la plus lourde des dérives du constat (le compteur général)
+  const lourde = drvConstat(derives()).lourde, tB = texteDe(V.bulle);
+  verifier(lourde && lourde.serie === N.siteElec && texteDe(V.bulle.querySelector("h2")) === "L'usage dont la dérive coûte le plus" && !/La dérive qui coûte le plus/.test(tB),
+    "étape 2 : titre « L'usage dont la dérive coûte le plus » (le constat nomme « " + (lourde && lourde.serie) + " »)");
+  verifier(tB.includes("En tête, la plus lourde est « " + N.siteElec + " », au compteur général.") && tB.includes("Parmi les usages suivis, « " + N.air + " » coûte le plus"), "étape 2 : la bulle distingue la plus lourde du constat et l'usage suivi");
+  verifier(/Sa ligne s'ouvre plus bas ; la courbe des écarts cumulés \(CUSUM\), sous « Courbes », monte/.test(tB), "étape 2 : la courbe CUSUM est annoncée sous « Courbes »");
+  verifier(drv.ouverte === veiCle(air2) && !!app.querySelector(".drv-item.ouverte") && !agent.enCours, "étape 2 : la ligne de la dérive suivie est ouverte, sans instruction lancée");
   touche("ArrowRight");
   verifier(V.i === 2 && etat.onglet === "agent" && agent.episode === air2, "étape 3 : page Instruction, sur la dérive de « " + N.air + " »");
   await repos();
@@ -195,7 +202,31 @@ async function test() {
   verifier(!accCalcul().actions.some(a => a.id === "revue"), "une revue rédigée retire l'action « Rédiger la revue »");
   rev.revue = garde;
   cliquer(trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Voir la décomposition")[0]);
-  verifier(etat.onglet === "derives" && etat.derSerie === N.siteElec && texteApp().includes("Dérives du site : ce que les UES expliquent"), "« Voir la décomposition » ouvre la Détection sur le compteur général");
+  verifier(etat.onglet === "derives" && etat.derSerie === N.siteElec && texteApp().includes("Dérives du site : ce que les UES expliquent"), "« Voir la décomposition » ouvre la page Dérives sur le compteur général");
+  // la page Détection n'existe plus : la vue d'ensemble renvoie à la page Dérives, dans les deux langues
+  for (const [l, re, mauvais] of [["fr", /chaque chiffre vient des pages Dérives et Prévision/, /Détection/], ["en", /every figure comes from the Drifts and Forecast pages/, /Detection/]]) {
+    LANGUE = l; CACHE_TR.clear(); aller("ensemble");
+    const tE = texteApp() + texteDe(trouver(app, n => n.tagName === "DETAILS"));
+    verifier(re.test(tE) && !mauvais.test(tE), l + " : la vue d'ensemble cite la page Dérives, plus la Détection");
+  }
+  LANGUE = "fr"; CACHE_TR.clear(); aller("ensemble");
+  { const g = { demo: agent.demo, revue: rev.revue, passes: evl.passes }; agent.demo = false; rev.revue = { factice: true }; evl.passes = [{}];
+    const a0 = accActions(Object.assign({}, accCalcul(), { der: { liste: [], sites: [] }, qualite: { faibles: [] } }));
+    agent.demo = g.demo; rev.revue = g.revue; evl.passes = g.passes;
+    verifier(a0.length === 1 && a0[0].id === "derives" && a0[0].titre === "Parcourir les dérives" && a0[0].bouton === "Ouvrir les dérives", "rien d'urgent : « Parcourir les dérives » et « Ouvrir les dérives »"); }
+  // le nom d'une dérive de la carte « coûtent le plus » ouvre son détail, sans lancer d'instruction
+  const kTop = accCalcul().der.liste[1], episodeAvant = agent.episode;
+  const nomTop = trouver(app.querySelector(".acc-top"), n => n.tagName === "BUTTON" && n.textContent === kTop.ep.serie)[0];
+  verifier(nomTop && nomTop.classList.contains("lien"), "carte « coûtent le plus » : le nom de la dérive est un lien");
+  cliquer(nomTop);
+  verifier(etat.onglet === "derives" && drv.ouverte === veiCle(kTop.ep) && !!app.querySelector(".drv-item.ouverte") && !agent.enCours && agent.episode === episodeAvant,
+    "clic sur le nom : page Dérives, « " + kTop.ep.serie + " » dépliée sous sa ligne, aucune instruction lancée");
+  // « Régler l'IA » ouvre le panneau d'IA
+  const gardeRevue = rev.revue; rev.revue = { factice: true }; agent.demo = true; aller("ensemble");
+  const regler = trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Régler l'IA")[0];
+  if (regler) cliquer(regler);
+  verifier(regler && !!iaDialogue && etat.onglet === "ensemble", "« Régler l'IA » ouvre le panneau des réglages d'IA, sans changer de page");
+  iaFermer(); rev.revue = gardeRevue;
 
   /* ---- 9. En anglais : noms anglais, hypothèses de prix pour « Gas » ---- */
   LANGUE = "en"; CACHE_TR.clear(); accCharger();

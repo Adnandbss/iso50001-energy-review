@@ -11,7 +11,7 @@
 /* ---- 1. Accord unique : une case par fonction qui envoie à une IA ---- */
 const iaPresent = nom => { try { return eval("typeof " + nom) !== "undefined"; } catch (e) { return false; } };    // module absent de l'assemblage, ou pas encore initialisé
 const IA_FONCTIONS = [
-  { id: "instruction", page: "agent", titre: ["Instruction d'une dérive, évaluation de l'agent et séries de la page Veille", "Investigating a drift, evaluating the agent and runs from the Watch page"],
+  { id: "instruction", page: "derives", titre: ["Instruction d'une dérive, séries et évaluation de l'agent (page Dérives)", "Investigating a drift, runs and agent evaluation (Drifts page)"],
     objet: () => agent, avis: () => avisEnvoi() },
   { id: "revue", page: "revue", titre: ["Revue énergétique (page Revue)", "Energy review (Review page)"],
     objet: () => iaPresent("rev") ? rev : null, avis: () => revAvis() },
@@ -116,7 +116,7 @@ function iaMajBadge() {
   iaBouton.setAttribute("title", tr("Ouvrir les réglages d'IA : mode, modèle, clé et accord d'envoi"));
 }
 const iaLien = (texte, inactif) => h("button", { type: "button", class: "lien", disabled: !!inactif, onclick: () => iaOuvrir() }, texte || "Réglages d'IA");
-/* Rappel d'une ligne sur la page Instruction (appelé par peindreAgent, voir coeur.py). */
+/* Rappel d'une ligne du mode d'IA, sur la page Dérives (iaRappel, appelé par drvPeindre). */
 function iaRappel(marge) {
   if (agent.demo) return h("div", { class: "note", style: marge }, "Mode démonstration : aucun appel réseau, aucune IA. Un script joue le rôle du modèle : il appelle les mêmes outils en trois tours, puis assemble une fiche à partir de leurs résultats, sans raisonnement.", " ", iaLien());
   const motif = blocageEnvoi();
@@ -126,16 +126,12 @@ function iaRappel(marge) {
 }
 const iaLigneAccord = () => h("div", { class: "note ia-ligne" }, "Envoi autorisé (réglages d'IA) · ", iaLien("Modifier"));
 
-/* Les pages des autres modules gardent leur code : on retouche leur rendu. Les liens « page Instruction » ouvrent le panneau ;
-   l'encadré « autorisé · Retirer l'autorisation » devient une ligne quand le panneau couvre la page. */
-const IA_LIENS = ["Changer de mode (page Instruction)", "Changer sur la page Instruction", "Changer d'agent sur la page Instruction", "Changer de mode sur la page Instruction"];
+/* Les pages des autres modules gardent leur code : on retouche leur rendu. L'encadré « autorisé · Retirer l'autorisation »
+   devient une ligne quand le panneau couvre la page. (Leurs liens vers les réglages d'IA ouvrent déjà le panneau.) */
 function iaRetoucher(noeud, id) {
   if (!noeud || !noeud.querySelectorAll) return;
   const est = (b, fr) => b.textContent === fr || b.textContent === tr(fr);
-  for (const b of noeud.querySelectorAll("button.lien")) {
-    if (IA_LIENS.some(fr => est(b, fr))) b.replaceWith(iaLien(null, b.disabled));
-    else if (id && iaCouvre(id) && est(b, "Retirer l'autorisation") && b.parentNode) b.parentNode.replaceWith(iaLigneAccord());
-  }
+  if (id && iaCouvre(id)) for (const b of noeud.querySelectorAll("button.lien")) if (est(b, "Retirer l'autorisation") && b.parentNode) b.parentNode.replaceWith(iaLigneAccord());
   if (id === "integration" && iaCouvre(id) && !noeud.querySelector(".ia-ligne")) {
     const b = [...noeud.querySelectorAll("button")].find(x => /^(Demander une proposition à|Ask for a proposal from) /.test(x.textContent));
     if (b && b.parentNode) {
@@ -212,7 +208,7 @@ function iaPeindrePanneau() {
   iaDialogue.replaceChildren(
     h("div", { class: "ia-tete" }, h("h2", { id: "ia-titre" }, "Réglages d'IA"), h("button", { type: "button", class: "btn petit", "data-ia": "fermer", onclick: iaFermer, "aria-label": "Fermer les réglages d'IA" }, "Fermer")),
     h("div", { class: "ia-corps" },
-      h("p", { class: "note ia-sans-marge" }, "Ces réglages valent pour toutes les pages qui font appel à une IA : Instruction, Veille, Revue, Évaluation, Simulateur et Intégration."),
+      h("p", { class: "note ia-sans-marge" }, "Ces réglages valent pour toutes les pages qui font appel à une IA : Dérives, Revue, Évaluation, Simulateur et Intégration."),
       h("div", { class: "filtres" }, filtre("Mode", mode), demo ? null : filtre("Modèle", modele), demo ? null : filtre("Relecture par un second agent", juge)),
       occupe ? h("div", { class: "note attention" }, "Un agent travaille : le mode, le modèle et la relecture se changent quand il a fini.") : null,
       demo ? h("div", { class: "note" }, "Mode démonstration : aucune IA, aucun appel réseau, aucun accord à donner. Chaque page utilise un script qui joue le rôle du modèle, et le dit.")
@@ -438,17 +434,20 @@ function iaEnvelopperAppel(f, api) {
 appelGemini = iaEnvelopperAppel(appelGemini, "gemini");
 appelAnthropic = iaEnvelopperAppel(appelAnthropic, "anthropic");
 
-/* ---- 6. Agent au travail : visible depuis toutes les pages, arrêtable, notification à la fin ---- */
+/* ---- 6. Agent au travail : visible depuis toutes les pages, arrêtable, notification à la fin ----
+   page : la page où l'on voit le travail (la page Dérives répond à trois adresses : derives, agent, veille) ;
+   vers : l'adresse qui l'ouvre sur ce travail (« agent » : la dérive instruite, ou l'évaluation, dépliée). */
+const iaSurPage = page => etat.onglet === page || (iaPresent("DRV_PAGES") && DRV_PAGES.includes(page) && DRV_PAGES.includes(etat.onglet));
 function iaActivite() {
   const p = agent.progres, sur = (k, n, fr, en) => Lg(fr + " " + k + " sur " + n, en + " " + k + " of " + n);
   if (iaPresent("vei") && vei.serie && vei.serie.active)
-    return { id: "veille", page: "veille", nom: Lg("Veille", "Watch"), etape: p && p.total ? sur(Math.min(p.etats.length + 1, p.total), p.total, "épisode", "episode") : "", arret: () => agent.arret };
+    return { id: "veille", page: "derives", nom: Lg("Veille", "Watch"), etape: p && p.total ? sur(Math.min(p.etats.length + 1, p.total), p.total, "épisode", "episode") : "", arret: () => agent.arret };
   if (iaPresent("evl") && evl.enCours)
     return { id: "banc", page: "evaluation", nom: Lg("Évaluation", "Evaluation"), etape: evl.progres ? sur(Math.min(evl.progres.fait + 1, evl.progres.total), evl.progres.total, "question", "question") : "", arret: () => evl.arret };
   if (agent.enCours && agent.evaluation && !agent.evaluation.fini)
-    return { id: "evaluation", page: "agent", nom: Lg("Évaluation de l'agent", "Agent evaluation"), etape: p && p.total ? sur(Math.min(p.etats.length + 1, p.total), p.total, "épisode", "episode") : "", arret: () => agent.arret };
+    return { id: "evaluation", page: "derives", vers: "agent", nom: Lg("Évaluation de l'agent", "Agent evaluation"), etape: p && p.total ? sur(Math.min(p.etats.length + 1, p.total), p.total, "épisode", "episode") : "", arret: () => agent.arret };
   if (agent.enCours)
-    return { id: "instruction", page: "agent", nom: Lg("Instruction", "Investigation"), etape: p && p.tour ? sur(p.tour, IA.tours, "tour", "turn") : "", arret: () => agent.arret };
+    return { id: "instruction", page: "derives", vers: "agent", nom: Lg("Instruction", "Investigation"), etape: p && p.tour ? sur(p.tour, IA.tours, "tour", "turn") : "", arret: () => agent.arret };
   if (iaPresent("rev") && rev.enCours) return { id: "revue", page: "revue", nom: Lg("Revue", "Review"), etape: "", arret: () => rev.arret };
   if (iaPresent("sim") && sim.enCours) return { id: "simulateur", page: "simulateur", nom: Lg("Simulateur", "Simulator"), etape: Lg("traduction de la phrase", "translating the sentence"), arret: () => sim.arret };
   if (iaPresent("itg") && itg.enCours) return { id: "integration", page: "itg", nom: Lg("Intégration", "Integration"), etape: Lg("proposition des rôles des colonnes", "proposing the column roles"), arret: () => itg.arret };
@@ -484,7 +483,7 @@ function iaPeindreTravail() {
     iaTravail.replaceChildren(
       h("div", { class: "ia-titre-travail" }, h("span", { class: "voyant actif", "aria-hidden": "true" }), h("span", null, titre)),
       h("div", { class: "ia-actions" },
-        etat.onglet !== a.page ? h("button", { type: "button", class: "lien", onclick: () => aller(a.page) }, "Voir") : null,
+        !iaSurPage(a.page) ? h("button", { type: "button", class: "lien", onclick: () => aller(a.vers || a.page) }, "Voir") : null,
         h("button", { type: "button", class: "lien", disabled: !!arretEnCours, onclick: e => { const x = a.arret(); if (x) x.abort(); iaArretDemande = true; e.target.disabled = true; e.target.textContent = tr("Arrêt demandé…"); } }, arretEnCours ? "Arrêt demandé…" : "Arrêter")),
       h("div", { class: "ia-detail-travail", "aria-hidden": "true" }));
   }
@@ -496,7 +495,7 @@ function iaSurveiller() {
   if (iaVu && (!a || a.id !== iaVu.id)) {
     const fini = iaVu, msg = iaArretDemande ? null : iaBilan(fini);
     iaArretDemande = false; iaTexteTravail = "";
-    if (msg && etat.onglet !== fini.page) iaNoter(msg, fini.page);
+    if (msg && !iaSurPage(fini.page)) iaNoter(msg, fini.vers || fini.page);
   }
   if (a && iaVu && a.id === iaVu.id && a.etape !== iaVu.etape) iaTexteTravail = "";
   if (a && (!iaVu || a.id !== iaVu.id)) iaTexteTravail = "";
@@ -528,7 +527,7 @@ ajouterTraductions([
   ["Réglages d'IA", "AI settings"], ["Ouvrir les réglages d'IA", "Open the AI settings"], ["Modifier", "Change"], ["Fermer", "Close"], ["Fermer les réglages d'IA", "Close the AI settings"],
   ["Ouvrir les réglages d'IA : mode, modèle, clé et accord d'envoi", "Open the AI settings: mode, model, key and consent to send"],
   ["Envoi autorisé (réglages d'IA) · ", "Sending authorised (AI settings) · "], ["Mode", "Mode"], ["Modèle", "Model"], ["Démonstration (sans IA)", "Demo (no AI)"],
-  ["Ces réglages valent pour toutes les pages qui font appel à une IA : Instruction, Veille, Revue, Évaluation, Simulateur et Intégration.", "These settings apply to every page that uses an AI: Investigation, Watch, Review, Evaluation, Simulator and Integration."],
+  ["Ces réglages valent pour toutes les pages qui font appel à une IA : Dérives, Revue, Évaluation, Simulateur et Intégration.", "These settings apply to every page that uses an AI: Drifts, Review, Evaluation, Simulator and Integration."],
   ["Un agent travaille : le mode, le modèle et la relecture se changent quand il a fini.", "An agent is working: the mode, model and review can be changed once it has finished."],
   ["Mode démonstration : aucune IA, aucun appel réseau, aucun accord à donner. Chaque page utilise un script qui joue le rôle du modèle, et le dit.", "Demo mode: no AI, no network call, no consent to give. Each page uses a script that plays the model, and says so."],
   ["Garder la clé jusqu'à la fermeture de cet onglet", "Keep the key until this tab is closed"],

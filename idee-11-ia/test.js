@@ -61,6 +61,8 @@ async function test() {
   verifier(/la description de l'épisode à instruire/.test(t) && /le dossier de faits de l'étape 1/.test(t) && /le texte d'une question du banc/.test(t) && /la phrase que vous avez écrite, telle quelle/.test(t) && /les intitulés des colonnes/.test(t),
     "le panneau reprend ce que liste l'avis de chaque page (Instruction, Revue, Évaluation, Simulateur, Intégration)");
   verifier(/Clé Gemini gratuite/.test(t) && /Ne sont pas envoyés/.test(t), "les mises en garde des avis d'origine sont reprises");
+  verifier(/Instruction d'une dérive, séries et évaluation de l'agent \(page Dérives\)/.test(t) && /pages qui font appel à une IA : Dérives, Revue/.test(t) && /une série lancée depuis la page Dérives, répète ces envois/.test(t) && !/séries de la page Veille|: Instruction, Veille|lancée depuis la page Veille/.test(t),
+    "le panneau nomme la page Dérives (plus les pages Instruction ni Veille)");
   const cases = trouver(iaDialogue, n => n.tagName === "INPUT" && /^f-/.test(n.getAttribute("data-ia") || ""));
   verifier(cases.length === IA_FONCTIONS.length && IA_FONCTIONS.length === 5 && cases.every(c => c.checked), "une case par fonction, cochée par défaut");
   verifier(boutonsDe(iaDialogue, /^J'autorise/).length === 1 && boutonsDe(iaDialogue, /^J'autorise ces envois pour cette session$/).length === 1, "un seul bouton d'accord (les boutons des avis d'origine sont retirés)");
@@ -109,6 +111,7 @@ async function test() {
   verifier(/AI: Gemini · gemini-3\.5-flash-lite · consent needed/.test(iaBouton.textContent) && /Writer: Gemini/.test(t), "anglais : badge et rappel traduits");
   iaOuvrir(); t = texteDe(iaDialogue);
   verifier(/AI settings/.test(t) && /Keep the key until this tab is closed/.test(t) && /I authorise these sends for this session/.test(t) && !/Réglages d'IA|Garder la clé/.test(t), "anglais : le panneau est traduit");
+  verifier(/a run started from the Drifts page, repeats these sends/.test(t) && /\(Drifts page\)/.test(t) && !/Watch page/.test(t), "anglais : le panneau nomme la page Dérives (Drifts page)");
   iaFermer();
   iaCoches.add("simulateur"); iaAutoriser(); t = page("revue");
   verifier(/Sending authorised \(AI settings\) · Change/.test(t) && /AI: Gemini · gemini-3\.5-flash-lite · ready/.test(iaBouton.textContent), "anglais : la ligne d'accord et le badge « ready »");
@@ -131,6 +134,12 @@ async function test() {
   verifier(iaTravail.hidden && document.body.contains(iaNotes) && /Fiche prête/.test(iaNotes.textContent), "à la fin : notification « Fiche prête » dans la page");
   cliquer(boutonsDe(iaNotes, /^Voir$/)[0]);
   verifier(etat.onglet === "agent" && !document.body.contains(iaNotes) && zoneFiche.querySelector("dl"), "« Voir » mène à la fiche");
+  // sur la page Dérives, quelle que soit son adresse (derives, agent, veille) : ni « Voir » ni notification, le travail est sous les yeux
+  page("agent"); choisirEpisode(derives().episodes[2]); page("derives"); iaSurveiller();
+  verifier(!iaTravail.hidden && iaVu && iaVu.page === "derives" && boutonsDe(iaTravail, /^Voir$/).length === 0, "pendant l'instruction, sur l'adresse « derives » : pas de « Voir »");
+  while (agent.enCours) await pause(50);
+  iaSurveiller();
+  verifier(iaTravail.hidden && !document.body.contains(iaNotes), "fin de l'instruction vue sur la page Dérives : pas de notification");
   // arrêt depuis l'indicateur : pas de notification
   page("agent"); choisirEpisode(derives().episodes[1]); page("site"); iaSurveiller();
   cliquer(boutonsDe(iaTravail, /^Arrêter$/)[0]);
@@ -143,6 +152,8 @@ async function test() {
     verifier(/Agent au travail : Veille, épisode 1 sur \d/.test(iaTravail.textContent), "Veille : « Agent au travail : Veille, épisode 1 sur n »");
     page("site"); await serie; iaSurveiller();
     verifier(/Veille : \d+ fiche\(s\) prête\(s\) sur \d+/.test(iaNotes.textContent), "Veille : notification de fin");
+    cliquer(boutonsDe(iaNotes, /^Voir$/)[0]);
+    verifier(DRV_PAGES.includes(etat.onglet) && !document.body.contains(iaNotes), "Veille : « Voir » mène à la page Dérives");
     iaNotes.replaceChildren(); iaNotes.remove();
   }
   // copie figée : notifications retirées le temps du clonage, remises ensuite
