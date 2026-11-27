@@ -105,6 +105,15 @@ async function test() {
     let ok = true; for (const b of liens) { try { cliquer(b); } catch (e) { ok = false; } }
     verifier(ok, "mode d'emploi (" + l + ") : chaque lien du sommaire se clique sans erreur");
   }
+  for (const l of ["fr", "en"]) {
+    const g = texteDe(rendrePage("guide", l));
+    verifier(["mod-accueil", "mod-ia", "mod-continuite", "mod-derives"].every(id => GUIDE.some(s => s.id === id)) && (l === "fr" ? /Réglages d'IA/.test(g) && /Exporter le projet/.test(g) && /Essayer avec un site fictif/.test(g) && /La page Dérives réunit/.test(g)
+      : /AI settings/.test(g) && /Export the project/.test(g) && /Try it with a fictitious site/.test(g) && /The Drifts page brings together/.test(g)), "mode d'emploi (" + l + ") : sections des modules 10, 11, 12 et de la page Dérives");
+    verifier(!/(clé|fournisseur|accord|agent|autorisée)[^.]{0,60}sur la page Instruction|(key|provider|consent|agent|authorised it)[^.]{0,60}on the Investigation page/.test(g), "mode d'emploi (" + l + ") : les réglages d'IA ne renvoient plus à la page Instruction");
+    const sauve = etat.modele; etat.modele = null; LANGUE = l; CACHE_TR.clear(); rendre();
+    const acc = texteDe(app); etat.modele = sauve;
+    verifier(l === "fr" ? /donné dans les réglages d'IA \(un accord, fonction par fonction\)/.test(acc) : /given in the AI settings \(one consent, feature by feature\)/.test(acc), "accueil (" + l + ") : la phrase de confidentialité dit où se donne l'accord");
+  }
   LANGUE = "fr"; CACHE_TR.clear(); rendre();
   verifier(__reseau.length === 0, "aucun appel réseau");
 }
