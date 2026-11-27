@@ -131,7 +131,7 @@ async function test() {
   verifier(agent.demo && zoneFiche.querySelector("dl") && journal.childNodes.length > 0, "étape 3 : fiche rédigée par le script de démonstration");
   verifier(/script de démonstration/.test(texteDe(zoneFiche)), "étape 3 : la fiche dit venir du script, pas d'une IA");
   accVisitePlacer();
-  verifier(V.ancre && V.ancre.classList.contains("fiche"), "étape 3 : le projecteur passe sur la fiche quand elle arrive");
+  verifier(V.ancre && V.ancre.tagName === "DL" && zoneFiche.contains(V.ancre), "étape 3 : le projecteur passe sur la fiche quand elle arrive");
   const journalAvant = journal.childNodes[0];
   touche("ArrowLeft");
   verifier(V.i === 1 && etat.onglet === "derives", "flèche gauche : retour à la Détection");

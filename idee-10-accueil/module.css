@@ -24,7 +24,7 @@
 /* Visite guidée */
 .acc-voile { position: fixed; inset: 0; z-index: 60; background: transparent; }
 .acc-voile.plein { background: rgba(8, 13, 20, .55); }
-.acc-spot { position: fixed; z-index: 61; border-radius: 6px; pointer-events: none; box-shadow: 0 0 0 3px var(--signal), 0 0 0 200vmax rgba(8, 13, 20, .55); transition: left .2s, top .2s, width .2s, height .2s; }
+.acc-spot { position: fixed; z-index: 61; border-radius: 6px; pointer-events: none; box-shadow: 0 0 0 3px var(--signal), 0 0 0 200vmax rgba(8, 13, 20, .55); }
 .acc-spot[hidden] { display: none; }
 .acc-bulle { position: fixed; z-index: 62; width: min(380px, calc(100vw - 24px)); background: var(--surface); color: var(--encre); border: 1px solid var(--bord); border-top: 4px solid var(--signal); border-radius: 6px; box-shadow: 0 12px 32px rgba(0, 0, 0, .28); padding: 14px 16px 12px; }
 .acc-bulle:focus { outline: none; }
@@ -34,5 +34,4 @@
 .acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .acc-espace { flex: 1; }
 .acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
-@media (prefers-reduced-motion: reduce) { .acc-spot { transition: none; } }
 @media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } }

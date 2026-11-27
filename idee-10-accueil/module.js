@@ -326,7 +326,7 @@ function accVisiteEtapes() {
         if (agent.demo) choisirEpisode(ep);                                // script de démonstration : ni IA ni réseau
         else { agent.episode = ep; agent.erreur = null; journal.replaceChildren(); zoneFiche.replaceChildren(); peindreAgent(); }
       },
-      cible: () => zoneFiche.querySelector(".fiche") || accQ(".journal") || accQ(".chapeau"), titre: () => accT("Ce qu'en dit l'agent", "What the agent says"),
+      cible: () => zoneFiche.querySelector(".fiche dl") || zoneFiche.querySelector(".fiche") || accQ(".journal") || accQ(".chapeau"), titre: () => accT("Ce qu'en dit l'agent", "What the agent says"),
       texte: () => agent.demo ? accT("Un agent enquête avec des outils de lecture seule et rédige une fiche : causes probables, preuves chiffrées, vérifications à faire. Ici, un script de démonstration joue l'agent, sans IA ni réseau. Chaque nombre de la fiche est recherché dans les résultats d'outils ; un nombre introuvable est signalé.",
           "An agent investigates with read-only tools and writes a report: likely causes, figures as evidence, checks to make. Here a demo script plays the agent, with no AI and no network. Every number in the report is looked up in the tool results; a number that cannot be found is flagged.")
         : accT("Vous avez réglé une IA : la visite ne l'appelle pas. Cliquez « Lancer l'instruction » pour l'essayer sur cette dérive, ou choisissez le mode démonstration.", "You have set up an AI: the tour does not call it. Click “Run the investigation” to try it on this drift, or pick demo mode.") },
@@ -366,8 +366,9 @@ function accVisiteAller(i) {
   const E = V.etapes[i];
   if (E.avant) E.avant();
   if (!V.ouverte) return;
-  aller(E.page);
+  aller(E.page);                                                         // aller() remonte en haut de page après le rendu :
   if (!V.ouverte) return;
+  V.ancre = null;                                                         // l'élément visé doit être ramené à l'écran ensuite
   accVisitePeindre(true);
   accVisitePlacer();
 }
@@ -385,7 +386,7 @@ function accVisitePeindre(focaliser) {
       h("button", { class: "btn principal", type: "button", onclick: () => dernier ? accVisiteFermer() : accVisiteAller(V.i + 1) }, dernier ? accT("Terminer", "Finish") : accT("Suivant", "Next"))));
   if (focaliser || avait) { const b = V.bulle.querySelector(".principal"); if (b) b.focus(); }
 }
-/* Place le projecteur sur l'élément visé et la bulle à côté ; à moins de 640 px, la bulle se pose en bas de l'écran (CSS). */
+/* Place le projecteur sur l'élément visé et la bulle à côté. */
 function accVisitePlacer() {
   const V = accVisite;
   if (!V.ouverte) return;
@@ -401,16 +402,19 @@ function accVisitePlacer() {
   const visible = r && r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight;
   V.voile.classList.toggle("plein", !visible);
   V.spot.hidden = !visible;
-  if (visible) {
-    const haut = Math.max(4, r.top - 6), bas = Math.min(innerHeight - 4, r.bottom + 6);
+  bulle.classList.toggle("acc-bas", etroit);
+  let haut = 0, bas = 0;
+  if (visible) {                                                          // un élément plus haut que l'écran : le projecteur s'arrête où commence la bulle
+    haut = Math.max(4, r.top - 6); bas = Math.min(innerHeight - 4, r.bottom + 6);
+    const place = innerHeight - bh - (etroit ? 24 : 40);
+    if (bas > place && (etroit || bas - haut > place)) bas = Math.max(haut + 48, place);
     Object.assign(V.spot.style, { left: Math.max(4, r.left - 6) + "px", top: haut + "px", width: Math.min(innerWidth - 8, r.width + 12) + "px", height: Math.max(0, bas - haut) + "px" });
   }
-  if (etroit) { bulle.classList.add("acc-bas"); Object.assign(bulle.style, { left: "", top: "" }); return; }
-  bulle.classList.remove("acc-bas");
+  if (etroit) { Object.assign(bulle.style, { left: "", top: "" }); return; }   // à moins de 640 px, la bulle se pose en bas de l'écran (CSS)
   let top, left = visible ? Math.max(12, Math.min(r.left, innerWidth - bw - 12)) : innerWidth - bw - 24;
   if (!visible) top = innerHeight - bh - 24;
-  else if (r.bottom + 14 + bh < innerHeight - 8) top = r.bottom + 14;
-  else if (r.top - 14 - bh > 8) top = r.top - 14 - bh;
+  else if (bas + 14 + bh < innerHeight - 8) top = bas + 14;
+  else if (haut - 14 - bh > 8) top = haut - 14 - bh;
   else { top = innerHeight - bh - 16; left = innerWidth - bw - 16; }
   Object.assign(bulle.style, { left: left + "px", top: Math.max(8, top) + "px" });
 }
