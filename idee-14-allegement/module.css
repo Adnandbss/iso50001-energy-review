@@ -1,0 +1,6 @@
+/* Module « Allègement » : la phrase de réponse des pages du coeur, un peu moins grande que celle de la Détection. */
+.alg-reponse { margin-bottom: 12px; }
+.alg-reponse .titre { font-size: 22px; overflow-wrap: anywhere; }
+.alg-reponse + .tuiles { margin-top: 0; }
+.feuille > details.repli { margin: 0 0 14px; }
+@media (max-width: 700px) { .alg-reponse .titre { font-size: 19px; } }
