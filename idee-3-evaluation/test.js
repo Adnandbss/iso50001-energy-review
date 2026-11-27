@@ -366,8 +366,10 @@ async function test() {
   /* 10. Les autres pages se rendent toujours ; un nouveau classeur remet le banc à zéro et redonne le même jeu */
   for (const o of ONGLETS) { etat.onglet = o[0]; rendre(); verifier(texteDe(document.getElementById("app")).length > 200, "la page « " + o[0] + " » se rend"); }
   verifier(PAGES.some(g => g.groupe === "Agents" && g.pages.some(p => p[0] === "evaluation")) && typeof ICONES.evaluation === "string", "page inscrite dans le groupe « Agents », avec son icône");
-  charger(grillesChargees, d1904Charge, etat.fichier, null);
+  const G0 = grillesChargees, nom0 = etat.fichier, autre = JSON.parse(JSON.stringify(G0)); autre.CONSO[2][2] += 1;   // un autre classeur : le même, rechargé, retrouverait les passes gardées
+  charger(autre, d1904Charge, "autre.xlsm", null);
   verifier(evl.passes.length === 0 && evl.accord === false && evl.modele === etat.modele, "nouveau classeur : passes et accord remis à zéro");
+  charger(G0, d1904Charge, nom0, null);
   verifier(JSON.stringify(evlJeu().map(q => [q.id, q.fr, q.attendu])) === JSON.stringify(JSON.parse(e1).map(x => [x[0], x[3], x[5]])), "même classeur rechargé, même graine : même jeu");
   evlT = evlT0;
   verifier(__reseau.length === 0, "aucun appel réseau pendant tout le test");
