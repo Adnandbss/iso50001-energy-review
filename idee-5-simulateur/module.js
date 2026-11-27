@@ -310,7 +310,7 @@ async function simProposer(phrase, appelerModele, signal) {
 async function simLancer() {
   if (sim.enCours) return;
   const phrase = sim.phrase.trim(), demo = agent.demo;
-  sim.erreur = !phrase ? "Écrivez d'abord une phrase." : demo ? null : blocageEnvoi() ? simT("Traduction par l'IA impossible pour l'instant : réglez d'abord l'envoi sur la page Instruction.", "AI translation is not possible yet: set up sending on the Investigation page first.")
+  sim.erreur = !phrase ? "Écrivez d'abord une phrase." : demo ? null : blocageEnvoi() ? simT("Traduction par l'IA impossible pour l'instant : réglez d'abord l'envoi dans les réglages d'IA (bouton « IA », en bas du menu).", "AI translation is not possible yet: set up sending in the AI settings (“AI” button, at the bottom of the menu) first.")
     : sim.accord !== agent.fournisseur ? simT("Autorisez d'abord l'envoi de la phrase (encadré ci-dessus).", "First authorise sending the sentence (box above).") : null;
   if (sim.erreur) { simPeindreIA(); return; }
   const arret = new AbortController(), redacteur = demo ? null : redacteurCourant(arret.signal);
@@ -335,7 +335,7 @@ function simAvisEnvoi() {
       h("li", null, "la phrase que vous avez écrite, telle quelle ;"),
       h("li", null, Lg("les noms des " + n + " facteurs influents du classeur, avec pour chacun sa valeur la plus basse et sa valeur la plus haute observées ;", "the names of the workbook's " + n + " relevant variables, each with its lowest and highest observed value;")),
       h("li", null, simT("une consigne fixe et la description de l'outil de réglage, écrites dans cette page.", "a fixed instruction and the description of the settings tool, written in this page."))),
-    h("p", null, simT("Ne sont pas envoyés : les consommations, les équations et leurs coefficients, les valeurs des facteurs date par date, les noms des séries et des énergies, les prix, le nom du fichier. Le modèle ne calcule rien : il rend des réglages, que vous confirmez avant tout calcul. La conservation des données par le fournisseur dépend des conditions de votre compte (voir l'avis de la page Instruction).", "Not sent: consumption, the equations and their coefficients, the variables' values date by date, the names of series and energies, prices, the file name. The model computes nothing: it returns settings, which you confirm before anything is computed. Data retention by the provider depends on your account terms (see the notice on the Investigation page).")),
+    h("p", null, simT("Ne sont pas envoyés : les consommations, les équations et leurs coefficients, les valeurs des facteurs date par date, les noms des séries et des énergies, les prix, le nom du fichier. Le modèle ne calcule rien : il rend des réglages, que vous confirmez avant tout calcul. La conservation des données par le fournisseur dépend des conditions de votre compte (voir les réglages d'IA).", "Not sent: consumption, the equations and their coefficients, the variables' values date by date, the names of series and energies, prices, the file name. The model computes nothing: it returns settings, which you confirm before anything is computed. Data retention by the provider depends on your account terms (see the AI settings).")),
     h("p", null, h("button", { class: "btn principal", onclick: () => { sim.accord = agent.fournisseur; sim.erreur = null; simPeindreIA(); } }, "J'autorise cet envoi à " + f.api + " pour cette session"),
       simT(" Rien n'est envoyé tant que vous n'avez pas cliqué, puis demandé une traduction.", " Nothing is sent until you have clicked, then asked for a translation.")));
 }
@@ -346,13 +346,13 @@ function simPeindreIA() {
   const champ = h("input", { type: "text", class: "sim-champ", maxlength: 300, value: sim.phrase, disabled: sim.enCours, "aria-label": "Scénario en une phrase",
     placeholder: simT("Exemple : et si la production montait de 10 % et que l'hiver était froid ?", "Example: what if production rose by 10% and the winter was cold?"),
     oninput: e => { sim.phrase = e.target.value; bouton.disabled = !pret(); }, onkeydown: e => { if (e.key === "Enter") simLancer(); } });
-  const mode = h("button", { class: "lien", onclick: () => aller("agent") }, "Changer de mode (page Instruction)");
+  const mode = h("button", { class: "lien", onclick: () => typeof iaOuvrir === "function" ? iaOuvrir() : aller("agent") }, "Réglages d'IA");
   simZoneIA.replaceChildren(...[
     h("div", { class: "sim-phrase" }, champ, sim.enCours ? h("button", { class: "btn", onclick: () => { if (sim.arret) sim.arret.abort(); } }, "Arrêter") : bouton),
     sim.enCours ? h("div", { class: "note" }, h("span", { class: "en-cours" }, "en cours"), demo ? " Le script lit la phrase…" : simT(" La phrase est envoyée au modèle ; « Arrêter » abandonne l'attente.", " The sentence is being sent to the model; “Stop” gives up waiting.")) : null,
-    demo ? h("div", { class: "note" }, simT("Mode démonstration : aucune IA, aucun appel réseau. Un script de cette page repère des mots-clés, des pourcentages et les mots des noms de facteurs. Il comprend les tournures simples, pas les nuances. ", "Demo mode: no AI, no network call. A script in this page spots keywords, percentages and the words of the variable names. It understands simple phrasings, not nuances. "), mode)
+    demo ? h("div", { class: "note" }, simT("Mode démonstration : aucune IA, aucun appel réseau ; un script repère des mots-clés et des pourcentages. ", "Demo mode: no AI, no network call; a script spots keywords and percentages. "), mode)
       : h("div", { class: "note" }, Lg("Mode IA : " + F().nom + " (" + modeleIA() + "). Le modèle propose des réglages, la page calcule. ", "AI mode: " + F().nom + " (" + modeleIA() + "). The model proposes settings, the page computes. "), mode),
-    blocage ? h("div", { class: "note attention" }, simT("Traduction par l'IA impossible pour l'instant : choisissez le fournisseur, saisissez la clé et donnez l'accord général sur la page Instruction, ou revenez au mode démonstration.", "AI translation is not possible yet: choose the provider, enter the key and give the general consent on the Investigation page, or go back to demo mode.")) : null,
+    blocage ? h("div", { class: "note attention" }, simT("Traduction par l'IA impossible pour l'instant : choisissez le fournisseur, saisissez la clé et donnez l'accord général dans les réglages d'IA (bouton « IA », en bas du menu), ou revenez au mode démonstration.", "AI translation is not possible yet: choose the provider, enter the key and give the general consent in the AI settings (“AI” button, at the bottom of the menu), or go back to demo mode.")) : null,
     demo ? null : accord ? h("div", { class: "note" }, Lg("Envoi des phrases à " + F().api + " autorisé pour cette session. ", "Sending sentences to " + M(F().api) + " is authorised for this session. "), h("button", { class: "lien", onclick: () => { sim.accord = false; simPeindreIA(); } }, "Retirer l'autorisation")) : simAvisEnvoi(),
     sim.erreur ? h("div", { class: "erreur" }, sim.erreur) : null,
     p ? h("div", { class: "avis" },
@@ -375,29 +375,52 @@ function simPage() {
   const sc = sim.scenarios[sim.courant], res = simCalculer(sc), tous = sim.scenarios.map(x => x === sc ? res : simCalculer(x));
   const ligne = res.lignes.find(l => l.sr.nom === sim.serie) || res.lignes[0], nb = Math.max(...res.lignes.map(l => l.n));
   simPeindreIA();
+  const actifs = m.facteurs.map((f, k) => k).filter(k => simActif(sc.reglages[m.facteurs[k].nom])), autres = m.facteurs.map((f, k) => k).filter(k => !actifs.includes(k));
+  const avecPrix = Object.keys(sc.prix).length + Object.keys(sc.fe).length > 0, avis = simAvis(res);
   return [
-    h("p", { class: "chapeau" }, simT("Et si les facteurs influents avaient été différents ? La page rejoue les modèles de référence du classeur sur l'historique, avec les facteurs que vous modifiez. C'est une simulation par le modèle de référence, pas une prévision : elle dit ce que le modèle aurait donné, pas ce que le site consommera.", "What if the relevant variables had been different? The page replays the workbook's baseline models over the history, with the variables you change. This is a simulation by the baseline model, not a forecast: it says what the model would have given, not what the site will consume.")),
+    simReponse(sc, res), avis && avis.ligne, simTuiles(res),
+    h("section", { class: "sim-ecrire" }, h("h2", null, "Écrivez votre scénario"), simZoneIA),
     h("div", { class: "filtres" }, filtresCommuns(true)),
     h("div", { class: "grille" },
-      carte({ id: "sim-ia", titre: "Décrire le scénario en une phrase", sous: simT("la phrase est traduite en réglages, que vous confirmez avant tout calcul", "the sentence is translated into settings, which you confirm before anything is computed"), contenu: simZoneIA }),
-      carte({ id: "sim-reglages", titre: "Réglages du scénario", sous: simT("chaque facteur influent peut varier en pourcentage, en valeur, ou être placé à un niveau habituel de son historique", "each relevant variable can change by a percentage, by a value, or be set to a usual level from its history"),
-        contenu: h("div", null, simBarreScenarios(sc), m.facteurs.map((f, k) => simLigneFacteur(sc, k, res)), simLignesPrix(sc)) })),
-    simTuiles(res), simAvis(res), retirees,
-    h("div", { class: "grille" },
-      carte({ id: "sim-courbe", titre: "Référence et simulation", sous: Lg("consommation donnée par le modèle, sans et avec le scénario, par " + NOM_PAS[etat.gran], "consumption given by the model, without and with the scenario, per " + M(NOM_PAS[etat.gran])),
-        legende: [{ nom: "Simulation", couleur: "var(--s2)" }, { nom: "Référence", couleur: "var(--s1)" }],
-        contenu: h("div", { class: "filtres", style: "margin-bottom:6px" }, filtre("Série", liste([["site", "Site"], ["ues", "UES"]].map(([g, t]) => ({ groupe: t, options: res.lignes.filter(l => l.sr.groupe === g).map(l => ({ v: l.sr.nom, t: l.sr.nom })) })).filter(g => g.options.length), ligne.sr.nom, v => { sim.serie = v; rendre(); }))),
+      carte({ id: "sim-courbe", titre: Lg("Référence et simulation : « " + ligne.sr.nom + " », par " + NOM_PAS[etat.gran], "Baseline and simulation: “" + ligne.sr.nom + "”, per " + M(NOM_PAS[etat.gran])),
+        contenu: h("div", { class: "sim-tete-graphe" }, legende([{ nom: "Simulation", couleur: "var(--s2)" }, { nom: "Référence", couleur: "var(--s1)" }]),
+          h("span", { class: "note sim-sous" }, simT("consommation donnée par le modèle, sans et avec le scénario", "consumption given by the model, without and with the scenario")),
+          filtre("Série", liste([["site", "Site"], ["ues", "UES"]].map(([g, t]) => ({ groupe: t, options: res.lignes.filter(l => l.sr.groupe === g).map(l => ({ v: l.sr.nom, t: l.sr.nom })) })).filter(g => g.options.length), ligne.sr.nom, v => { sim.serie = v; rendre(); }))),
         dessiner: z => { const c = simCourbe(ligne); if (!c.lib.length) { z.replaceChildren(h("div", { class: "vide" }, "Aucune donnée sur la période choisie.")); return; }
-          graphCourbes(z, { etiquettes: c.lib, series: [{ nom: "Simulation", valeurs: c.simu, couleur: "var(--s2)" }, { nom: "Référence", valeurs: c.ref, couleur: "var(--s1)" }], hauteur: 260, titre: ligne.sr.nom }); },
+          graphCourbes(z, { etiquettes: c.lib, series: [{ nom: "Simulation", valeurs: c.simu, couleur: "var(--s2)" }, { nom: "Référence", valeurs: c.ref, couleur: "var(--s1)" }], hauteur: 180, titre: ligne.sr.nom }); },
         table: () => { const c = simCourbe(ligne); return { entetes: ["Période", "Référence", "Simulation", "Écart simulé"], lignes: c.lib.map((e, i) => [e, fmtEnergie(c.ref[i]), fmtEnergie(c.simu[i]), c.ref[i] == null ? "" : fmtEnergie(c.simu[i] - c.ref[i], true)]) }; } }),
+      carte({ id: "sim-reglages", titre: "Réglages du scénario",
+        contenu: h("div", null, simBarreScenarios(sc), actifs.map(k => simLigneFacteur(sc, k, res)), avecPrix ? simLignesPrix(sc) : null,
+          repli("sim-autres", Lg("Régler un facteur à la main (" + autres.length + (actifs.length ? " autre" + (autres.length > 1 ? "s" : "") : "") + ")" + (avecPrix ? "" : ", prix et facteur d'émission"),
+            "Set a variable by hand (" + autres.length + (actifs.length ? " other" + (autres.length > 1 ? "s" : "") : "") + ")" + (avecPrix ? "" : ", price and emission factor")),
+            h("p", { class: "note sim-aide" }, simT("chaque facteur influent peut varier en pourcentage, en valeur, ou être placé à un niveau habituel de son historique", "each relevant variable can change by a percentage, by a value, or be set to a usual level from its history")),
+            autres.map(k => simLigneFacteur(sc, k, res)), avecPrix ? null : simLignesPrix(sc))) })),
+    h("div", { class: "sim-replis" }, repli("sim-effets", "Effet sur le site et sur chaque UES", h("div", { class: "grille" },
       carte({ id: "sim-series", titre: "Effet sur le site et sur chaque UES", sous: simT("total sur la période choisie ; le coût et les émissions comparent la simulation à ses prix avec la référence aux prix de référence", "total over the chosen period; cost and emissions compare the simulation at its prices with the baseline at reference prices"),
         contenu: tableau(["Série", "Niveau", "Énergie", "R²", "Référence", "Simulation", "Écart simulé", "Écart en %", "Coût", "Émissions"],
           res.lignes.map(l => [l.sr.nom, nomNiveau(l.sr), l.sr.energie, l.sr.r2 == null ? "–" : nf(l.sr.r2, 2) + (l.sr.r2 < SIM.r2Faible ? " ⚠" : ""), fmtEnergie(l.ref), fmtEnergie(l.tot), fmtEnergie(l.ecart, true), simPct(l.ref ? l.ecart / l.ref : null), fmtEuros(l.euros, true), fmtCO2(l.co2, true)])),
         note: Lg("⚠ : R² inférieur à " + nf(SIM.r2Faible, 2) + ". Une série dont l'équation ne contient aucun des facteurs modifiés garde un écart nul.", "⚠: R² below " + nf(SIM.r2Faible, 2) + ". A series whose equation contains none of the modified variables keeps a zero gap.") }),
-      simCarteRepartition(res, "ues"), simCarteRepartition(res, "facteurs"),
-      simCarteSensibilite(res), simCarteComparaison(tous)),
-    h("div", { class: "note" }, Lg("Méthode. La page relit l'équation de chaque série dans le classeur (feuilles EQUATION et EQUATION 2, saisons du WIKI) et vérifie qu'elle retrouve la référence du tableau de bord sur tout l'historique, à un milliardième près : mêmes opérations, même ordre, seul l'arrondi de la machine peut différer. La simulation applique cette équation aux facteurs modifiés, aux dates où la série a une référence. Niveau haut ou bas habituel : 90ᵉ ou 10ᵉ centile du facteur aux mêmes mois du calendrier (mois voisins ajoutés sous " + SIM.minMois + " valeurs). Limites. Le modèle est linéaire et chaque facteur bouge seul, sans entraîner les autres. Le classeur ne donne pas l'incertitude des coefficients : l'écart est affiché sans intervalle. L'historique est court (" + nb + " périodes au plus sur la période choisie). Le coût applique un prix moyen par MWh.",
-      "Method. The page reads each series' equation from the workbook (EQUATION and EQUATION 2 sheets, seasons from WIKI) and checks that it reproduces the dashboard's baseline over the whole history, to within one billionth: same operations, same order, only machine rounding can differ. The simulation applies that equation to the modified variables, on the dates where the series has a baseline. Usual high or low level: 90th or 10th percentile of the variable in the same calendar months (neighbouring months added below " + SIM.minMois + " values). Limits. The model is linear and each variable moves alone, without dragging the others. The workbook does not give the uncertainty of the coefficients: the gap is shown without an interval. The history is short (" + nb + " periods at most over the chosen period). Cost applies an average price per MWh."))];
+      simCarteRepartition(res, "ues"), simCarteRepartition(res, "facteurs"))),
+    repli("sim-r-sens", "Quel facteur pèse le plus ?", h("div", { class: "grille" }, simCarteSensibilite(res))),
+    repli("sim-r-compare", Lg("Comparer les scénarios (" + tous.length + ")", "Compare the scenarios (" + tous.length + ")"), h("div", { class: "grille" }, simCarteComparaison(tous))),
+    avis && repli("sim-avis", "À lire avant de conclure", avis.detail),
+    repli("sim-methode", null,
+      h("p", { class: "chapeau" }, simT("Et si les facteurs influents avaient été différents ? La page rejoue les modèles de référence du classeur sur l'historique, avec les facteurs que vous modifiez. C'est une simulation par le modèle de référence, pas une prévision : elle dit ce que le modèle aurait donné, pas ce que le site consommera.", "What if the relevant variables had been different? The page replays the workbook's baseline models over the history, with the variables you change. This is a simulation by the baseline model, not a forecast: it says what the model would have given, not what the site will consume.")),
+      retirees,
+      h("div", { class: "note" }, Lg("Méthode. La page relit l'équation de chaque série dans le classeur (feuilles EQUATION et EQUATION 2, saisons du WIKI) et vérifie qu'elle retrouve la référence du tableau de bord sur tout l'historique, à un milliardième près : mêmes opérations, même ordre, seul l'arrondi de la machine peut différer. La simulation applique cette équation aux facteurs modifiés, aux dates où la série a une référence. Niveau haut ou bas habituel : 90ᵉ ou 10ᵉ centile du facteur aux mêmes mois du calendrier (mois voisins ajoutés sous " + SIM.minMois + " valeurs). Limites. Le modèle est linéaire et chaque facteur bouge seul, sans entraîner les autres. Le classeur ne donne pas l'incertitude des coefficients : l'écart est affiché sans intervalle. L'historique est court (" + nb + " périodes au plus sur la période choisie). Le coût applique un prix moyen par MWh.",
+      "Method. The page reads each series' equation from the workbook (EQUATION and EQUATION 2 sheets, seasons from WIKI) and checks that it reproduces the dashboard's baseline over the whole history, to within one billionth: same operations, same order, only machine rounding can differ. The simulation applies that equation to the modified variables, on the dates where the series has a baseline. Usual high or low level: 90th or 10th percentile of the variable in the same calendar months (neighbouring months added below " + SIM.minMois + " values). Limits. The model is linear and each variable moves alone, without dragging the others. The workbook does not give the uncertainty of the coefficients: the gap is shown without an interval. The history is short (" + nb + " periods at most over the chosen period). Cost applies an average price per MWh.")),
+      h("div", { class: "note" }, simT("Phrase du scénario, en mode démonstration : le script comprend les tournures simples, pas les nuances. Il ne règle que ce qu'il reconnaît, et dit ce qu'il laisse de côté.", "Scenario sentence, in demo mode: the script understands simple phrasings, not nuances. It sets only what it recognises, and says what it leaves aside."))))];
+}
+/* La réponse : ce que le scénario affiché change, en une phrase, avec les mêmes chiffres que les tuiles. */
+function simReponse(sc, res) {
+  const reglages = simResume(sc), pas = simT("Simulation par le modèle de référence sur l'historique, pas une prévision.", "Simulation by the baseline model over the history, not a forecast.");
+  if (!reglages.length) return h("div", { class: "constat sim-reponse" },
+    h("p", { class: "titre" }, simT("Aucun réglage : la simulation est égale à la référence.", "No setting: the simulation equals the baseline.")),
+    h("p", { class: "suite" }, simT("Écrivez un scénario ci-dessous, ou réglez un facteur à la main. ", "Write a scenario below, or set a variable by hand. "), pas));
+  const parts = res.energies.map(x => x.energie + " " + fmtEnergie(x.ecart, true) + " (" + simPct(x.ref ? x.ecart / x.ref : null) + ")");
+  return h("div", { class: "constat sim-reponse" },
+    h("p", { class: "titre" }, Lg("Avec « " + sc.nom + " », le modèle aurait donné : " + parts.join(", ") + ".", "With “" + sc.nom + "”, the model would have given: " + parts.join(", ") + ".")),
+    h("p", { class: "suite" }, Lg("Sur la période choisie, coût " + fmtEuros(res.euros, true) + ", émissions " + fmtCO2(res.co2, true) + ". ", "Over the chosen period, cost " + fmtEuros(res.euros, true) + ", emissions " + fmtCO2(res.co2, true) + ". "), pas));
 }
 function simCourbe(l) {
   const S = seaux(etat.gran), R = rogner(S, agreger(l.sr.ref.map((v, j) => l.simu[j] == null ? null : v), S), agreger(l.simu, S));
@@ -413,7 +436,7 @@ function simBarreScenarios(sc) {
     h("button", { class: "btn", disabled: plein, onclick: () => ajouter(true) }, "Dupliquer"),
     h("button", { class: "btn", disabled: sim.scenarios.length < 2, title: "Il reste toujours au moins un scénario", onclick: () => { sim.scenarios.splice(sim.courant, 1); sim.courant = Math.max(0, sim.courant - 1); rendre(); } }, "Supprimer"),
     h("button", { class: "btn", disabled: !simResume(sc).length, onclick: () => { Object.assign(sc, { reglages: {}, prix: {}, fe: {} }); rendre(); } }, "Tout remettre à zéro"),
-    plein || !simResume(sc).length ? h("div", { class: "note", style: "margin:0;flex-basis:100%" }, plein ? simT("Trois scénarios au plus : supprimez-en un pour en créer un autre.", "Three scenarios at most: delete one to create another.") : simT("Aucun réglage : la simulation est égale à la référence. Choisissez un réglage ci-dessous, ou écrivez une phrase.", "No setting: the simulation equals the baseline. Choose a setting below, or write a sentence.")) : null);
+    plein ? h("div", { class: "note", style: "margin:0;flex-basis:100%" }, simT("Trois scénarios au plus : supprimez-en un pour en créer un autre.", "Three scenarios at most: delete one to create another.")) : null);
 }
 function simLigneFacteur(sc, k, res) {
   const m = etat.modele, f = m.facteurs[k], hst = sim.eq.histo[k], r = sc.reglages[f.nom] || { type: "pct", v: 0, saison: "tout" }, actif = simActif(r), ex = res.extrap.find(x => x.k === k);
@@ -448,9 +471,9 @@ function simLignesPrix(sc) {
 function simTuiles(res) {
   return h("div", { class: "tuiles" },
     res.energies.map(x => tuile(x.energie + Lg(", écart simulé", ", simulated gap"), fmtEnergie(x.ecart, true),
-      Lg(simPct(x.ref ? x.ecart / x.ref : null) + " de la référence (" + fmtEnergie(x.ref) + ")" + (x.surSite ? ", niveau Site" : ", somme des UES"), simPct(x.ref ? x.ecart / x.ref : null) + " of the baseline (" + fmtEnergie(x.ref) + ")" + (x.surSite ? ", Site level" : ", sum of SEUs")))),
-    tuile("Coût, écart simulé", fmtEuros(res.euros, true), simT("simulation à ses prix, moins référence aux prix de référence", "simulation at its prices, minus baseline at reference prices")),
-    tuile("Émissions, écart simulé", fmtCO2(res.co2, true), "avec les facteurs d'émission du scénario"));
+      Lg(simPct(x.ref ? x.ecart / x.ref : null) + " de " + fmtEnergie(x.ref) + (x.surSite ? " (Site)" : " (somme des UES)"), simPct(x.ref ? x.ecart / x.ref : null) + " of " + fmtEnergie(x.ref) + (x.surSite ? " (Site)" : " (sum of SEUs)")))),
+    tuile("Coût, écart simulé", fmtEuros(res.euros, true), simT("aux prix du scénario", "at the scenario's prices")),
+    tuile("Émissions, écart simulé", fmtCO2(res.co2, true), simT("aux facteurs du scénario", "at the scenario's factors")));
 }
 /* 4. Rester honnête : extrapolation, modèles fragiles, Site et UES qui ne s'additionnent pas, consommation négative. */
 function simAvis(res) {
@@ -462,7 +485,13 @@ function simAvis(res) {
     x.energie + ": the simulated gap of the Site (" + fmtEnergie(x.ecart, true) + ") and the sum of the SEUs' gaps (" + fmtEnergie(x.ecartUES, true) + ") do not add up. Each model is fitted separately, and the SEUs do not necessarily cover the whole site or the same dates."));
   const negatives = res.lignes.filter(l => l.neg);
   if (negatives.length) a.push(Lg("Consommation simulée négative, donc impossible : ", "Negative, hence impossible, simulated consumption: ") + negatives.map(l => l.sr.nom + " (" + l.neg + ")").join(", ") + Lg(" période(s). Le scénario sort du domaine du modèle.", " period(s). The scenario is outside the model's domain."));
-  return a.length ? h("div", { class: "avis" }, h("p", null, h("b", null, "À lire avant de conclure")), h("ul", null, a.map(t => h("li", null, t)))) : null;
+  if (!a.length) return null;
+  const sortes = [res.extrap.length ? Lg("extrapolation (" + res.extrap.length + " facteur" + (res.extrap.length > 1 ? "s" : "") + ")", "extrapolation (" + res.extrap.length + " variable" + (res.extrap.length > 1 ? "s" : "") + ")") : null,
+    fragiles.length ? Lg("modèle fragile (" + fragiles.length + " série" + (fragiles.length > 1 ? "s" : "") + ")", "weak model (" + fragiles.length + " series)") : null,
+    res.energies.some(x => x.nonAdditif) ? simT("Site et UES qui ne s'additionnent pas", "Site and SEUs that do not add up") : null,
+    negatives.length ? simT("consommation négative", "negative consumption") : null].filter(Boolean);
+  return { ligne: h("p", { class: "note attention sim-ligne" }, h("b", null, "À lire avant de conclure"), Lg(" : " + sortes.join(", ") + ". Détail plus bas.", ": " + sortes.join(", ") + ". Details below.")),
+    detail: h("ul", null, a.map(t => h("li", null, t))) };
 }
 /* Barres signées autour d'un zéro central : lignes = [{ nom, valeur, fort }]. */
 function simBarres(lignes) {
@@ -525,9 +554,9 @@ ajouterTraductions([
   ["Aucune UES à comparer.", "No SEU to compare."], ["Aucun facteur modifié dans ce scénario.", "No variable modified in this scenario."], ["Sensibilité : ce que pèse chaque facteur", "Sensitivity: what each variable weighs"],
   ["Variation testée", "Change tested"], ["+1 unité", "+1 unit"], ["Comparaison des scénarios", "Scenario comparison"], ["Indicateur", "Indicator"], ["Réglages", "Settings"],
   ["Facteurs hors de la plage observée", "Variables outside the observed range"], ["Traduire en réglages", "Translate into settings"], ["Scénario en une phrase", "Scenario in one sentence"],
-  ["Changer de mode (page Instruction)", "Change mode (Investigation page)"], [" Le script lit la phrase…", " The script is reading the sentence…"], ["Écrivez d'abord une phrase.", "Write a sentence first."],
+  ["Réglages d'IA", "AI settings"], [" Le script lit la phrase…", " The script is reading the sentence…"], ["Écrivez d'abord une phrase.", "Write a sentence first."],
   ["Traduction arrêtée.", "Translation stopped."], ["Réglages compris ", "Settings understood "], ["Aucun réglage reconnu dans cette phrase.", "No setting recognised in this sentence."], ["Laissé de côté :", "Left aside:"],
-  ["Abandonner", "Discard"], ["la phrase que vous avez écrite, telle quelle ;", "the sentence you wrote, as is;"], ["Réponse du modèle illisible.", "Unreadable model response."]
+  ["Abandonner", "Discard"], ["Écrivez votre scénario", "Write your scenario"], ["Aucun réglage : la simulation est égale à la référence.", "No setting: the simulation equals the baseline."], ["Quel facteur pèse le plus ?", "Which variable weighs most?"], ["la phrase que vous avez écrite, telle quelle ;", "the sentence you wrote, as is;"], ["Réponse du modèle illisible.", "Unreadable model response."]
 ]);
 
 /* ---- Sauvegarde (module Continuité) : scénarios et réglages de la page, gardés pour ce classeur. Pas de proposition d'IA en attente, pas d'accord. ---- */

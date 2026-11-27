@@ -549,7 +549,7 @@ function itgVueQualite() {
 ajouterTraductions([["Colonne", "Column"], ["Type deviné", "Guessed type"], ["Renseignées", "Filled"], ["Étendue ou exemple", "Range or example"], ["Remarques", "Remarks"], ["nombre", "number"], ["texte", "text"], ["vide", "empty"],
   ["Rôle", "Role"], ["Nom affiché", "Display name"], ["Énergie", "Energy"], ["Unité du fichier", "Unit in the file"], ["Niveau", "Level"], ["Pourquoi", "Why"], ["Consommation", "Consumption"], ["Facteur influent", "Relevant variable"], ["Ignorer", "Ignore"],
   ["R² ajusté", "Adjusted R²"], ["R² validé", "Validated R²"], ["Erreur type", "Typical error"], ["Données", "Data"], ["Intégration", "Integration"], ["Intégration d'un fichier de données", "Integrating a data file"]]);
-/* Avis d'envoi propre au module : l'accord de la page Instruction ne couvre pas ce qui part d'ici. */
+/* Avis d'envoi propre au module : l'accord pour l'instruction d'une dérive ne couvre pas ce qui part d'ici. */
 function itgAvis() {
   const f = F(), n = itg.table.colonnes.length, k = ITG.exemples;
   return h("div", { class: "avis" },
@@ -558,7 +558,7 @@ function itgAvis() {
       h("li", null, Lg("les intitulés des " + n + " colonnes, tels qu'ils sont dans le fichier ;", "the headers of the " + n + " columns, as they are in the file;")),
       h("li", null, Lg("par colonne : type deviné, unité et énergie lues, part de manquants, minimum, maximum, moyenne et " + k + " premières valeurs ;", "per column: guessed type, unit and energy read, share of missing values, minimum, maximum, mean and first " + k + " values;")),
       h("li", null, itgF("le nombre de lignes, le pas de temps, les dates extrêmes, la forme du tableau ; une consigne et un outil de réponse fixes.", "the number of rows, the time step, the first and last dates, the shape of the table; a fixed instruction and answer tool."))),
-    h("p", null, Lg("Ne partent pas : le fichier, son nom, les autres lignes, les modèles. La conservation par " + f.societe + " dépend de votre compte ; clé Gemini gratuite : relisez l'avis de la page Instruction.", "Not sent: the file, its name, the other rows, the models. Retention by " + f.societe + " depends on your account; free Gemini key: read the notice on the Investigation page again.")),
+    h("p", null, Lg("Ne partent pas : le fichier, son nom, les autres lignes, les modèles. La conservation par " + f.societe + " dépend de votre compte ; clé Gemini gratuite : relisez l'avis des réglages d'IA.", "Not sent: the file, its name, the other rows, the models. Retention by " + f.societe + " depends on your account; free Gemini key: read the notice in the AI settings again.")),
     h("details", null, h("summary", null, itgF("Voir tout ce qui sera envoyé", "See everything that will be sent")), h("pre", null, itgBrut(JSON.stringify(itgRequete(itgCharge()), null, 1)))),
     h("p", null, h("button", { class: "btn principal", onclick: () => { itg.accord = agent.fournisseur; itgPeindre(); } }, Lg("J'autorise cet envoi à " + f.api + " pour ce fichier", "I authorise sending this to " + M(f.api) + " for this file")),
       itgF(" Rien ne part avant ce clic, puis une demande de proposition.", " Nothing is sent before this click, then a request for a proposal.")));
@@ -576,10 +576,10 @@ async function itgProposer() {
 }
 function itgVueCorr() {
   const T = itg.table, dans = !!etat.modele, demo = agent.demo, bloque = demo ? null : blocageEnvoi(), accord = !demo && !bloque && itg.accord === agent.fournisseur;
-  const vers = dans ? h("button", { class: "lien", onclick: () => aller("agent") }, itgF("Changer de mode sur la page Instruction", "Change mode on the Investigation page"))
-    : itgF("Pour une IA : chargez d'abord le tableau de bord par les règles ; ses pages Instruction, puis Intégration, font le reste.", "For an AI: first load the dashboard with the rules; its Investigation, then Integration, pages do the rest.");
+  const vers = dans ? h("button", { class: "lien", onclick: () => typeof iaOuvrir === "function" ? iaOuvrir() : aller("agent") }, itgF("Réglages d'IA", "AI settings"))
+    : itgF("Pour une IA : chargez d'abord le tableau de bord par les règles ; ses réglages d'IA (bouton « IA », en bas du menu), puis la page Intégration, font le reste.", "For an AI: first load the dashboard with the rules; its AI settings (“AI” button, at the bottom of the menu), then the Integration page, do the rest.");
   const mode = demo ? h("p", null, h("b", null, itgF("Mode démonstration : ", "Demo mode: ")), itgF("la proposition vient des règles de ce module (intitulés, unités). Aucune IA, aucun envoi. ", "the proposal comes from this module's rules (headers, units). No AI, nothing sent. "), vers)
-    : h("p", null, h("b", null, Lg("Mode IA : ", "AI mode: ") + F().nom + " (" + modeleIA() + "). "), bloque ? itgF("Envoi impossible : autorisation générale ou clé manquante (page Instruction). ", "Sending not possible: general authorisation or key missing (Investigation page). ") : null, vers);
+    : h("p", null, h("b", null, Lg("Mode IA : ", "AI mode: ") + F().nom + " (" + modeleIA() + "). "), bloque ? itgF("Envoi impossible : autorisation générale ou clé manquante (réglages d'IA). ", "Sending not possible: general authorisation or key missing (AI settings). ") : null, vers);
   const action = itg.enCours ? itgActions(h("span", { class: "voyant actif" }), itgF("Demande en cours…", "Request in progress…"), h("button", { class: "btn", onclick: () => itg.arret && itg.arret.abort() }, "Arrêter"))
     : accord ? itgActions(h("button", { class: "btn", onclick: itgProposer }, Lg("Demander une proposition à ", "Ask for a proposal from ") + F().nom)) : demo || bloque ? null : itgAvis();
   const role = { consommation: "Consommation", facteur: "Facteur influent", ignorer: "Ignorer" };
@@ -615,9 +615,11 @@ function itgVueModeles(ms) {
         m.coefs.length ? h("div", null, Lg("Retenus : ", "Kept: ") + m.coefs.map(fact).join(" ; ")) : null, m.ecartes.length ? h("div", null, Lg("Écartés : ", "Left out: ") + m.ecartes.map(fact).join(" ; ")) : null,
         al.length ? h("div", { class: "note attention" }, al.join(" ; ") + ".") : null);
     })),
+    h("div", { class: "note attention" }, itgF("Une corrélation n'est pas une cause : modèles à faire relire par une personne qui connaît le site.", "A correlation is not a cause: models to be reviewed by someone who knows the site.")),
+    repli("itg-methode", null,
     h("div", { class: "note" }, Lg("Méthode : moindres carrés, au pas du fichier. Un facteur n'entre que s'il gagne " + nf(ITG.gain, 2) + " de R² ajusté, si son coefficient se distingue de zéro (|t| ≥ " + ITG.t + "), s'il améliore le R² validé et s'il ne double pas un facteur retenu ; un facteur au plus pour " + ITG.parFacteur + " points, " + ITG.maxFacteurs + " en tout. r : corrélation simple. R² validé : chaque point est prédit par un modèle calé sans lui. Erreur type : écart-type robuste de l'écart relatif entre réel et référence, qui fixe le tunnel et le z des dérives.",
       "Method: least squares, at the file's time step. A variable enters only if it gains " + nf(ITG.gain, 2) + " of adjusted R², if its coefficient differs from zero (|t| ≥ " + ITG.t + "), if it improves validated R² and if it does not duplicate a kept variable; at most one variable per " + ITG.parFacteur + " points, " + ITG.maxFacteurs + " in all. r: simple correlation. Validated R²: each point is predicted by a model fitted without it. Typical error: robust standard deviation of the relative gap between actual and baseline; it sets the band and the z of drifts.")),
-    h("div", { class: "note attention" }, itgF("Limites : une corrélation n'est pas une cause. Calage sur toute la période du fichier, dérives comprises ; R² validé optimiste pour des séries temporelles ; ni saison ni changement de régime ; un zéro est lu comme une absence de donnée. À faire relire par une personne qui connaît le site.", "Limits: a correlation is not a cause. Fitted on the whole period of the file, drifts included; validated R² is optimistic for time series; no season, no regime change; a zero is read as missing data. Have someone who knows the site review them."))];
+      h("div", { class: "note attention" }, itgF("Limites : une corrélation n'est pas une cause. Calage sur toute la période du fichier, dérives comprises ; R² validé optimiste pour des séries temporelles ; ni saison ni changement de régime ; un zéro est lu comme une absence de donnée. À faire relire par une personne qui connaît le site.", "Limits: a correlation is not a cause. Fitted on the whole period of the file, drifts included; validated R² is optimistic for time series; no season, no regime change; a zero is read as missing data. Have someone who knows the site review them.")))];
 }
 function itgVueRapport() {
   const R = itg.rapport, n = nf(R.lignes, 0), k = R.modeles.length, m = itgMoteur(R.moteur, R.corrige);
@@ -625,14 +627,30 @@ function itgVueRapport() {
     h("p", null, h("b", null, itgBrut(R.fichier)), Lg(", intégré le " + fmtDate(Date.parse(R.quand)) + " : " + n + " dates, " + k + " consommation(s), " + R.facteurs + " facteur(s). Rôles proposés par : " + m + ".", ", integrated on " + R.quand + ": " + n + " dates, " + k + " consumption(s), " + R.facteurs + " variable(s). Roles proposed by: " + m + ".")),
     itgPoints(R.avert.concat(R.interp ? [["interp", R.interp]] : [])), itgVueModeles(R.modeles));
 }
+/* La réponse, en tête de la page (pas sur l'accueil) : d'où viennent les données affichées, ou où en est le fichier en cours. */
+function itgReponse() {
+  const T = itg.table, R = itg.rapport, p = (titre, suite) => h("div", { class: "constat itg-reponse" }, h("p", { class: "titre" }, titre), h("p", { class: "suite" }, suite));
+  if (itg.fichier && T) {
+    const nc = itg.corr ? itg.corr.filter(x => x.role === "consommation").length : 0;
+    return itg.modeles ? p(Lg("Fichier « " + itg.fichier.nom + " » : " + itg.modeles.length + " modèle(s) de référence calculés.", "File “" + itg.fichier.nom + "”: " + itg.modeles.length + " baseline model(s) computed."),
+        itgF("Étape suivante : relisez les modèles, puis remplacez les données du tableau de bord.", "Next step: review the models, then replace the dashboard data."))
+      : p(Lg("Fichier « " + itg.fichier.nom + " » lu : " + nf(T.dates.length, 0) + " dates, " + nc + " consommation(s) proposée(s).", "File “" + itg.fichier.nom + "” read: " + nf(T.dates.length, 0) + " dates, " + nc + " consumption(s) proposed."),
+        itgF("Étape suivante : vérifiez le rôle de chaque colonne, puis calculez les modèles de référence.", "Next step: check the role of each column, then compute the baseline models."));
+  }
+  if (R) return p(Lg("Données affichées : intégrées par la page depuis « " + R.fichier + " », " + R.modeles.length + " consommation(s) et " + R.facteurs + " facteur(s).", "Data shown: integrated by the page from “" + R.fichier + "”, " + R.modeles.length + " consumption(s) and " + R.facteurs + " variable(s)."),
+    itgF("Leurs modèles de référence ont été calculés ici ; le détail suit. Pour intégrer un autre fichier, choisissez-le plus bas.", "Their baseline models were computed here; details follow. To integrate another file, choose it below."));
+  return p(Lg("Données affichées : « " + etat.fichier + " », avec ses modèles de référence. Rien à intégrer.", "Data shown: “" + etat.fichier + "”, with its baseline models. Nothing to integrate."),
+    itgF("Pour partir d'un export brut de compteurs (CSV ou Excel), choisissez-le ci-dessous : la page en fera un tableau de bord.", "To start from a raw meter export (CSV or Excel), choose it below: the page will turn it into a dashboard."));
+}
 function itgPeindre() {
   const T = itg.table, dans = !!etat.modele;
   itgNoeud.className = "itg" + (dans ? "" : " itg-accueil") + (itg.fichier ? " itg-large" : "");
   itgNoeud.replaceChildren(...[
+    dans ? itgReponse() : null,
     dans && itg.rapport ? itgVueRapport() : null,
     h("h2", { class: "itg-titre" }, dans ? itgF("Intégrer un autre fichier", "Integrate another file") : itgF("Vous n'avez pas ce classeur ? Intégrez un fichier brut", "No such workbook? Integrate a raw file")),
     h("p", null, itgF("Un export de compteurs ou un tableau de suivi, en CSV ou en Excel, tel qu'il est. La page le lit, contrôle sa qualité, propose le rôle de chaque colonne, calcule les modèles de référence et charge le tableau de bord. Le fichier reste sur ce poste.", "A meter export or a tracking table, CSV or Excel, as it is. The page reads it, checks its quality, proposes the role of each column, computes the baseline models and loads the dashboard. The file stays on this computer.")),
-    itgActions(h("button", { class: "btn" + (dans ? "" : " principal"), onclick: () => itgChoix.click() }, itg.fichier ? itgF("Choisir un autre fichier", "Choose another file") : itgF("Choisir un fichier de données", "Choose a data file")),
+    itgActions(h("button", { class: "btn", onclick: () => itgChoix.click() }, itg.fichier ? itgF("Choisir un autre fichier", "Choose another file") : itgF("Choisir un fichier de données", "Choose a data file")),
       h("span", { class: "note" }, itgF("CSV ou Excel ; ou déposez-le sur la page.", "CSV or Excel; or drop it on the page."))),
     itg.erreur && !itg.corr ? h("p", { class: "erreur" }, itg.erreur) : null,
     itg.fichier ? itgVueLecture() : null, T ? itgVueQualite() : null, T && itg.corr ? itgVueCorr() : null,

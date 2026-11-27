@@ -83,3 +83,7 @@ Le module pose `agent.enCours` et `agent.arret` pendant une passe (et les rend �
 - **Aucune persistance** : graine, plafond, tarifs et passes vivent en mémoire. Les passes contiennent des données du classeur ; les tarifs se ressaisissent.
 - **Monnaie** : la personne choisit $ ou € pour l'affichage ; la page ne convertit rien.
 - **Clés du JSON** : le bilan et les lignes sont exportés tels que la page les garde (`jIn`, `jOut` = jetons d'entrée et de sortie ; notes `juste`, `faux`, `abst_ok`, `abst_tort`, `invention`, `sans`).
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.

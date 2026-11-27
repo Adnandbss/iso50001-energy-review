@@ -13,3 +13,9 @@ svg text.prev-repere { fill: var(--encre2); font-weight: 600; }
 /* Une seule colonne : la grille à 12 colonnes du style d'origine a 11 gouttières de 36 px, plus larges à elles seules qu'un écran de 390 px. */
 .prev-grille { grid-template-columns: minmax(0, 1fr); }
 .prev-grille > .carte { grid-column: auto; }
+/* Vague 2 : la réponse d'abord, les avertissements en une ligne sous elle */
+.prev-reponse { margin-bottom: 10px; }
+.prev-ligne { margin: 0 0 6px; max-width: 110ch; }
+.prev-grille + details.repli { margin-top: 18px; }
+details.repli > .repli-corps > .prev-grille { margin-top: 0; }
+.prev-filtres select { max-width: 220px; }

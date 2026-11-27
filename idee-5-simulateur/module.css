@@ -22,3 +22,19 @@
   .sim-facteur { grid-template-columns: minmax(0, 1fr); }
   .sim-barres { grid-template-columns: minmax(96px, 38%) 1fr auto; }
 }
+/* Vague 2 : la réponse, puis le champ du scénario ; les avertissements en une ligne */
+.sim-reponse { margin-bottom: 10px; }
+.sim-reponse .titre { font-size: 24px; }
+.sim-ligne { margin: 0 0 6px; max-width: 110ch; }
+.sim-ecrire { margin: 0 0 14px; }
+.sim-ecrire h2 { font-size: 15px; margin: 0 0 8px; }
+.sim-ecrire .note { margin: 0; }
+details.repli .sim-facteur:first-child { border-top: 0; }
+@media (max-width: 700px) { .sim-reponse .titre { font-size: 20px; } }
+.sim-tete-graphe { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 18px; margin-bottom: 4px; }
+.sim-tete-graphe .legende { margin: 0; }
+.sim-tete-graphe select { max-width: 240px; }
+.sim-replis > details.repli { margin-top: 0; padding: 7px 0; }
+.sim-aide { margin: 0 0 4px; }
+.sim-tete-graphe .filtre { flex-direction: row; align-items: center; gap: 8px; }
+.sim-sous { margin: 0; flex: 1 1 200px; }

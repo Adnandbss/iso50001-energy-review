@@ -343,9 +343,9 @@ const evlAgentDe = P => P.demo ? Lg("script de démonstration (sans IA)", "demo 
 function evlBlocage(reprise) {
   if (agent.enCours && !evl.enCours) return evlT("Une instruction est en cours sur la page Instruction : attendez sa fin.", "An investigation is running on the Investigation page: wait for it to finish.");
   if (!evlSelection().length) return evlT("Ce classeur ne permet de générer aucune question.", "No question can be generated from this workbook.");
-  if (reprise && reprise.cle !== evlCleAgent()) return Lg("Cette passe a été faite avec " + evlAgentDe(reprise) + " : remettez ce réglage sur la page Instruction pour la reprendre.", "This run was made with " + evlAgentDe(reprise) + ": restore that setting on the Investigation page to resume it.");
+  if (reprise && reprise.cle !== evlCleAgent()) return Lg("Cette passe a été faite avec " + evlAgentDe(reprise) + " : remettez ce réglage dans les réglages d'IA pour la reprendre.", "This run was made with " + evlAgentDe(reprise) + ": restore that setting in the AI settings to resume it.");
   if (agent.demo) return null;
-  if (blocageEnvoi()) return evlT("Réglez d'abord l'envoi sur la page Instruction : fournisseur, clé et accord.", "First set up sending on the Investigation page: provider, key and consent.");
+  if (blocageEnvoi()) return evlT("Réglez d'abord l'envoi dans les réglages d'IA : fournisseur, clé et accord.", "First set up sending in the AI settings: provider, key and consent.");
   return evl.accord === agent.fournisseur ? null : evlT("Autorisez d'abord l'envoi des questions (encadré ci-dessus).", "First authorise sending the questions (box above).");
 }
 async function evlLancer(reprise) {
@@ -453,8 +453,8 @@ function evlAvis() {
       h("li", null, evlT("une consigne de travail fixe, écrite dans cette page ;", "a fixed set of instructions, written in this page;")),
       h("li", null, evlT("selon les outils que l'agent appelle, les mêmes résultats que sur la page Instruction : noms et caractéristiques de toutes les consommations, noms des facteurs influents, valeurs par période des séries lues (réel, référence, écart, z), totaux, épisodes de dérive, statistiques des facteurs sur une plage, coût et émissions estimés avec vos hypothèses de prix et de facteur d'émission.",
         "depending on the tools the agent calls, the same results as on the Investigation page: names and characteristics of every consumption series, names of the relevant variables, per-period values of the series read (actual, baseline, gap, z), totals, drift episodes, statistics of the variables over a range, estimated cost and emissions with your price and emission-factor assumptions."))),
-    h("p", null, evlT("Ne sont pas envoyés : les réponses attendues et les notes, les tarifs saisis, le fichier Excel, son nom, les équations des modèles, les valeurs des facteurs date par date. Les conditions du fournisseur décrites sur la page Instruction (conservation des données, clé Gemini gratuite) s'appliquent de la même façon.",
-      "Not sent: the expected answers and the grades, the prices you entered, the Excel file, its name, the model equations, the date-by-date values of the variables. The provider terms described on the Investigation page (data retention, free Gemini key) apply in the same way.")),
+    h("p", null, evlT("Ne sont pas envoyés : les réponses attendues et les notes, les tarifs saisis, le fichier Excel, son nom, les équations des modèles, les valeurs des facteurs date par date. Les conditions du fournisseur décrites dans les réglages d'IA (conservation des données, clé Gemini gratuite) s'appliquent de la même façon.",
+      "Not sent: the expected answers and the grades, the prices you entered, the Excel file, its name, the model equations, the date-by-date values of the variables. The provider terms described in the AI settings (data retention, free Gemini key) apply in the same way.")),
     h("p", null, h("button", { class: "btn principal", onclick: () => { evl.accord = agent.fournisseur; evlPeindre(); } }, Lg("J'autorise l'envoi des questions à " + f.api + " pour cette session", "I authorise sending the questions to " + M(f.api) + " for this session")),
       evlT(" Rien n'est envoyé tant que vous n'avez pas cliqué, puis lancé une passe.", " Nothing is sent until you have clicked, then started a run.")));
 }
@@ -532,15 +532,18 @@ function evlPeindre() {
   const copie = (t, json) => { const b = h("button", { class: "btn", onclick: () => copierTexte(evlExport(json), b) }, "Copier"); return [h("span", null, t), b]; };
   evlPeindreProgres();
   evlNoeud.replaceChildren(...[
+    evlReponse(P, nTous, Q.length),
     h("div", { class: "filtres" },
-      filtre(evlT("Graine du jeu de questions", "Seed of the question set"), champ("graine", true)),
       filtre(evlT("Questions par passe", "Questions per run"), segments([6, 12].filter(n => n < nTous).map(n => ({ v: n, t: String(n) })).concat([{ v: 0, t: Lg("Toutes (" + nTous + ")", "All (" + nTous + ")") }]), evl.plafond && evl.plafond < nTous ? evl.plafond : 0, v => regler("plafond", v))),
-      filtre(evlT("Tarif d'entrée, par million de jetons", "Input price, per million tokens"), champ("tarifIn")), filtre(evlT("Tarif de sortie, par million de jetons", "Output price, per million tokens"), champ("tarifOut")),
-      filtre(evlT("Monnaie des tarifs", "Currency of the prices"), segments(["$", "€"].map(d => ({ v: d, t: d })), evl.devise, v => regler("devise", v))),
       occupe ? h("button", { class: "btn", onclick: () => { if (evl.arret) evl.arret.abort(); } }, "Arrêter")
         : h("button", { class: "btn principal", disabled: !!bloc, onclick: () => evlLancer() }, Lg("Lancer une passe de " + Q.length + " questions", "Start a run of " + Q.length + " questions"))),
+    repli("evl-reglages", Lg("Graine et tarifs" + (evl.tarifIn == null || evl.tarifOut == null ? " (tarifs à saisir pour estimer le coût)" : ""), "Seed and prices" + (evl.tarifIn == null || evl.tarifOut == null ? " (enter prices to estimate the cost)" : "")),
+      h("div", { class: "filtres" },
+        filtre(evlT("Graine du jeu de questions", "Seed of the question set"), champ("graine", true)),
+        filtre(evlT("Tarif d'entrée, par million de jetons", "Input price, per million tokens"), champ("tarifIn")), filtre(evlT("Tarif de sortie, par million de jetons", "Output price, per million tokens"), champ("tarifOut")),
+        filtre(evlT("Monnaie des tarifs", "Currency of the prices"), segments(["$", "€"].map(d => ({ v: d, t: d })), evl.devise, v => regler("devise", v))))),
     h("p", { style: "margin:0 0 10px" }, h("b", null, evlT("Agent testé : ", "Agent under test: ")), evlAgentDe({ demo: agent.demo, agent: F().nom + " (" + modeleIA() + ")" }) + ". ",
-      h("button", { class: "lien", disabled: occupe, onclick: () => { if (!evl.enCours) aller("agent"); } }, evlT("Changer d'agent sur la page Instruction", "Change the agent on the Investigation page"))),
+      h("button", { class: "lien", disabled: occupe, onclick: () => { if (!evl.enCours) typeof iaOuvrir === "function" ? iaOuvrir() : aller("agent"); } }, evlT("Réglages d'IA", "AI settings"))),
     agent.demo ? h("div", { class: "note attention", style: "margin:0 0 10px" }, evlT("Mode démonstration : aucun appel réseau, aucune IA. Un script joue l'agent : il suit le plan d'appels d'outils qui a servi à calculer la réponse attendue. Ses bonnes réponses ne prouvent donc rien : ces notes sont celles d'un script, elles ne disent rien d'une IA. Pour montrer la notation, il se trompe exprès sur les questions marquées « erreur voulue ».",
         "Demo mode: no network call, no AI. A script plays the agent: it follows the plan of tool calls used to compute the expected answer. Its correct answers therefore prove nothing: these grades are those of a script and say nothing about an AI. To show the grading, it errs on purpose on the questions marked “deliberate error”."))
       : evl.accord === agent.fournisseur ? h("div", { class: "note", style: "margin:0 0 10px" }, Lg("Envoi des questions à " + F().api + " autorisé pour cette session. ", "Sending the questions to " + M(F().api) + " is authorised for this session. "), h("button", { class: "lien", disabled: occupe, onclick: () => { if (!evl.enCours) { evl.accord = false; evlPeindre(); } } }, "Retirer l'autorisation"))
@@ -553,7 +556,9 @@ function evlPeindre() {
       [carte({ titre: evlT("Jeu de questions", "Question set"), sous: Lg(nTous + " questions tirées du classeur avec la graine " + evl.graine + " ; la même graine redonne le même jeu", nTous + " questions drawn from the workbook with seed " + evl.graine + "; the same seed gives the same set"), contenu: evlListeJeu() }),
         evl.passes.length ? carte({ titre: evlT("Exporter les résultats", "Export the results"), sous: evlT("toutes les passes en mémoire, par le presse-papiers", "all the runs in memory, through the clipboard"),
           contenu: h("p", { class: "fiche-pied", style: "margin:0" }, copie(evlT("Texte tabulé, à coller dans un tableur :", "Tab-separated text, to paste into a spreadsheet:"), false), copie(evlT("JSON :", "JSON:"), true)) }) : null,
-        carte({ titre: evlT("Méthode et limites", "Method and limits"), contenu: h("div", null,
+        carte({ titre: evlT("Méthode et limites", "Method and limits"), contenu: repli("evl-methode", null,
+          h("p", { class: "chapeau", style: "margin-top:0" }, evlT("Ce banc pose à l'agent des questions dont la bonne réponse est connue : la page la calcule elle-même, sans IA. Il mesure si l'agent répond juste, s'il sait dire qu'il ne peut pas répondre, et ce que coûte chaque réponse.",
+            "This bench asks the agent questions whose correct answer is known: the page computes it itself, without AI. It measures whether the agent answers correctly, whether it can say that it cannot answer, and what each answer costs.")),
           h("div", { class: "note", style: "margin-top:0" }, Lg("Notation. Une valeur est juste à " + nf(evl.tolerance * 100, 2) + " % près de la valeur attendue (marge d'au moins " + nf(evl.plancher, 2) + "), avec le bon signe et la bonne unité : l'agent peut arrondir, pas changer le chiffre. Un comptage doit être exact ; un nom aussi, à la casse et aux accents près. Réussite = réponses justes et abstentions justifiées, sur les questions notées. Invention = une réponse donnée à un piège. Sans réponse structurée, c'est un échec ; une erreur d'API n'est pas notée et se relance.",
             "Grading. A value is correct within " + nf(evl.tolerance * 100, 2) + "% of the expected value (margin of at least " + nf(evl.plancher, 2) + "), with the right sign and unit: the agent may round, not change the figure. A count must be exact; so must a name, ignoring case and accents. Success = correct answers and justified abstentions, over the graded questions. Fabrication = an answer given to a trap. Without a structured answer, the question is a failure; an API error is not graded and can be retried.")),
           h("div", { class: "note" }, Lg("Limites. Le jeu compte " + nTous + " questions, tirées d'un historique de " + mois + " mois : quelques points d'écart entre deux passes ne prouvent rien, et une passe ne vaut que pour ce classeur et ce jeu. Le banc mesure la lecture exacte des données et le refus d'inventer, pas l'analyse des causes.",
@@ -567,8 +572,20 @@ function evlPage() {
   derives();
   if (evl.modele !== etat.modele) evlZero(etat.modele);
   evlPeindre();
-  return [h("p", { class: "chapeau" }, evlT("Ce banc pose à l'agent des questions dont la bonne réponse est connue : la page la calcule elle-même, sans IA. Il mesure si l'agent répond juste, s'il sait dire qu'il ne peut pas répondre, et ce que coûte chaque réponse.",
-    "This bench asks the agent questions whose correct answer is known: the page computes it itself, without AI. It measures whether the agent answers correctly, whether it can say that it cannot answer, and what each answer costs.")), evlNoeud];
+  return [evlNoeud];
+}
+/* La réponse, en tête : le résultat de la passe affichée, ou ce que le banc a préparé ; les chiffres sont ceux des tuiles de résultats. */
+function evlReponse(P, nTous, nPasse) {
+  if (!P) { const nP = evlJeu().filter(q => q.piege).length;
+    return h("div", { class: "constat evl-reponse" }, h("p", { class: "titre" }, Lg("Aucune passe pour l'instant : le banc a préparé " + nTous + " questions, dont " + nP + " pièges.", "No run yet: the bench has prepared " + nTous + " questions, " + nP + " of them traps.")),
+      h("p", { class: "suite" }, Lg("La page calcule elle-même chaque bonne réponse, sans IA, et note celle de l'agent. Étape suivante : « Lancer une passe de " + nPasse + " questions ».",
+        "The page computes each correct answer itself, without AI, and grades the agent's. Next step: “Start a run of " + nPasse + " questions”."))); }
+  const B = evlBilan(P);
+  return h("div", { class: "constat evl-reponse" + (B.n && B.reussies < B.n ? " alerte" : "") },
+    h("p", { class: "titre" }, B.n ? Lg("Passe " + P.n + " : " + evlTaux(B.reussies, B.n) + " de réussite sur " + B.n + " questions notées.", "Run " + P.n + ": " + evlTaux(B.reussies, B.n) + " success over " + B.n + " graded questions.")
+      : Lg("Passe " + P.n + " : aucune question notée pour l'instant.", "Run " + P.n + ": no question graded yet.")),
+    h("p", { class: "suite" }, Lg("Agent : " + evlAgentDe(P) + ". Taux d'invention : " + evlTaux(B.inventions, B.pieges) + ". ", "Agent: " + evlAgentDe(P) + ". Fabrication rate: " + evlTaux(B.inventions, B.pieges) + ". "),
+      P.demo ? evlT("Notes d'un script de démonstration : elles ne disent rien d'une IA.", "Grades of a demo script: they say nothing about an AI.") : null));
 }
 ICONES.evaluation = "M2.5 4.5l1.5 1.5L6.5 3M9 4.5h4.5M2.5 11l1.5 1.5L6.5 9.5M9 11h4.5";
 ajouterPage("Agents", "evaluation", "Évaluation", "Banc d'évaluation de l'agent", ICONES.evaluation, evlPage);

@@ -111,3 +111,7 @@ Limites des modèles : corrélation et non cause ; calage sur toute la période,
 - Valeurs aberrantes écartées du calage d'office, par rapport au modèle et non à la moyenne (des semaines d'arrêt bien expliquées par la production restent dans le calage).
 - Pour tenir dans 60 Ko (`module.js` : 59,9 Ko), ont été retirés : regroupement par jour des relevés plus fins, ordre de date américain, ligne d'unités sous l'en-tête, choix de la colonne de dates, détection statistique d'un index de compteur, affichage de la réponse brute du modèle, retrait de l'accord du module (celui de la page Instruction suffit à bloquer l'envoi).
 - Textes fixes : `itgF(fr, en)` appelle `ajouterTraductions` au premier emploi, pour n'écrire chaque texte qu'une fois par langue.
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.

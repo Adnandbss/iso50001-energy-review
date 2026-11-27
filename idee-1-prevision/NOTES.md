@@ -111,3 +111,7 @@ Lecture honnête : la méthode bat la méthode naïve sur 5 séries sur 9, et ne
 8. Une série où la fourchette est trop étroite (série 4) : la phrase « Lisez-la comme un minimum » est bien visible.
 9. Anglais : bascule EN, relire la page entière.
 10. Téléphone (390 px) : pas de défilement horizontal de la page ; les tableaux défilent dans leur cadre.
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.

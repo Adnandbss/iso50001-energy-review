@@ -92,3 +92,7 @@ Fichier assemblé : `idee-5-simulateur/essai.html` (à ouvrir, puis déposer le 
 - Appliquer une proposition remplace les réglages du scénario affiché (pas de fusion).
 - Seuils : R² 0,75 ; non-additivité signalée au-delà de 10 % d'écart entre Site et somme des UES.
 - Le vocabulaire du script de démonstration (chauffage, climatisation, hausse, baisse) est générique ; aucun nom de série ni de facteur du classeur n'est écrit dans le code.
+
+## Vague 2
+
+Page allégée : la réponse calculée en tête, le graphique et les réglages courants ensuite, le reste (méthode, limites, tableaux, réglages rares) sous le composant commun `repli` ; textes d'IA renvoyés aux réglages d'IA. Détail, mesures avant et après et tests : `idee-14-allegement/NOTES.md`.

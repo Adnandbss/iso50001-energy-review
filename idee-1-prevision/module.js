@@ -315,7 +315,7 @@ function prevCalcul(sr) {
 /* ---- Graphique : réel en trait plein, prévision en tirets avec sa fourchette, séparés par un repère vertical ---- */
 function prevGraph(zone, o) {
   const listes = [o.reel, o.ref, o.central, o.bas, o.haut], u = unitePour(listes), e = etendue(listes, false), n = o.etiquettes.length;
-  const c = cadre(zone, { etiquettes: o.etiquettes, min: e.min, max: e.max, fmtY: v => nf(v / u.div, 2), titreY: u.nom, margeDroite: 20, hauteur: 300, titre: o.titre });
+  const c = cadre(zone, { etiquettes: o.etiquettes, min: e.min, max: e.max, fmtY: v => nf(v / u.div, 2), titreY: u.nom, margeDroite: 20, hauteur: o.hauteur || 300, titre: o.titre });
   const chemin = (vals, attrs) => {
     let d = "";
     for (let i = 0; i < n; i++) if (vals[i] != null) {
@@ -373,14 +373,14 @@ function prevPage() {
   prevEtat.serie = sr.nom;
   const K = prevCalcul(sr), L = prevLecture(), np = n => prevNomPas(pas, n), eqn = L.eq[m.series.indexOf(sr)], regler = (cle, v) => { prevEtat[cle] = v; rendre(); };
   const sansDerive = !K.ok ? "Aucune prévision pour cette série." : !K.derive.connue ? "Dérive non mesurable : l'erreur du modèle n'est pas renseignée dans le classeur pour cette série." : !K.aDerive ? "Aucune dérive en cours sur cette série : rien à prolonger." : null;
-  const filtres = h("div", { class: "filtres" },
+  const filtres = h("div", { class: "filtres prev-filtres" },
     filtre("Série", liste([["site", "Site"], ["ues", "UES"]].map(([g, t]) => ({ groupe: t, options: dispo.filter(x => x.groupe === g).map(x => ({ v: x.nom, t: x.nom })) })).filter(g => g.options.length), sr.nom, v => regler("serie", v))),
     filtre("Horizon", prevSegments(K.horizons.map(x => ({ v: x.mois, t: prevMois(x.mois), motif: x.motif })), K.ok ? K.horizon.mois : null, v => regler("horizon", v))),
     filtre("Dérive en cours", prevSegments([{ v: false, t: "Non prolongée", motif: sansDerive }, { v: true, t: "Prolongée", motif: sansDerive }], K.ok && K.avec, v => regler("derive", v))),
     filtre("Atterrissage sur", segments([{ v: "annee", t: "Année civile" }, { v: "glissant", t: "12 mois glissants" }], prevEtat.cumul, v => regler("cumul", v))));
   const refus = K.horizons.filter(x => x.motif), motifs = [...new Set(refus.map(x => x.motif))];
   const noteRefus = refus.length ? h("div", { class: "note attention prev-note" }, motifs.map(t => [Lg("Horizon refusé : ", "Horizon refused: ") + refus.filter(x => x.motif === t).map(x => prevMois(x.mois)).join(", ") + ". ", t, " "])) : null;
-  if (!K.ok) return [filtres, h("div", { class: "vide" }, "Aucune prévision n'est proposée pour cette série."), noteRefus];
+  if (!K.ok) return [h("div", { class: "constat prev-reponse alerte" }, h("p", { class: "titre" }, "Aucune prévision n'est proposée pour cette série.")), filtres, noteRefus];
 
   const P = K.P, att = K.att, R = K.retro, nH = K.horizon.n, e = sr.energie, o = P.o, tO = m.dates[o];
   const prevus = P.periodes.slice(0, nH), tot = { central: somme(prevus.map(p => p.central)), bas: somme(prevus.map(p => p.bas)), haut: somme(prevus.map(p => p.haut)) };
@@ -391,13 +391,13 @@ function prevPage() {
   let preuve, V = null;
   if (R.possible) {
     V = prevVerdict(R);
-    const g = R.global, contre = Lg(" : " + fmtPct(g.erreur) + " d'erreur moyenne, contre " + fmtPct(g.erreurNaive) + ".", ": " + fmtPct(g.erreur) + " average error, against " + fmtPct(g.erreurNaive) + ".");
-    preuve = Lg("Sur le passé, la méthode " + (V.sens === "mieux" ? "fait mieux que" : V.sens === "pire" ? "fait moins bien que" : "ne fait pas nettement mieux que") + " la méthode naïve",
-      "On past data, the method " + (V.sens === "mieux" ? "beats" : V.sens === "pire" ? "does worse than" : "is not clearly better than") + " the naive method") + contre
+    const g = R.global;
+    preuve = Lg("Sur le passé, cette méthode s'est trompée de " + fmtPct(g.erreur) + " en moyenne ; elle " + (V.sens === "mieux" ? "fait mieux que" : V.sens === "pire" ? "fait moins bien que" : "ne fait pas nettement mieux que") + " la méthode naïve (" + fmtPct(g.erreurNaive) + ").",
+      "On past data, this method was off by " + fmtPct(g.erreur) + " on average; it " + (V.sens === "mieux" ? "beats" : V.sens === "pire" ? "does worse than" : "is not clearly better than") + " the naive method (" + fmtPct(g.erreurNaive) + ").")
       + (R.n < nH ? Lg(" Test fait jusqu'à " + np(R.n) + " d'avance seulement : au-delà, la prévision n'est pas vérifiée.", " Tested only up to " + np(R.n) + " ahead: beyond that, the forecast is unverified.") : "");
   } else preuve = Lg("Prévision non vérifiée : l'historique est trop court pour un test rétrospectif. Lisez-la comme un ordre de grandeur.", "Unverified forecast: the history is too short for a backtest. Read it as an order of magnitude.");
-  const constat = h("div", { class: "constat" + (R.possible && V.sens !== "pire" ? "" : " alerte") },
-    h("p", { class: "titre" }, titreT + Lg(" : ", ": ") + wh(T.central) + Lg(", entre ", ", between ") + wh(T.bas) + Lg(" et ", " and ") + wh(T.haut) + "."),
+  const constat = h("div", { class: "constat prev-reponse" + (R.possible && V.sens !== "pire" ? "" : " alerte") },
+    h("p", { class: "titre" }, titreT + Lg(" de « " + sr.nom + " » : ", " for “" + sr.nom + "”: ") + wh(T.central) + Lg(", entre ", ", between ") + wh(T.bas) + Lg(" et ", " and ") + wh(T.haut) + "."),
     h("p", { class: "suite" }, preuve));
 
   const sansValo = valoDe(e).prix == null ? "prix non renseigné pour cette énergie (page Détection)" : null;
@@ -411,12 +411,17 @@ function prevPage() {
     tuile(titreT, wh(T.central), prevEntre(wh, T.bas, T.haut)),
     tuile("Coût estimé", eur(T.central), sansValo || prevEntre(eur, T.bas, T.haut)),
     tuile("Émissions estimées", co2(T.central), valoDe(e).fe == null ? "facteur d'émission non renseigné" : prevEntre(co2, T.bas, T.haut)),
-    att.ok ? tuile("Dont déjà consommé", fmtEnergie(att.reel), Lg(np(att.nReel) + " de réel", np(att.nReel) + " of actuals")) : null,
-    att.ok ? tuile("Dont prévu", wh(att.prevu.central), Lg(np(att.n) + " à venir", np(att.n) + " ahead")) : null,
     tuileCible);
+  const tuilesDetail = att.ok ? h("div", { class: "tuiles" },
+    tuile("Dont déjà consommé", fmtEnergie(att.reel), Lg(np(att.nReel) + " de réel", np(att.nReel) + " of actuals")),
+    tuile("Dont prévu", wh(att.prevu.central), Lg(np(att.n) + " à venir", np(att.n) + " ahead"))) : null;
 
   // ce que l'historique permet : dit avant les graphiques
   const ans = (tO - m.dates[K.obs[0]]) / JOUR / 365.25, court = ans < 2, effet = K.attAutre && K.attAutre.ok && att.ok ? (K.avec ? 1 : -1) * (att.central - K.attAutre.central) : null;
+  const ligneHisto = h("p", { class: "note prev-ligne" + (court ? " attention" : "") }, h("b", null, court ? "Historique court" : "Historique"),
+    Lg(" : " + nf(ans, 1) + " an" + (ans >= 2 ? "s" : "") + " de données (" + np(K.obs.length) + ")" + (court ? ", chaque période de l'année vue une ou deux fois ; la fourchette ne couvre pas une année très différente." : "."),
+      ": " + nf(ans, 1) + " years of data (" + np(K.obs.length) + ")" + (court ? ", each time of year seen once or twice; the range does not cover a very different year." : ".")),
+    K.aDerive ? Lg(" Dérive en cours (" + fmtPct(K.derive.pct, true) + ") : ", " Ongoing drift (" + fmtPct(K.derive.pct, true) + "): ") + tr(K.avec ? "prolongée dans cette prévision." : "non prolongée dans cette prévision.") : null);
   const noteHisto = h("div", { class: "avis prev-avis" },
     h("p", null, h("b", null, court ? "Historique court. " : "Historique. "), Lg("Cette série compte " + np(K.obs.length) + " de données, du " + fmtDate(m.dates[K.obs[0]]) + " au " + fmtDate(tO) + ", soit " + nf(ans, 1) + " an" + (ans >= 2 ? "s" : "") + ".",
       "This series has " + np(K.obs.length) + " of data, from " + fmtDate(m.dates[K.obs[0]]) + " to " + fmtDate(tO) + ", i.e. " + nf(ans, 1) + " years."),
@@ -439,15 +444,15 @@ function prevPage() {
   const cartes = [carte({ id: "prev-courbe", titre: Lg(sr.nom + " : réel, puis prévision sur " + np(nH), sr.nom + ": actuals, then forecast over " + np(nH)),
     sous: Lg("par " + NOM_PAS[pas] + " ; à droite du repère vertical, rien n'est mesuré : tout est prévu", "by " + M(NOM_PAS[pas]) + "; to the right of the vertical marker, nothing is measured: everything is forecast"),
     legende: [{ nom: "Réel", couleur: "var(--s1)" }, { nom: "Référence (modèle)", couleur: "var(--contexte)" }, { nom: "Prévision centrale", couleur: "var(--s1)", type: "tirets" }, { nom: "Fourchette à 80 %", couleur: "var(--s1)", type: "bande" }],
-    dessiner: z => prevGraph(z, G),
+    dessiner: z => prevGraph(z, Object.assign({ hauteur: 260 }, G)),
     table: () => ({ entetes: ["Période", "Nature"].concat(prevColonnes(["Réel", "Référence", "Prévision basse", "Prévision centrale", "Prévision haute"], u)),
       lignes: G.etiquettes.map((lib, i) => [lib, i < nHist ? "réel" : "prévision", nb(G.reel[i]), nb(G.ref[i]), nb(G.bas[i]), nb(G.central[i]), nb(G.haut[i])]).slice(queue) }),
-    note: Lg("Méthode : pour chaque " + NOM_PAS[pas] + " à venir, le modèle de référence de la série est calculé avec les facteurs influents relevés à la même place du calendrier dans l'historique (" + PREV.voisins[pas] + " " + NOM_PAS[pas] + (PREV.voisins[pas] > 1 && pas !== "month" ? "s" : "") + " de part et d'autre, les plus proches pesant le plus). "
+    note: repli("prev-methode", null, noteHisto, h("p", null, Lg("Méthode : pour chaque " + NOM_PAS[pas] + " à venir, le modèle de référence de la série est calculé avec les facteurs influents relevés à la même place du calendrier dans l'historique (" + PREV.voisins[pas] + " " + NOM_PAS[pas] + (PREV.voisins[pas] > 1 && pas !== "month" ? "s" : "") + " de part et d'autre, les plus proches pesant le plus). "
         + "Prévision centrale = moyenne de ces calculs ; scénarios bas et haut = leurs quantiles 10 % et 90 %. La fourchette y ajoute l'erreur du modèle, " + sigmaTxt + ". Elle vise 80 % des cas : une période sur cinq peut en sortir. "
         + (eqn.saisonnier ? "Modèle saisonnier : les dates de saison du classeur sont reportées d'une année sur l'autre." : ""),
       "Method: for each coming " + M(NOM_PAS[pas]) + ", the series' baseline model is computed with the relevant variables recorded at the same place in the calendar in the history (" + PREV.voisins[pas] + " " + M(NOM_PAS[pas]) + (PREV.voisins[pas] > 1 ? "s" : "") + " either side, the closest weighing most). "
         + "Central forecast = mean of these computations; low and high scenarios = their 10% and 90% quantiles. The range adds the model error, " + sigmaTxt + ". It aims at 80% of cases: one period in five may fall outside. "
-        + (eqn.saisonnier ? "Seasonal model: the workbook's season dates are carried over from one year to the next." : "")) })];
+        + (eqn.saisonnier ? "Seasonal model: the workbook's season dates are carried over from one year to the next." : "")))) })];
 
   // 2. l'atterrissage, ligne par ligne
   if (att.ok) {
@@ -471,7 +476,7 @@ function prevPage() {
     else if (K.cible && K.cible.total != null) notes.push(prevT(" Objectif : la ligne « Weekly target » du WIKI est lue comme une consommation par semaine en kWh (l'unité de la feuille CONSO), multipliée par le nombre de semaines de l'atterrissage. Vérifiez que c'est bien son sens dans votre classeur.",
       " Target: the “Weekly target” row of the WIKI sheet is read as a weekly consumption in kWh (the unit of the CONSO sheet), multiplied by the number of weeks of the landing. Check that this is what it means in your workbook."));
     cartes.push(carte({ id: "prev-att", titre: titreT + Lg(" : le détail", ": the detail"), sous: K.aDerive ? (K.avec ? "dérive en cours prolongée" : "dérive en cours non prolongée") : null,
-      contenu: tableau(["", "Énergie", "Coût estimé", "CO₂e"], lignes), note: h("span", null, notes) }));
+      contenu: h("div", null, tuilesDetail, tableau(["", "Énergie", "Coût estimé", "CO₂e"], lignes)), note: h("span", null, notes) }));
   } else cartes.push(carte({ id: "prev-att", titre: "Atterrissage sur l'année civile", contenu: h("div", { class: "vide" }, prevT("La fin de l'année est plus loin que l'horizon permis pour cette série : pas d'atterrissage annuel. Les chiffres de tête sont le total de l'horizon choisi.",
       "The end of the year is further than the horizon allowed for this series: no yearly landing. The headline figures are the total of the chosen horizon.")),
     note: "Choisissez « 12 mois glissants » pour un total qui mêle le réel récent et la prévision." }));
@@ -514,7 +519,7 @@ function prevPage() {
     cartes.push(carte({ id: "prev-exemple", titre: Lg("Exemple : la prévision qui aurait été faite après " + prevLibelle(pas, tX), "Example: the forecast that would have been made after " + prevLibelle(pas, tX)),
       sous: Lg("la plus récente des " + R.origines + " prévisions testées ; la suite (" + np(R.n) + ") était cachée au calcul", "the most recent of the " + R.origines + " tested forecasts; what follows (" + np(R.n) + ") was hidden from the computation"),
       legende: [{ nom: "Réel", couleur: "var(--s1)" }, { nom: "Prévision faite à cette date", couleur: "var(--s1)", type: "tirets" }, { nom: "Fourchette à 80 %", couleur: "var(--s1)", type: "bande" }],
-      dessiner: z => prevGraph(z, GX),
+      dessiner: prevDessinOuvert(z => prevGraph(z, GX)),
       table: () => ({ entetes: ["Période"].concat(prevColonnes(["Réel", "Prévision basse", "Prévision centrale", "Prévision haute", "Méthode naïve"], uX), "Réel dans la fourchette"),
         lignes: pX.map((p, k) => [p.lib, nbX(X.reels[k]), nbX(p.bas), nbX(p.central), nbX(p.haut), nbX(X.naives[k]), X.reels[k] == null ? "" : X.reels[k] >= p.bas && X.reels[k] <= p.haut ? "oui" : "non"]) }),
       note: "Un seul exemple ne prouve rien : le tableau de la preuve porte sur toutes les prévisions testées." }));
@@ -537,8 +542,19 @@ function prevPage() {
     note: Lg("Constante du modèle : " + sg(eqn.b1, 0) + " kWh par " + NOM_PAS[pas] + (eqn.saisonnier ? " (été : " + sg(eqn.b2, 0) + " kWh)" : "") + ". ", "Model constant: " + sg(eqn.b1, 0) + " kWh per " + M(NOM_PAS[pas]) + (eqn.saisonnier ? " (summer: " + sg(eqn.b2, 0) + " kWh)" : "") + ". ")
       + tr(prevT("La prévision rejoue le calendrier passé : elle ne connaît ni le plan de production, ni la météo à venir. Un écart vient de la saison (météo) ou d'un changement de niveau d'activité : dans le second cas, le scénario ne le suit pas.",
       "The forecast replays the past calendar: it knows neither the production plan nor the coming weather. A gap comes from the season (weather) or from a change in activity level: in the latter case, the scenario does not follow it.")) }));
-  return [filtres, noteRefus, constat, tuiles, noteHisto, h("div", { class: "grille prev-grille" }, cartes)];
+  // la réponse, puis le graphique et les réglages courants ; le détail de l'atterrissage, la preuve et les hypothèses sous des replis
+  const [courbe, carteAtt, ...preuves] = cartes, carteHyp = preuves.pop(), grille = (...c) => h("div", { class: "grille prev-grille" }, c);
+  return [constat, ligneHisto, tuiles, filtres, noteRefus, grille(courbe),
+    repli("prev-r-att", "Comment se décompose l'atterrissage ?", grille(carteAtt)),
+    repli("prev-r-preuve", "La méthode est-elle fiable ? Le test sur le passé", grille(...preuves)),
+    repli("prev-r-hyp", "Sur quelles hypothèses ?", grille(carteHyp))];
 }
+/* Graphique dans un repli fermé : dessiné à l'ouverture, quand sa zone a une largeur. */
+const prevDessinOuvert = f => z => {
+  const d = z.closest ? z.closest("details") : null;
+  if (!d || d.open || d.hasAttribute("open")) return f(z);
+  d.addEventListener("toggle", function ouvert() { if (!d.open) return; d.removeEventListener("toggle", ouvert); z.replaceChildren(); f(z); });
+};
 
 ICONES.prevision = "M2 11.5l3-3 2.5 2 2-2.5M9.5 8l4.5-4.5M9.5 8l4.5 3M12 3.5h2v2";
 ajouterPage("Anticipation", "prevision", "Prévision", "Prévision de consommation", ICONES.prevision, prevPage);
@@ -557,7 +573,9 @@ ajouterTraductions([
   ["prix non renseigné pour cette énergie (page Détection)", "no price set for this energy (Detection page)"], ["facteur d'émission non renseigné", "no emission factor set"],
   ["aucun objectif pour cette série dans le classeur", "no target for this series in the workbook"], ["non comparé", "not compared"],
   ["valeur du classeur non exploitable, voir la note", "workbook value unusable, see the note"], ["dans la fourchette : la prévision ne permet pas de trancher", "within the range: the forecast cannot tell"],
-  ["Historique court. ", "Short history. "], ["Historique. ", "History. "],
+  ["Historique court. ", "Short history. "], ["Historique. ", "History. "], ["Historique court", "Short history"], ["Historique", "History"],
+  ["prolongée dans cette prévision.", "extended in this forecast."], ["non prolongée dans cette prévision.", "not extended in this forecast."],
+  ["Comment se décompose l'atterrissage ?", "How does the landing break down?"], ["La méthode est-elle fiable ? Le test sur le passé", "Is the method reliable? The test on past data"], ["Sur quelles hypothèses ?", "On what assumptions?"],
   ["La prévision suppose qu'elle se maintient telle quelle.", "The forecast assumes it continues unchanged."], ["La prévision suppose un retour au niveau du modèle.", "The forecast assumes a return to the model level."],
   ["Prévision centrale", "Central forecast"], ["Fourchette à 80 %", "80% range"],
   ["scénarios des facteurs seuls", "variable scenarios alone"], ["pas de donnée", "no data"],

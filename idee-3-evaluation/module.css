@@ -17,3 +17,6 @@
 .evl-echec dl { margin-bottom: 2px; }
 .evl-h3 { font: 700 15px/1.25 var(--f-chiffre); letter-spacing: .01em; margin: 18px 0 6px; }
 @media (max-width: 700px) { .evl-large td:nth-child(3), .evl-jeu td:nth-child(4), .evl-jeu td:nth-child(5) { min-width: 200px; } }
+/* Vague 2 : la réponse d'abord */
+.evl-reponse { margin-bottom: 14px; }
+.evl-reponse .titre { font-size: 24px; }
