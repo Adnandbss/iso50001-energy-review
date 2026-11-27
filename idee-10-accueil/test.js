@@ -202,7 +202,31 @@ async function test() {
   verifier(!accCalcul().actions.some(a => a.id === "revue"), "une revue rédigée retire l'action « Rédiger la revue »");
   rev.revue = garde;
   cliquer(trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Voir la décomposition")[0]);
-  verifier(etat.onglet === "derives" && etat.derSerie === N.siteElec && texteApp().includes("Dérives du site : ce que les UES expliquent"), "« Voir la décomposition » ouvre la Détection sur le compteur général");
+  verifier(etat.onglet === "derives" && etat.derSerie === N.siteElec && texteApp().includes("Dérives du site : ce que les UES expliquent"), "« Voir la décomposition » ouvre la page Dérives sur le compteur général");
+  // la page Détection n'existe plus : la vue d'ensemble renvoie à la page Dérives, dans les deux langues
+  for (const [l, re, mauvais] of [["fr", /chaque chiffre vient des pages Dérives et Prévision/, /Détection/], ["en", /every figure comes from the Drifts and Forecast pages/, /Detection/]]) {
+    LANGUE = l; CACHE_TR.clear(); aller("ensemble");
+    const tE = texteApp() + texteDe(trouver(app, n => n.tagName === "DETAILS"));
+    verifier(re.test(tE) && !mauvais.test(tE), l + " : la vue d'ensemble cite la page Dérives, plus la Détection");
+  }
+  LANGUE = "fr"; CACHE_TR.clear(); aller("ensemble");
+  { const g = { demo: agent.demo, revue: rev.revue, passes: evl.passes }; agent.demo = false; rev.revue = { factice: true }; evl.passes = [{}];
+    const a0 = accActions(Object.assign({}, accCalcul(), { der: { liste: [], sites: [] }, qualite: { faibles: [] } }));
+    agent.demo = g.demo; rev.revue = g.revue; evl.passes = g.passes;
+    verifier(a0.length === 1 && a0[0].id === "derives" && a0[0].titre === "Parcourir les dérives" && a0[0].bouton === "Ouvrir les dérives", "rien d'urgent : « Parcourir les dérives » et « Ouvrir les dérives »"); }
+  // le nom d'une dérive de la carte « coûtent le plus » ouvre son détail, sans lancer d'instruction
+  const kTop = accCalcul().der.liste[1], episodeAvant = agent.episode;
+  const nomTop = trouver(app.querySelector(".acc-top"), n => n.tagName === "BUTTON" && n.textContent === kTop.ep.serie)[0];
+  verifier(nomTop && nomTop.classList.contains("lien"), "carte « coûtent le plus » : le nom de la dérive est un lien");
+  cliquer(nomTop);
+  verifier(etat.onglet === "derives" && drv.ouverte === veiCle(kTop.ep) && !!app.querySelector(".drv-item.ouverte") && !agent.enCours && agent.episode === episodeAvant,
+    "clic sur le nom : page Dérives, « " + kTop.ep.serie + " » dépliée sous sa ligne, aucune instruction lancée");
+  // « Régler l'IA » ouvre le panneau d'IA
+  const gardeRevue = rev.revue; rev.revue = { factice: true }; agent.demo = true; aller("ensemble");
+  const regler = trouver(app, n => n.tagName === "BUTTON" && n.textContent === "Régler l'IA")[0];
+  if (regler) cliquer(regler);
+  verifier(regler && !!iaDialogue && etat.onglet === "ensemble", "« Régler l'IA » ouvre le panneau des réglages d'IA, sans changer de page");
+  iaFermer(); rev.revue = gardeRevue;
 
   /* ---- 9. En anglais : noms anglais, hypothèses de prix pour « Gas » ---- */
   LANGUE = "en"; CACHE_TR.clear(); accCharger();
