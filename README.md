@@ -51,7 +51,7 @@ CONTRAT.md            the contract every module follows (hooks, rules, tests)
 outillage/tout-tester.sh .     # assemble everything and run every test suite (Node, no browser)
 ```
 
-The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,795 checks across 13 suites, no network allowed.
+The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,820 checks across 13 suites, no network allowed.
 
 ## Notes
 
