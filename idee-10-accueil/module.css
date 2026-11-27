@@ -1,0 +1,37 @@
+/* Module « Accueil » (acc) : essai sur un site fictif, vue d'ensemble, bandeau « données fictives », visite guidée. */
+.acc-essai { margin: 6px 0 4px; padding: 14px 16px; background: var(--creux); border-left: 4px solid var(--signal); border-radius: 0 4px 4px 0; }
+.acc-essai .btn.principal { font-size: 15px; font-weight: 600; padding: 9px 18px; }
+.accueil .acc-essai p { margin: 8px 0 0; font-size: 13px; }
+.accueil .acc-essai p.acc-ou { display: none; }
+.acc-bandeau { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 12.5px; color: var(--encre2); background: var(--creux); border: 1px dashed var(--axe); border-left: 4px solid var(--signal); border-radius: 0 4px 4px 0; padding: 5px 10px; }
+.acc-bandeau b { color: var(--encre); }
+.acc-outils { display: flex; justify-content: flex-end; margin: -6px 0 4px; }
+.acc-synthese .titre { max-width: 62ch; font-size: 24px; }
+.acc-tuiles .tuile .det .lien { font-size: inherit; }
+.acc-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.acc-liste li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 0 0; border-top: 1px solid var(--grille); }
+.acc-liste li:first-child { border-top: 0; padding-top: 0; }
+.acc-liste .acc-quoi { grid-column: 1; min-width: 0; overflow-wrap: anywhere; }
+.acc-liste .acc-quoi .badge { margin-left: 4px; white-space: nowrap; }
+.acc-liste .acc-chiffres { grid-column: 1; font-size: 12.5px; color: var(--encre2); }
+.acc-liste .btn { grid-column: 2; grid-row: 1 / span 2; white-space: nowrap; }
+.acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
+.acc-fait { color: var(--bon); border-color: var(--bon); }
+.acc-actions { counter-reset: acc; }
+.acc-actions li .acc-quoi::before { counter-increment: acc; content: counter(acc) ". "; font-weight: 700; color: var(--muet); }
+@media (max-width: 480px) { .acc-liste li { grid-template-columns: minmax(0, 1fr); } .acc-liste .btn { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 4px; } }
+
+/* Visite guidée */
+.acc-voile { position: fixed; inset: 0; z-index: 60; background: transparent; }
+.acc-voile.plein { background: rgba(8, 13, 20, .55); }
+.acc-spot { position: fixed; z-index: 61; border-radius: 6px; pointer-events: none; box-shadow: 0 0 0 3px var(--signal), 0 0 0 200vmax rgba(8, 13, 20, .55); }
+.acc-spot[hidden] { display: none; }
+.acc-bulle { position: fixed; z-index: 62; width: min(380px, calc(100vw - 24px)); background: var(--surface); color: var(--encre); border: 1px solid var(--bord); border-top: 4px solid var(--signal); border-radius: 6px; box-shadow: 0 12px 32px rgba(0, 0, 0, .28); padding: 14px 16px 12px; }
+.acc-bulle:focus { outline: none; }
+.acc-bulle h2 { font: 700 18px/1.25 var(--f-chiffre); margin: 2px 0 6px; }
+.acc-bulle p { margin: 0 0 12px; font-size: 13.5px; color: var(--encre2); }
+.acc-compte { font-size: 12px; color: var(--muet); }
+.acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.acc-espace { flex: 1; }
+.acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
+@media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } }
