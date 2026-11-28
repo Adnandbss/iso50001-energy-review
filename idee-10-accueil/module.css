@@ -89,4 +89,4 @@ tr.acc-choisie td { background: var(--dsn-accent-pale, var(--creux)); }
 .acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .acc-espace { flex: 1; }
 .acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
-@media print { .acc-carte { box-shadow: none; } .acc-bouton-visite, .acc-tri, .acc-table .btn { display: none !important; } .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau { display: none !important; } .acc-liste .acc-nom { display: inline !important; text-decoration: none; } }   /* le nom de la dérive reste imprimé */
+@media print { .acc-carte { box-shadow: none; } .acc-bouton-visite, .acc-tri, .acc-table .btn { display: none !important; } .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau { display: none !important; } .acc-liste .acc-nom, .acc-rang-nom .acc-nom, .acc-table .acc-nom, .acc-gain .lien { display: inline !important; text-decoration: none; } .acc-table .acc-nom { display: block !important; } }   /* le nom de la dérive reste imprimé */

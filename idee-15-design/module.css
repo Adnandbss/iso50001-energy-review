@@ -189,4 +189,4 @@ p.dsn-mode { margin: 0; }
   .dsn-demande { padding: 6px 6px 6px 12px; }
   .dsn-puce { font-size: 13px; padding: 6px 12px; }
 }
-@media print { .dsn-barre { display: none !important; } .dsn-puce, .dsn-carte-rep, .dsn-demande { box-shadow: none; } }
+@media print { .dsn-barre, .dsn-choix { display: none !important; } .dsn-puce, .dsn-carte-rep, .dsn-demande { box-shadow: none; } }
