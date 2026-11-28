@@ -1,1 +1,1 @@
-idee-1-prevision idee-5-simulateur idee-4-veille idee-2-revue idee-3-evaluation idee-6-integration idee-10-accueil idee-11-ia idee-12-continuite idee-13-derives idee-14-allegement idee-9-assemblage
+idee-1-prevision idee-5-simulateur idee-4-veille idee-2-revue idee-3-evaluation idee-6-integration idee-10-accueil idee-11-ia idee-12-continuite idee-13-derives idee-14-allegement idee-15-design idee-9-assemblage

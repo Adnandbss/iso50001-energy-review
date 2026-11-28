@@ -97,8 +97,10 @@ async function test() {
   verifier(iAb >= 0 && af.z[iAb] > 10 && Math.max(...zAutres) < 6, "semaine aberrante : z = " + nf(af.z[iAb], 1) + " sur la semaine du relevé faux, |z| < 6 ailleurs");
   verifier(epDe(N.siteGaz).every(ep => !(ep.debut <= ACC.aberrante && ep.fin >= ACC.aberrante && ep.ecart > 0)), "le relevé faux du four n'atteint pas le compteur général gaz");
   verifier(K.actions[0].id === "instruire" && K.actions.some(a => a.id === "non-suivi"), "que faire : instruire d'abord, puis chercher l'usage non suivi (" + K.actions.map(a => a.id).join(", ") + ")");
-  const ph = accPhrase(K);
-  verifier(/^Sur les 12 derniers mois, le site consomme .* que sa référence/.test(ph) && ph.includes(fmtEuros(K.der.cout3 / 3)), "phrase de synthèse : " + ph);
+  const ph = accTitre(K), sous = accSous(K);
+  verifier(/^Le site consomme .* que sa référence$/.test(ph) && /^Sur 12 mois · /.test(sous) && sous.includes(fmtEuros(K.der.cout3 / 3)) && sous.includes(fmtEnergie(K.bilan.ecart, true)), "titre-réponse et sous-titre : " + ph + " — " + sous);
+  rendre();
+  verifier(texteDe(app.querySelector(".acc-synthese")) === ph + sous, "la page affiche le titre-réponse et son sous-titre en tête");
 
   /* ---- 5. Chiffres de la vue d'ensemble contre ceux des pages d'origine, sur le site fictif ---- */
   comparerAuxPages("site fictif");
@@ -233,7 +235,7 @@ async function test() {
   verifier(etat.fichier === ACC.noms.en.fichier && etat.modele.series.some(x => x.nom === "Compressed air") && etat.modele.energies.join(",") === "Electricity,Gas", "chargé en anglais : noms anglais");
   verifier(valoDe("Gas").prix != null && valoDe("Gas").fe != null, "« Gas » reçoit les hypothèses de prix et de carbone du gaz");
   const kEn = accCalcul();
-  verifier(kEn.der.cout3 != null && kEn.att.ok && /^Over the last 12 months, the site uses/.test(accPhrase(kEn)), "synthèse en anglais : " + accPhrase(kEn));
+  verifier(kEn.der.cout3 != null && kEn.att.ok && /^The site uses .* than its baseline$/.test(accTitre(kEn)) && /^Over 12 months · /.test(accSous(kEn)), "synthèse en anglais : " + accTitre(kEn) + " — " + accSous(kEn));
   verifier(texteApp().includes("Fictitious data"), "bandeau en anglais");
   LANGUE = "fr"; CACHE_TR.clear();
 
