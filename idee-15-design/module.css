@@ -4,41 +4,7 @@
    Polices du système uniquement, aucune ressource externe. Chargé après les autres modules : il surcharge
    leurs règles à spécificité égale, sans toucher à leurs fichiers. Graphiques : seules les variables changent.
    ============================================================================ */
-:root {
-  color-scheme: light;
-  --f-texte: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
-  --f-chiffre: var(--f-texte);
-  --plan: #f6f8fc; --surface: #ffffff; --creux: #f2f5fb; --encre: #1b2340; --encre2: #535d7c; --muet: #68708c;
-  --grille: #edf0f6; --axe: #d6dcea; --bord: #e4e8f2; --voile: rgba(63, 85, 224, .06); --signal: #ef7d3c;
-  /* séries : la palette validée d'origine, bleu remplacé par l'indigo de l'accent et violet éloigné de lui (contrôle daltonisme refait) */
-  --s1: #3f55e0; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #8a4fd8; --s8: #e34948;
-  --plus: #d9502a; --moins: #13987a; --contexte: #5d6785; --neutre: #c8cfdf;
-  --bon: #11754a; --critique: #c0392b; --alerte: #d97706;
-  /* jetons propres au thème */
-  --dsn-accent: #3f55e0; --dsn-accent-texte: #3446c8; --dsn-accent-pale: #eef1ff; --dsn-sur-accent: #ffffff;
-  --dsn-vert: #11754a; --dsn-vert-pale: #e7f6ee; --dsn-vert-aire: rgba(19, 152, 122, .16);
-  --dsn-rouge: #b23c16; --dsn-rouge-pale: #fff1ec;
-  --dsn-tete: #f6f8fc; --dsn-panneau: rgba(255, 255, 255, .72); --dsn-panneau-plein: #fdfdfe;
-  --dsn-ombre: 0 1px 2px rgba(30, 40, 80, .05); --dsn-ombre-haute: 0 4px 24px rgba(70, 90, 180, .09);
-  --dsn-halo: radial-gradient(closest-side, rgba(120, 140, 255, .22), rgba(170, 120, 255, .10) 55%, transparent 78%);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --plan: #0f1526; --surface: #161d31; --creux: #1b233b; --encre: #e8ecf8; --encre2: #b3bbd3; --muet: #949dba;
-    --grille: #232c45; --axe: #36405e; --bord: #283252; --voile: rgba(140, 155, 255, .08); --signal: #f29b56;
-    --s1: #6d7ff2; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c; --s7: #9a78e6; --s8: #e66767;
-    --plus: #ee6a43; --moins: #22b08f; --contexte: #b3bbd3; --neutre: #46506e;
-    --bon: #5fd39a; --critique: #ff7b6b; --alerte: #f2a33a;
-    --dsn-accent: #4f63e6; --dsn-accent-texte: #a9b5ff; --dsn-accent-pale: #262f5a; --dsn-sur-accent: #ffffff;
-    --dsn-vert: #5fd39a; --dsn-vert-pale: #14302a; --dsn-vert-aire: rgba(34, 176, 143, .2);
-    --dsn-rouge: #ff9b7a; --dsn-rouge-pale: #3a2121;
-    --dsn-tete: #1b233b; --dsn-panneau: rgba(22, 29, 49, .78); --dsn-panneau-plein: #141b2e;
-    --dsn-ombre: 0 1px 2px rgba(0, 0, 0, .3); --dsn-ombre-haute: 0 4px 24px rgba(0, 0, 0, .35);
-    --dsn-halo: radial-gradient(closest-side, rgba(110, 125, 255, .10), rgba(150, 110, 255, .04) 55%, transparent 78%);
-  }
-}
-
+/* Les jetons de couleur (clair et sombre) sont posés par module.js (DSN_THEME), qui les vérifie aussi dans test.js : contrastes AA. */
 /* ---- Fond, halo, typographie ---- */
 body { background: var(--plan); font: 14px/1.5 var(--f-texte); -webkit-font-smoothing: antialiased; }
 table, .tuile .val, .acc-montant, .dsn-chiffre, input, select { font-variant-numeric: tabular-nums; }
@@ -171,7 +137,7 @@ td { border-bottom-color: var(--grille); }
 }
 
 
-/* ---- Puces (questions toutes faites, tri) et texte pour lecteurs d'écran seulement ----
+/* ---- Puces (questions toutes faites, tri) et texte pour lecteurs d'écran seulement ---- */
 .dsn-cache { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .dsn-puces { display: flex; flex-wrap: wrap; gap: 8px; }
 .dsn-puce { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--bord); background: var(--surface); color: var(--encre); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; cursor: pointer; text-align: left; box-shadow: 0 4px 18px rgba(70, 90, 180, .08); max-width: 100%; }
@@ -179,6 +145,33 @@ td { border-bottom-color: var(--grille); }
 .dsn-puce[aria-pressed="true"] { background: var(--dsn-accent-pale); color: var(--dsn-accent-texte); border-color: transparent; }
 .dsn-puce[disabled] { opacity: .5; cursor: default; }
 .dsn-etoile { color: var(--dsn-accent); }
+/* ---- Barre « Posez une question sur ce site » ---- */
+.dsn-barre { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.dsn-demande { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--bord); border-radius: 16px; padding: 8px 8px 8px 16px; box-shadow: var(--dsn-ombre-haute); }
+.dsn-demande:focus-within { border-color: var(--dsn-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsn-accent) 22%, transparent), var(--dsn-ombre-haute); }
+.dsn-loupe { color: var(--muet); flex: none; }
+.dsn-champ { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; padding: 8px 0; color: var(--encre); }
+.dsn-champ:focus, .dsn-champ:focus-visible { outline: none; }
+.dsn-champ::placeholder { color: var(--muet); opacity: 1; }
+.dsn-envoyer { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 11px; background: var(--dsn-accent); color: var(--dsn-sur-accent); cursor: pointer; }
+.dsn-envoyer:hover { filter: brightness(1.08); }
+.dsn-envoyer.arret { background: var(--encre2); }
+.dsn-mode { margin: 0; }
+.dsn-note { margin: 0 0 8px; font-size: 12.5px; color: var(--encre2); }
+p.dsn-mode { margin: 0; }
+.dsn-reponse:empty { display: none; }
+.dsn-carte-rep { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; padding: 14px 18px; box-shadow: var(--dsn-ombre); }
+.dsn-carte-rep .progres { margin: 0; }
+.dsn-carte-rep p { margin: 0 0 8px; }
+.dsn-q { font-size: 12.5px; color: var(--muet); }
+.dsn-texte { font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
+.dsn-nb.ok { text-decoration: underline; text-decoration-color: var(--dsn-vert); text-decoration-thickness: 2px; text-underline-offset: 3px; cursor: help; }
+.dsn-pied { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 12.5px; color: var(--muet); }
+.dsn-outils { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--encre2); }
+.dsn-outils li + li { margin-top: 3px; }
+.dsn-outils code { font: 12px ui-monospace, Menlo, Consolas, monospace; color: var(--encre); }
+.dsn-entree { overflow-wrap: anywhere; color: var(--muet); }
+
 
 /* ---- Carte « Si on corrige » ---- */
 .dsn-tete-carte { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 10px; }
@@ -192,3 +185,8 @@ td { border-bottom-color: var(--grille); }
 .dsn-chiffre.petit { font-size: 18px; color: var(--encre2); }
 .dsn-vert { color: var(--dsn-vert); }
 .dsn-methode { margin: 8px 0 0; font-size: 12.5px; color: var(--encre2); }
+@media (max-width: 700px) {
+  .dsn-demande { padding: 6px 6px 6px 12px; }
+  .dsn-puce { font-size: 13px; padding: 6px 12px; }
+}
+@media print { .dsn-barre { display: none !important; } .dsn-puce, .dsn-carte-rep, .dsn-demande { box-shadow: none; } }
