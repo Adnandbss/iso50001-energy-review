@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquettes design</title>
+<style>
+  body { margin: 0; background: #e9ebef; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; color: #1d2433; }
+  .intro { max-width: 1240px; margin: 0 auto; padding: 32px 24px 8px; }
+  .intro h1 { font-size: 26px; margin: 0 0 6px; font-weight: 600; }
+  .intro p { margin: 0; color: #5b6478; max-width: 780px; }
+  .planche { max-width: 1240px; margin: 28px auto 48px; padding: 0 24px; }
+  .etiquette { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px; }
+  .etiquette b { font-size: 20px; }
+  .etiquette span { color: #5b6478; }
+  .ecran { border-radius: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(20,30,50,.08), 0 12px 40px rgba(20,30,50,.12); display: grid; grid-template-columns: 220px minmax(0,1fr); min-height: 760px; }
+  .nav { padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  .nav .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; margin: 0 6px 18px; }
+  .nav .groupe { font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; margin: 14px 8px 4px; }
+  .nav a { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; text-decoration: none; color: inherit; }
+  .contenu { padding: 28px 34px 34px; display: flex; flex-direction: column; gap: 18px; }
+  .grille { display: grid; gap: 16px; }
+  .g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .g2 { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); }
+  .barre { height: 12px; border-radius: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 500; padding: 10px 12px; font-size: 13px; }
+  td { padding: 11px 12px; }
+  svg text { font-family: inherit; }
+  @media (max-width: 900px) { .ecran { grid-template-columns: 1fr; } .nav { display: none; } .g3, .g2 { grid-template-columns: 1fr; } }
+
+  /* ---------- A. Lumière ---------- */
+  .a { background: #f6f8fc; color: #1b2340; position: relative; }
+  .a::before { content: ""; position: absolute; inset: -20% 10% auto 35%; height: 520px; background: radial-gradient(closest-side, rgba(120,140,255,.22), rgba(170,120,255,.10) 55%, transparent 75%); pointer-events: none; }
+  .a .nav { background: rgba(255,255,255,.7); border-right: 1px solid #e6eaf3; position: relative; }
+  .a .nav .groupe { color: #8a93ab; }
+  .a .nav a { color: #44506e; }
+  .a .nav a.actif { background: #eef1ff; color: #3446c8; font-weight: 500; }
+  .a .marque { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg,#5b7cfa,#8b6cf6); }
+  .a .contenu { position: relative; }
+  .a .demande { background: #fff; border: 1px solid #e3e8f4; border-radius: 16px; padding: 16px 18px; display: flex; gap: 12px; align-items: center; box-shadow: 0 4px 24px rgba(70,90,180,.08); max-width: 720px; }
+  .a .demande .texte { flex: 1; color: #6a7390; font-size: 16px; }
+  .a .envoyer { width: 34px; height: 34px; border-radius: 10px; background: #3f55e0; display: grid; place-items: center; color: #fff; }
+  .a .titre { font-size: 26px; font-weight: 600; letter-spacing: -.01em; margin: 6px 0 0; }
+  .a .sous { color: #5d6785; margin: 2px 0 0; }
+  .a .carte { background: #fff; border: 1px solid #e6eaf3; border-radius: 14px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(30,40,80,.04); }
+  .a .lib { font-size: 13px; color: #6a7390; }
+  .a .val { font-size: 30px; font-weight: 600; letter-spacing: -.02em; margin-top: 4px; }
+  .a .val small { font-size: 14px; color: #6a7390; font-weight: 500; margin-left: 3px; }
+  .a .pastille { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; padding: 3px 9px; border-radius: 999px; }
+  .a .rouge { background: #fff1ec; color: #c2431a; }
+  .a .vert { background: #e9f8ef; color: #12804a; }
+  .a .h { font-weight: 600; font-size: 15px; margin: 0 0 12px; }
+  .a th { background: #f6f8fc; color: #5d6785; }
+  .a td { border-top: 1px solid #eef1f7; }
+  .a .eco { color: #12804a; font-weight: 500; }
+  .a .puce { display: inline-flex; gap: 8px; align-items: center; background: #fff; border: 1px solid #e3e8f4; border-radius: 999px; padding: 8px 14px; font-size: 14px; box-shadow: 0 4px 18px rgba(70,90,180,.10); }
+
+  /* ---------- B. Atelier ---------- */
+  .b { background: #f4f1ea; color: #1e2a36; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; }
+  .b .nav { background: #1e2a36; color: #c9d2dc; }
+  .b .nav .groupe { color: #7f8b98; }
+  .b .nav a.actif { background: #f5b41a; color: #1e2a36; font-weight: 600; }
+  .b .marque { width: 24px; height: 24px; border: 2px solid #f5b41a; border-radius: 50%; }
+  .b .titre { font: 600 24px/1.2 "DIN Alternate", "Bahnschrift", "Roboto Condensed", sans-serif; letter-spacing: .01em; margin: 0; }
+  .b .sous { color: #5c6875; margin: 4px 0 0; }
+  .b .regle { border-top: 2px solid #1e2a36; padding-top: 14px; }
+  .b .carte { background: #fffdf8; border: 1px solid #d9d2c4; padding: 16px 18px; }
+  .b .lib { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #6b6556; }
+  .b .val { font: 600 34px/1.1 "DIN Alternate", "Bahnschrift", "Roboto Condensed", sans-serif; margin-top: 6px; }
+  .b .val small { font-size: 15px; color: #6b6556; }
+  .b .signal { display: inline-block; background: #f5b41a; color: #1e2a36; font-size: 11.5px; font-weight: 700; padding: 2px 7px; text-transform: uppercase; letter-spacing: .06em; }
+  .b .h { font: 600 13px/1 -apple-system, sans-serif; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 12px; color: #6b6556; }
+  .b th { border-bottom: 2px solid #1e2a36; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: #6b6556; }
+  .b td { border-bottom: 1px solid #e4ddd0; font-variant-numeric: tabular-nums; }
+  .b .demande { border: 1px dashed #9a927f; padding: 12px 14px; color: #6b6556; font-family: "SF Mono", Menlo, monospace; font-size: 13.5px; }
+
+  /* ---------- C. Rapport ---------- */
+  .c { background: #fbfaf7; color: #22262e; }
+  .c .nav { background: #fbfaf7; border-right: 1px solid #ebe7de; }
+  .c .nav .groupe { color: #9b9585; }
+  .c .nav a.actif { color: #0f6e56; font-weight: 600; box-shadow: inset 3px 0 0 #0f6e56; border-radius: 0; }
+  .c .marque { width: 22px; height: 22px; background: #0f6e56; border-radius: 4px; }
+  .c .surtitre { font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: #0f6e56; font-weight: 600; }
+  .c .titre { font: 500 38px/1.15 "New York", "Iowan Old Style", Georgia, serif; letter-spacing: -.01em; margin: 6px 0 0; max-width: 820px; }
+  .c .titre em { font-style: normal; color: #b4441f; }
+  .c .sous { color: #5f6470; margin: 10px 0 0; max-width: 720px; font-size: 16px; }
+  .c .chiffres { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-top: 1px solid #22262e; border-bottom: 1px solid #ebe7de; }
+  .c .chiffres > div { padding: 16px 18px 18px 0; }
+  .c .lib { font-size: 13px; color: #6d6a60; }
+  .c .val { font: 500 34px/1.1 "New York", Georgia, serif; margin-top: 6px; }
+  .c .val small { font: 14px -apple-system, sans-serif; color: #6d6a60; }
+  .c .h { font: 500 20px/1.2 "New York", Georgia, serif; margin: 0 0 10px; }
+  .c th { color: #6d6a60; border-bottom: 1px solid #22262e; font-size: 13px; }
+  .c td { border-bottom: 1px solid #ebe7de; }
+  .c .note { font-size: 13px; color: #6d6a60; }
+  .c .demande { border-bottom: 1px solid #22262e; padding: 8px 0; color: #6d6a60; display: flex; justify-content: space-between; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>Trois directions pour la page Vue d'ensemble</h1>
+  <p>Maquettes statiques, avec les chiffres du site fictif arrondis. Chaque direction garde le même contenu : la réponse d'abord, les dérives qui coûtent le plus, et ce qui se passe si l'on agit ou non.</p>
+</div>
+
+<!-- ======================= A ======================= -->
+<section class="planche">
+  <div class="etiquette"><b>A. Lumière</b><span>clair, aérien, l'agent au centre ; la plus proche de vos références</span></div>
+  <div class="ecran a">
+    <nav class="nav">
+      <div class="logo"><span class="marque"></span>Revue énergétique</div>
+      <div class="groupe">Suivi</div>
+      <a class="actif" href="#">◎ Vue d'ensemble</a><a href="#">▤ Site</a><a href="#">☰ Usages</a><a href="#">⚑ Dérives</a>
+      <div class="groupe">Anticipation</div>
+      <a href="#">↗ Prévision</a><a href="#">⇄ Simulateur</a>
+      <div class="groupe">Agents</div>
+      <a href="#">✎ Revue</a><a href="#">✓ Évaluation</a>
+    </nav>
+    <main class="contenu">
+      <div class="demande"><span style="font-size:18px;color:#8a93ab">⌕</span><span class="texte">Pourquoi l'électricité dérive-t-elle depuis septembre ?</span><span class="envoyer">↑</span></div>
+      <div>
+        <p class="titre">Le site consomme 0,7 % de plus que sa référence</p>
+        <p class="sous">Sur 12 mois · +75 MWh · +29,9 k€ · 2 surconsommations en cours coûtent 7,2 k€ par mois</p>
+      </div>
+      <div class="grille g3">
+        <div class="carte"><div class="lib">Écart à la référence</div><div class="val">+75,3<small>MWh</small></div><span class="pastille rouge">▲ +29,9 k€ sur 12 mois</span></div>
+        <div class="carte"><div class="lib">Atterrissage 2026</div><div class="val">1,12<small>M€</small></div><span class="pastille vert">fourchette 1,09 – 1,15 M€</span></div>
+        <div class="carte"><div class="lib">Modèles de référence fiables</div><div class="val">8 / 8<small>R² ≥ 0,75</small></div><span class="pastille vert">● données à jour</span></div>
+      </div>
+      <div class="grille g2">
+        <div class="carte">
+          <p class="h">Dérives qui coûtent le plus</p>
+          <div style="display:grid;grid-template-columns:170px 1fr 70px;gap:12px 14px;align-items:center;font-size:14px">
+            <span>Compteur général élec.</span><div class="barre" style="background:#4b63ea;width:100%"></div><b>7,3 k€</b>
+            <span>Air comprimé</span><div class="barre" style="background:#4b63ea;width:60%"></div><b>4,4 k€</b>
+            <span>Four de cuisson</span><div class="barre" style="background:#4b63ea;width:31%"></div><b>2,3 k€</b>
+          </div>
+          <p style="margin:14px 0 0;font-size:13px;color:#6a7390">par mois si rien ne change · sans double compte site / usage</p>
+        </div>
+        <div class="carte">
+          <p class="h">Si on corrige l'air comprimé</p>
+          <div style="display:flex;gap:28px;margin-bottom:8px"><div><div class="lib">Économie / an</div><div class="val" style="font-size:24px;color:#12804a">52 k€</div></div><div><div class="lib">Carbone</div><div class="val" style="font-size:24px">−16 tCO₂e / an</div></div></div>
+          <svg viewBox="0 0 400 130" width="100%" height="130" aria-hidden="true">
+            <path d="M10 70 L390 48 L390 108 L10 70 Z" fill="#e3f6ea"/>
+            <path d="M10 70 L390 48" stroke="#9aa3ba" stroke-dasharray="4 4" fill="none"/>
+            <path d="M10 70 C 120 90, 250 100, 390 108" stroke="#3f55e0" stroke-width="2.5" fill="none"/>
+            <circle cx="10" cy="70" r="4" fill="#3f55e0"/><circle cx="390" cy="108" r="4" fill="#3f55e0"/>
+            <text x="300" y="40" font-size="11" fill="#6a7390">si rien ne change</text>
+            <text x="290" y="125" font-size="11" fill="#3f55e0">après correction</text>
+          </svg>
+        </div>
+      </div>
+      <div class="carte" style="padding:0;overflow:hidden">
+        <table><tr><th>Dérive</th><th>Depuis</th><th>Coût / mois</th><th>Statut</th><th>Gain si corrigée</th></tr>
+          <tr><td>Compteur général électricité</td><td>S21 2026</td><td>7,3 k€</td><td><span class="pastille rouge">à traiter</span></td><td class="eco">87 k€ / an</td></tr>
+          <tr><td>Air comprimé</td><td>S36 2026</td><td>4,4 k€</td><td><span class="pastille vert">instruite</span></td><td class="eco">52 k€ / an</td></tr>
+          <tr><td>Four de cuisson</td><td>S11 2026</td><td>2,3 k€</td><td><span class="pastille rouge">à traiter</span></td><td class="eco">27 k€ / an</td></tr>
+        </table>
+      </div>
+      <div><span class="puce"><span style="color:#3f55e0">✦</span>Trier par gain annuel ›</span></div>
+    </main>
+  </div>
+</section>
+
+<!-- ======================= B ======================= -->
+<section class="planche">
+  <div class="etiquette"><b>B. Atelier</b><span>l'identité actuelle, resserrée : papier, encre, ambre de signalisation, chiffres DIN</span></div>
+  <div class="ecran b">
+    <nav class="nav">
+      <div class="logo"><span class="marque"></span>REVUE ÉNERGÉTIQUE</div>
+      <div class="groupe">Suivi</div>
+      <a class="actif" href="#">Vue d'ensemble</a><a href="#">Site</a><a href="#">Usages</a><a href="#">Dérives</a>
+      <div class="groupe">Anticipation</div>
+      <a href="#">Prévision</a><a href="#">Simulateur</a>
+      <div class="groupe">Agents</div>
+      <a href="#">Revue</a><a href="#">Évaluation</a>
+    </nav>
+    <main class="contenu">
+      <div class="regle">
+        <span class="signal">2 dérives en cours</span>
+        <p class="titre" style="margin-top:10px">Site +0,7 % sur sa référence · 12 mois</p>
+        <p class="sous">+75,3 MWh · +29,9 k€ · si rien ne change : +7,2 k€ par mois</p>
+      </div>
+      <div class="grille g3">
+        <div class="carte"><div class="lib">Écart cumulé</div><div class="val">+75,3 <small>MWh</small></div></div>
+        <div class="carte"><div class="lib">Atterrissage 2026</div><div class="val">1,12 <small>M€ ± 3 %</small></div></div>
+        <div class="carte"><div class="lib">Modèles fiables</div><div class="val">8/8 <small>R² ≥ 0,75</small></div></div>
+      </div>
+      <div class="grille g2">
+        <div class="carte">
+          <p class="h">Écart hebdomadaire · compteur général électricité</p>
+          <svg viewBox="0 0 400 150" width="100%" height="150" aria-hidden="true">
+            <line x1="0" y1="80" x2="400" y2="80" stroke="#1e2a36"/>
+            <g fill="#8a97a5"><rect x="10" y="70" width="12" height="10"/><rect x="30" y="80" width="12" height="14"/><rect x="50" y="72" width="12" height="8"/><rect x="70" y="80" width="12" height="9"/><rect x="90" y="76" width="12" height="4"/><rect x="110" y="80" width="12" height="12"/><rect x="130" y="74" width="12" height="6"/></g>
+            <g fill="#f5b41a"><rect x="160" y="58" width="12" height="22"/><rect x="180" y="50" width="12" height="30"/><rect x="200" y="44" width="12" height="36"/><rect x="220" y="40" width="12" height="40"/><rect x="240" y="46" width="12" height="34"/><rect x="260" y="38" width="12" height="42"/><rect x="280" y="34" width="12" height="46"/><rect x="300" y="36" width="12" height="44"/><rect x="320" y="30" width="12" height="50"/><rect x="340" y="28" width="12" height="52"/><rect x="360" y="26" width="12" height="54"/></g>
+            <text x="160" y="20" font-size="11" fill="#6b6556">DÉRIVE EN COURS DEPUIS S21</text>
+          </svg>
+        </div>
+        <div class="carte">
+          <p class="h">Dérives par enjeu</p>
+          <table><tr><th>Série</th><th>€ / mois</th><th></th></tr>
+            <tr><td>Compteur général élec.</td><td>7 302</td><td><span class="signal">en cours</span></td></tr>
+            <tr><td>Air comprimé</td><td>4 386</td><td><span class="signal">en cours</span></td></tr>
+            <tr><td>Four de cuisson</td><td>2 310</td><td>clos</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="demande">&gt; demander à l'agent : pourquoi l'électricité dérive depuis S21 ?_</div>
+    </main>
+  </div>
+</section>
+
+<!-- ======================= C ======================= -->
+<section class="planche">
+  <div class="etiquette"><b>C. Rapport</b><span>éditorial, comme une revue ISO 50001 imprimée ; titres en serif, beaucoup de blanc</span></div>
+  <div class="ecran c">
+    <nav class="nav">
+      <div class="logo"><span class="marque"></span>Revue énergétique</div>
+      <div class="groupe">Suivi</div>
+      <a class="actif" href="#">Vue d'ensemble</a><a href="#">Site</a><a href="#">Usages</a><a href="#">Dérives</a>
+      <div class="groupe">Anticipation</div>
+      <a href="#">Prévision</a><a href="#">Simulateur</a>
+      <div class="groupe">Agents</div>
+      <a href="#">Revue</a><a href="#">Évaluation</a>
+    </nav>
+    <main class="contenu" style="gap:24px;padding:40px 48px">
+      <div>
+        <div class="surtitre">Usine de démonstration · 12 derniers mois</div>
+        <p class="titre">Le site consomme <em>0,7 % de plus</em> que sa référence, et deux dérives coûtent 7,2 k€ par mois.</p>
+        <p class="sous">L'électricité porte l'essentiel de l'écart ; une partie n'est expliquée par aucun usage suivi, ce qui désigne un équipement non compté.</p>
+      </div>
+      <div class="chiffres">
+        <div><div class="lib">Écart à la référence</div><div class="val">+75,3 <small>MWh · +29,9 k€</small></div></div>
+        <div><div class="lib">Atterrissage 2026</div><div class="val">1,12 M€ <small>± 3 %</small></div></div>
+        <div><div class="lib">Modèles fiables</div><div class="val">8 sur 8</div></div>
+      </div>
+      <div class="grille g2" style="gap:40px">
+        <div>
+          <p class="h">Les dérives qui coûtent le plus</p>
+          <table><tr><th>Dérive</th><th>Depuis</th><th style="text-align:right">€ / mois</th></tr>
+            <tr><td>Compteur général électricité</td><td>S21</td><td style="text-align:right">7 302</td></tr>
+            <tr><td>Air comprimé</td><td>S36</td><td style="text-align:right">4 386</td></tr>
+            <tr><td>Four de cuisson</td><td>S11</td><td style="text-align:right">2 310</td></tr>
+          </table>
+          <p class="note" style="margin-top:10px">Sans double compte entre le site et ses usages.</p>
+        </div>
+        <div>
+          <p class="h">Ce qu'en dit l'agent</p>
+          <p style="margin:0;font: 17px/1.6 'New York', Georgia, serif;color:#3a3f49">« Les usages suivis n'expliquent pas la hausse du compteur général. L'hypothèse la plus probable est un équipement non compté ; à vérifier sur site. »</p>
+          <p class="note" style="margin-top:8px">Brouillon · 54 chiffres sur 54 vérifiés · à valider</p>
+        </div>
+      </div>
+      <div class="demande"><span>Poser une question sur ce site…</span><span>→</span></div>
+    </main>
+  </div>
+</section>
+
+</body>
+</html>

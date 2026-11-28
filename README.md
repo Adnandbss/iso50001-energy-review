@@ -6,6 +6,8 @@ An energy review dashboard for industrial sites, rebuilt from a Power BI report 
 
 The interface is in French with an English toggle.
 
+<p align="center"><img src="docs/captures/vue-ensemble-clair.png" alt="Overview page in the light theme: question bar answered by the agent, answer headline, key figures, costliest drifts and the gain if the top drift is fixed" width="820"></p>
+
 ## What it does
 
 Open it, click **"Try it with a fictitious site"**, and a guided tour walks you through a made-up factory in about a minute.
@@ -37,6 +39,8 @@ Details: [`recherche/4-resultats-ia-reelle.md`](recherche/4-resultats-ia-reelle.
 
 Open the [live demo](https://adnandbss.github.io/iso50001-energy-review/) (or `livrables/Tableau de bord revue énergétique - agents et prévision.html` locally) and click **Try it with a fictitious site**, or load `donnees/SER PBI générique - valeurs figées.xlsm`. Demo mode (no AI, no network) is the default. To use a real model, open **AI** at the bottom of the menu and paste a Gemini or Anthropic API key: it stays in the page's memory, and nothing is sent before an explicit consent that lists what leaves the machine.
 
+The visual design ("Lumière") was chosen from [three mock-ups](https://adnandbss.github.io/iso50001-energy-review/maquettes-design.html) before any code was written; screenshots in [`docs/captures/`](docs/captures/) show it in light, dark and phone widths.
+
 ## How it is built
 
 ```
@@ -53,7 +57,7 @@ CONTRAT.md            the contract every module follows (hooks, rules, tests)
 outillage/tout-tester.sh .     # assemble everything and run every test suite (Node, no browser)
 ```
 
-The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,820 checks across 13 suites, no network allowed.
+The test bench loads the real workbook into a minimal fake DOM and runs each module's tests in the page's own scope: 1,963 checks across 14 suites, no network allowed.
 
 ## Notes
 
