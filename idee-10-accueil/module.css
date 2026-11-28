@@ -5,9 +5,64 @@
 .accueil .acc-essai p.acc-ou { display: none; }
 .acc-bandeau { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 12.5px; color: var(--encre2); background: var(--creux); border: 1px dashed var(--axe); border-left: 4px solid var(--signal); border-radius: 0 4px 4px 0; padding: 5px 10px; }
 .acc-bandeau b { color: var(--encre); }
-.acc-outils { display: flex; justify-content: flex-end; margin: -6px 0 4px; }
-.acc-synthese .titre { max-width: 62ch; font-size: 24px; }
-.acc-tuiles .tuile .det .lien { font-size: inherit; }
+/* Vue d'ensemble, thème « Lumière » : la page n'est plus une feuille, ce sont des cartes posées sur le fond */
+.feuille:has(> .acc-vue) { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.acc-vue { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.acc-carte { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; box-shadow: var(--dsn-ombre, none); padding: 18px 20px; min-width: 0; }
+.acc-carte h2 { font: 600 15px/1.3 var(--f-texte); margin: 0 0 12px; }
+.acc-vue > .constat.acc-synthese { margin: 4px 0 0; padding: 0; border: 0; }
+.acc-vue > .dsn-barre { order: -1; }   /* au-dessus de la réponse à l'écran ; après elle dans le document, que l'on lit en premier */
+.acc-titre { font: 600 28px/1.2 var(--f-texte); letter-spacing: -.02em; margin: 0; max-width: 40ch; overflow-wrap: anywhere; }
+.acc-sous { margin: 6px 0 0; color: var(--encre2); font-size: 15px; max-width: 90ch; }
+.acc-trois { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.acc-deux { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.acc-lib { font-size: 13px; color: var(--encre2); }
+.acc-val { font: 600 30px/1.15 var(--f-texte); letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.acc-val small { font-size: 14px; font-weight: 500; color: var(--muet); letter-spacing: 0; }
+.acc-pastille-ligne { margin-top: 8px; }
+.acc-det { margin-top: 8px; font-size: 12.5px; color: var(--encre2); }
+.acc-det .lien, .acc-note .lien { font-size: inherit; }
+.acc-note { margin: 12px 0 0; font-size: 12.5px; color: var(--muet); }
+.acc-note-haut { margin: -8px 0 12px; }
+.acc-rangs { display: grid; grid-template-columns: minmax(0, 40%) minmax(40px, 1fr) auto; gap: 10px 14px; align-items: center; font-size: 13.5px; }
+.acc-rang { display: contents; }
+.acc-rang-nom { min-width: 0; overflow-wrap: anywhere; }
+.acc-rang.enfant .acc-rang-nom { padding-left: 14px; color: var(--encre2); }
+.acc-dont { font-size: 12px; color: var(--muet); margin-right: 6px; }
+.acc-rang-nom .acc-nom { font: inherit; color: inherit; text-align: left; white-space: normal; }
+.acc-piste { height: 12px; border-radius: 6px; background: var(--creux); }
+.acc-barre { height: 100%; border-radius: 6px; background: var(--s1); min-width: 2px; }
+.acc-rang.enfant .acc-barre { background: color-mix(in srgb, var(--s1) 55%, var(--surface)); }
+.acc-rang-val { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.acc-tete-table { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 12px; }
+.acc-tete-table h2 { margin: 0; }
+.acc-table { padding: 18px 0 14px; }
+.acc-table .acc-tete-table, .acc-table .acc-note { padding: 0 20px; }
+.acc-table .table-defile { max-height: none; }
+.acc-table td { vertical-align: top; white-space: normal; padding-top: 10px; padding-bottom: 10px; }
+.acc-table td:first-child, .acc-table th:first-child { padding-left: 20px; text-align: left; min-width: 170px; }
+.acc-table td:last-child, .acc-table th:last-child { padding-right: 20px; }
+.acc-table td:nth-child(2), .acc-table th:nth-child(2), .acc-table td:nth-child(4), .acc-table th:nth-child(4) { text-align: left; }
+.acc-table .acc-nom { font: inherit; font-weight: 600; color: var(--encre); white-space: normal; text-align: left; }
+.acc-sous-ligne { display: block; font-size: 12px; color: var(--muet); white-space: nowrap; }
+.acc-gain, .acc-gain .lien { color: var(--dsn-vert, var(--bon)); font-weight: 600; }
+.acc-gain .lien { font-size: inherit; }
+.acc-gain .acc-sous-ligne { font-weight: 400; }
+tr.acc-choisie td { background: var(--dsn-accent-pale, var(--creux)); }
+.acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .acc-table thead { display: none; }
+  .acc-table table, .acc-table tbody { display: block; }
+  .acc-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 12px; padding: 12px 14px; border-bottom: 1px solid var(--grille); }
+  .acc-table td, .acc-table td:first-child, .acc-table td:last-child { display: block; border: 0; padding: 0; text-align: left; min-width: 0; position: static; box-shadow: none; background: none; }
+  .acc-table td:first-child { grid-column: 1 / -1; }
+  .acc-table td[data-lib]::before { content: attr(data-lib); display: block; font-size: 11.5px; color: var(--muet); }
+  .acc-table td.acc-action { align-self: end; }
+  tr.acc-choisie { background: var(--dsn-accent-pale, var(--creux)); }
+  tr.acc-choisie td { background: none; }
+}
+@media (max-width: 980px) { .acc-deux { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .acc-trois { grid-template-columns: minmax(0, 1fr); gap: 10px; } .acc-titre { font-size: 22px; } .acc-carte { padding: 14px 14px; } .acc-table { padding: 14px 0 10px; } .acc-table .acc-tete-table, .acc-table .acc-note { padding: 0 14px; } .acc-table td:first-child, .acc-table th:first-child { padding-left: 14px; } .acc-rangs { grid-template-columns: minmax(0, 46%) minmax(24px, 1fr) auto; gap: 8px 10px; } }
 .acc-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .acc-liste li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 0 0; border-top: 1px solid var(--grille); }
 .acc-liste li:first-child { border-top: 0; padding-top: 0; }
@@ -16,7 +71,6 @@
 .acc-liste .acc-nom { font: inherit; color: var(--encre); white-space: normal; text-align: left; overflow-wrap: anywhere; }   /* nom de la dérive : lien vers son détail */
 .acc-liste .acc-chiffres { grid-column: 1; font-size: 12.5px; color: var(--encre2); }
 .acc-liste .btn { grid-column: 2; grid-row: 1 / span 2; white-space: nowrap; }
-.acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
 .acc-fait { color: var(--bon); border-color: var(--bon); }
 .acc-actions { counter-reset: acc; }
 .acc-actions li .acc-quoi::before { counter-increment: acc; content: counter(acc) ". "; font-weight: 700; color: var(--muet); }
@@ -35,4 +89,4 @@
 .acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .acc-espace { flex: 1; }
 .acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
-@media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } .acc-liste .acc-nom { display: inline !important; text-decoration: none; } }   /* le nom de la dérive reste imprimé */
+@media print { .acc-carte { box-shadow: none; } .acc-bouton-visite, .acc-tri, .acc-table .btn { display: none !important; } .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau { display: none !important; } .acc-liste .acc-nom { display: inline !important; text-decoration: none; } }   /* le nom de la dérive reste imprimé */

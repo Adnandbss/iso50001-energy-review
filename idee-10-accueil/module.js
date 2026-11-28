@@ -242,66 +242,130 @@ function accCalcul() {
   K.actions = accActions(K);
   return K;
 }
-/* Phrase de synthèse. */
-function accPhrase(K) {
-  const B = K.bilan, sujet = B.niveau === "site" ? Lg("le site", "the site") : Lg("les usages suivis", "the tracked uses");
-  const duree = B.mois >= 11.5 ? Lg("Sur les 12 derniers mois", "Over the last 12 months") : Lg("Sur les " + B.mois + " derniers mois", "Over the last " + B.mois + " months");
-  let p;
-  if (B.pct == null) p = Lg("Aucune période ne compare le réel à la référence.", "No period compares actuals with the baseline.");
-  else {
-    const plus = B.ecart >= 0, enjeu = [fmtEnergie(B.ecart, true), B.cout == null ? null : fmtEuros(B.cout, true)].filter(Boolean).join(", ");
-    p = duree + ", " + sujet + Lg(B.niveau === "site" ? " consomme " : " consomment ", B.niveau === "site" ? " uses " : " use ") + fmtPct(Math.abs(B.pct)) + Lg(plus ? " de plus que sa référence" : " de moins que sa référence", plus ? " more than its baseline" : " less than its baseline") + " (" + enjeu + ").";
+/* Titre-réponse et sous-titre : la réponse d'abord, les chiffres clés ensuite. */
+function accTitre(K) {
+  const B = K.bilan;
+  if (B.pct == null) return Lg("Aucune période ne compare le réel à la référence", "No period compares actuals with the baseline");
+  const plus = B.ecart >= 0, site = B.niveau === "site";
+  return Lg((site ? "Le site consomme " : "Les usages suivis consomment ") + fmtPct(Math.abs(B.pct)) + (plus ? " de plus" : " de moins") + " que " + (site ? "sa référence" : "leur référence"),
+    (site ? "The site uses " : "The tracked uses use ") + fmtPct(Math.abs(B.pct)) + (plus ? " more" : " less") + " than " + (site ? "its baseline" : "their baseline"));
+}
+function accSous(K) {
+  const B = K.bilan, d = K.der;
+  const duree = B.mois >= 11.5 ? Lg("Sur 12 mois", "Over 12 months") : Lg("Sur " + B.mois + " mois", "Over " + B.mois + " months");
+  const morceaux = [duree, B.pct == null ? null : fmtEnergie(B.ecart, true), B.cout == null ? null : fmtEuros(B.cout, true)];
+  morceaux.push(!d.nb ? Lg("aucune surconsommation en cours", "no overconsumption under way")
+    : Lg(d.nb === 1 ? "une surconsommation en cours coûte " : d.nb + " surconsommations en cours coûtent ", d.nb === 1 ? "one ongoing overconsumption costs " : d.nb + " ongoing overconsumptions cost ")
+      + (d.cout3 != null ? fmtEuros(d.cout3 / 3) : fmtEnergie(d.wh3 / 3)) + Lg(" par mois si rien ne change", " per month if nothing changes"));
+  return morceaux.filter(Boolean).join(" · ");
+}
+/* Carte chiffrée : libellé, grand chiffre (unité en petit), pastille, détail. */
+function accCarteChiffre(cls, lib, val, unite, pastille, det) {
+  return h("div", { class: "acc-carte acc-chiffre " + cls }, h("div", { class: "acc-lib" }, lib),
+    h("div", { class: "acc-val" }, val, unite ? h("small", null, " " + unite) : null),
+    pastille ? h("div", { class: "acc-pastille-ligne" }, pastille) : null, det ? h("div", { class: "acc-det" }, det) : null);
+}
+const accPastille = (couleur, texte) => h("span", { class: "dsn-pastille " + couleur }, texte);
+/* « 75,3 MWh » → ["+75,3", "MWh"] pour le grand chiffre et son unité. */
+function accCouper(txt) { const r = /^(.*\d)\s(\D+)$/.exec(txt); return r ? [r[1], r[2]] : [txt, null]; }
+/* Dérives en cours sans double compte : un usage suivi (UES) est montré dans le compteur général de son énergie, s'il y en a un. */
+function accHierarchie(d) {
+  const D = d.D, sites = new Set(D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie)), haut = [];
+  const montant = x => x.euroMois != null ? x.euroMois : x.whMois;
+  for (const x of d.liste) {
+    if (x.ep.groupe === "site" || !sites.has(x.ep.energie)) haut.push({ x, nom: x.ep.serie, valeur: montant(x), enfants: [] });
   }
-  const d = K.der;
-  const suite = !d.nb ? Lg(" Aucune surconsommation en cours.", " No overconsumption under way.")
-    : " " + Lg(d.nb === 1 ? "Une surconsommation en cours coûte " : d.nb + " surconsommations en cours coûtent ", d.nb === 1 ? "One ongoing overconsumption costs " : d.nb + " ongoing overconsumptions cost ")
-      + (d.cout3 != null ? fmtEuros(d.cout3 / 3) : fmtEnergie(d.wh3 / 3)) + Lg(" par mois si rien ne change.", " per month if nothing changes.");
-  return p + suite;
+  for (const x of d.liste) {
+    if (x.ep.groupe !== "ues" || !sites.has(x.ep.energie)) continue;
+    let parent = haut.find(p => p.x && p.x.ep.groupe === "site" && p.x.ep.energie === x.ep.energie);
+    if (!parent) { parent = { x: null, nom: null, energie: x.ep.energie, valeur: null, enfants: [] }; haut.push(parent); }   // compteur général sans dérive en cours
+    parent.enfants.push({ x, nom: x.ep.serie, valeur: montant(x) });
+  }
+  haut.sort((a, b) => (b.valeur == null ? -1 : b.valeur) - (a.valeur == null ? -1 : a.valeur));
+  return haut;
+}
+const accMontant = x => x.euroMois != null ? fmtEuros(x.euroMois) : fmtEnergie(x.whMois);
+function accBarres(d) {
+  const H = accHierarchie(d), max = Math.max(1e-9, ...H.flatMap(p => [p.valeur || 0, ...p.enfants.map(e => e.valeur || 0)]));
+  const nom = x => h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie);
+  const ligne = (p, enfant) => h("div", { class: "acc-rang" + (enfant ? " enfant" : "") },
+    h("div", { class: "acc-rang-nom" }, enfant ? h("span", { class: "acc-dont" }, accT("dont", "incl.")) : null, p.x ? nom(p.x) : h("span", null, Lg("Compteur général " + p.energie + " : pas de dérive en cours", "Main " + p.energie + " meter: no ongoing drift"))),
+    h("div", { class: "acc-piste" }, p.valeur != null ? h("div", { class: "acc-barre", style: "width:" + Math.max(2, 100 * p.valeur / max).toFixed(1) + "%" }) : null),
+    h("div", { class: "acc-rang-val" }, p.x ? accMontant(p.x) : "–"));
+  return h("section", { class: "acc-carte acc-barres" }, h("h2", null, accT("Dérives qui coûtent le plus", "Drifts that cost the most")),
+    H.length ? h("div", { class: "acc-rangs" }, H.slice(0, 4).flatMap(p => [ligne(p, false), ...p.enfants.slice(0, 3).map(e => ligne(e, true))]))
+      : h("p", { class: "vide" }, accT("Aucune surconsommation en cours.", "No overconsumption under way."), " ", h("button", { class: "lien", type: "button", onclick: () => aller("derives") }, accT("Voir tous les épisodes", "See all episodes"))),
+    h("p", { class: "acc-note" }, accT("par mois si l'écart moyen de l'épisode se maintient · sans double compte : un usage suivi est compris dans son compteur général", "per month if the episode's average gap persists · no double counting: a tracked use is included in its main meter")));
+}
+/* Tableau des dérives en cours, avec le gain si elles sont corrigées (12 mois). */
+function accTableau(d, sujet) {
+  const avecGain = typeof dsnGain === "function", gains = new Map(d.liste.map(x => [x, avecGain ? dsnGain(x.ep) : null]));
+  const valeurGain = x => { const G = gains.get(x); return G ? (G.euro != null ? G.euro : G.wh) : 0; };
+  const lignes = d.liste.slice();
+  if (avecGain && dsn.tri === "gain") lignes.sort((a, b) => valeurGain(b) - valeurGain(a));
+  const sites = new Set(d.D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie));
+  const tri = avecGain && lignes.length > 1 ? h("button", { type: "button", class: "dsn-puce acc-tri", "aria-pressed": String(dsn.tri === "gain"), onclick: () => { dsn.tri = dsn.tri === "gain" ? "cout" : "gain"; rendre(); } },
+    h("span", { class: "dsn-etoile", "aria-hidden": "true" }, "✦"), dsn.tri === "gain" ? accT("Trié par gain · trier par coût", "Sorted by gain · sort by cost") : accT("Trier par gain", "Sort by gain")) : null;
+  const corps = lignes.map(x => {
+    const G = gains.get(x), choisi = sujet && x.ep === sujet;
+    return h("tr", { class: choisi ? "acc-choisie" : null },
+      h("td", null, h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie),
+        h("span", { class: "acc-sous-ligne" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie + (x.ep.groupe === "ues" && sites.has(x.ep.energie) ? Lg(" · compris dans le compteur général", " · included in the main meter") : ""))),
+      h("td", { "data-lib": tr(accT("Depuis", "Since")) }, x.ep.libDebut, h("span", { class: "acc-sous-ligne" }, fmtPct(x.ep.pct, true))),
+      h("td", { "data-lib": tr(accT("Coût / mois", "Cost / month")) }, accMontant(x)),
+      h("td", { "data-lib": tr(accT("Statut", "Status")) }, x.instruit ? accPastille("vert", accT("fiche rédigée", "report written")) : accPastille("rouge", accT("à traiter", "to handle"))),
+      avecGain ? h("td", { class: "acc-gain", "data-lib": tr(accT("Gain si corrigée (12 mois)", "Gain if fixed (12 months)")) }, h("button", { class: "lien acc-gain-lien", type: "button", "aria-pressed": String(!!choisi), title: accT("Voir ce gain dans « Si on corrige »", "Show this gain in “If it is fixed”"), onclick: () => { dsn.sujet = dsnCleEp(x.ep); rendre(); } },
+        G.euro != null ? fmtEuros(G.euro) : fmtEnergie(G.wh)), h("span", { class: "acc-sous-ligne" }, dsnNomMethode(G))) : null,
+      h("td", { class: "acc-action" }, h("button", { class: "btn petit", type: "button", onclick: () => accInstruire(x.ep) }, x.instruit ? accT("Voir la fiche", "See the report") : accT("Instruire", "Investigate"))));
+  });
+  const entetes = [accT("Dérive", "Drift"), accT("Depuis", "Since"), accT("Coût / mois", "Cost / month"), accT("Statut", "Status"), avecGain ? accT("Gain si corrigée (12 mois)", "Gain if fixed (12 months)") : null, h("span", { class: "dsn-cache" }, accT("Action", "Action"))].filter(Boolean);
+  return h("section", { class: "acc-carte acc-top acc-table" },
+    h("div", { class: "acc-tete-table" }, h("h2", null, accT("Dérives en cours", "Ongoing drifts")), tri),
+    h("div", { class: "table-defile" }, h("table", null, h("thead", null, h("tr", null, entetes.map(e => h("th", null, e)))), h("tbody", null, corps))),
+    avecGain ? h("p", { class: "acc-note" }, accT("Gain : la Prévision sur 12 mois (dérive prolongée contre arrêtée) quand elle permet cet horizon, sinon l'écart moyen de l'épisode prolongé 12 mois, nommé « si l'écart moyen se maintient ». Les usages suivis sont compris dans leur compteur général : leurs gains ne s'ajoutent pas.",
+      "Gain: the 12-month forecast (drift extended against stopped) when it allows that horizon, otherwise the episode's average gap carried over 12 months, labelled “if the average gap persists”. Tracked uses are included in their main meter: their gains do not add up.")) : null);
 }
 function accPage() {
-  const m = etat.modele;
   let K;
   try { K = accCalcul(); }
   catch (e) { console.error(e); return [h("div", { class: "vide" }, accT("La vue d'ensemble n'a pas pu être calculée sur ces données. Les autres pages restent disponibles.", "The overview could not be computed on this data. The other pages remain available."))]; }
   const B = K.bilan, d = K.der, A = K.att, Q = K.qualite;
-  const visite = accFictif() ? h("button", { class: "btn acc-bouton-visite", type: "button", onclick: () => accVisiteOuvrir(0) }, accT("Visite guidée (1 min)", "Guided tour (1 min)")) : null;
-  const constat = h("div", { class: "constat acc-synthese" + (d.nb ? " alerte" : "") }, h("p", { class: "titre" }, accPhrase(K)),
-    h("p", { class: "suite" }, accT("Où en est le site, et que faire ensuite : chaque chiffre vient des pages Dérives et Prévision.", "Where the site stands, and what to do next: every figure comes from the Drifts and Forecast pages.")));
-  // indicateurs
-  const enjeu = [B.cout == null ? null : fmtEuros(B.cout, true), B.co2 == null ? null : fmtCO2(B.co2, true)].filter(Boolean).join(" · ");
-  const tEcart = tuile(accT("Écart à la référence, 12 derniers mois", "Gap to baseline, last 12 months"), B.pct == null ? "–" : fmtPct(B.pct, true), [fmtEnergie(B.ecart, true), enjeu].filter(Boolean).join(" · "));
-  const tDer = tuile(accT("Surconsommations en cours", "Ongoing overconsumptions"), String(d.nb),
-    d.nb ? (d.cout3 != null ? fmtEuros(d.cout3 / 3, true) : fmtEnergie(d.wh3 / 3, true)) + Lg(" par mois si rien ne change", " per month if nothing changes") + (d.economies ? Lg(" · " + d.economies + " économie(s) en cours", " · " + d.economies + " saving(s) under way") : "")
-      : d.economies ? Lg(d.economies + " économie(s) en cours", d.economies + " saving(s) under way") : accT("rien à signaler", "nothing to report"));
-  let tAtt;
+  const barre = typeof dsnBarre === "function" ? dsnBarre() : null;
+  const titre = h("div", { class: "constat acc-synthese" }, h("h2", { class: "acc-titre" }, accTitre(K)), h("p", { class: "acc-sous" }, accSous(K)));
+  // trois cartes : écart à la référence, atterrissage de l'année, qualité des modèles
+  const [vE, uE] = accCouper(fmtEnergie(B.ecart, true));
+  const cEcart = accCarteChiffre("acc-ecart", accT("Écart à la référence, 12 derniers mois", "Gap to baseline, last 12 months"), B.pct == null ? "–" : vE, B.pct == null ? null : uE,
+    B.cout == null ? null : accPastille(B.cout > 0 ? "rouge" : "vert", (B.cout > 0 ? "▲ " : "▼ ") + fmtEuros(B.cout, true) + Lg(" sur 12 mois", " over 12 months")),
+    [B.pct == null ? null : fmtPct(B.pct, true) + Lg(" de la référence", " of the baseline"), B.co2 == null ? null : fmtCO2(B.co2, true)].filter(Boolean).join(" · "));
+  let cAtt;
+  const lienPrev = texte => accPage1("prevision") ? h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, texte) : null;
   if (A.ok) {
-    const val = A.cout != null ? fmtEuros(prevRond(A.cout, A.coutDemi)) : fmtEnergie(prevRond(A.wh, (A.whHaut - A.whBas) / 2));
-    tAtt = tuile(Lg("Atterrissage " + A.lib + " prévu", "Forecast landing " + A.lib), val,
-      h("span", null, A.lignes.map(l => l.sr.energie + " " + l.txt).join(" · "), " ", h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, accT("détail", "details"))));
-  } else tAtt = tuile(accT("Atterrissage de l'année", "Landing for the year"), "–", h("span", null,
-    A.motif === "sans-site" ? accT("pas de compteur de niveau Site", "no site-level meter") : A.motif === "non-prevu" ? accT("fin d'année hors de l'horizon prévu", "year end beyond the forecast horizon") : accT("non calculé ici", "not computed here"), " ",
-    accPage1("prevision") ? h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, accT("page Prévision", "Forecast page")) : null));
-  const tQual = tuile(accT("Modèles de référence fiables", "Reliable baseline models"), Q.fiables + " / " + Q.total,
+    const demi = A.cout != null ? A.coutDemi : (A.whHaut - A.whBas) / 2, f = A.cout != null ? fmtEuros : fmtEnergie;
+    const [v, u] = accCouper(f(prevRond(A.cout != null ? A.cout : A.wh, demi)));
+    cAtt = accCarteChiffre("acc-att", Lg("Atterrissage " + A.lib + " prévu", "Forecast landing " + A.lib), v, u,
+      accPastille("bleu", Lg("fourchette ", "range ") + f(prevRond(A.cout != null ? A.coutBas : A.whBas, demi)) + " – " + f(prevRond(A.cout != null ? A.coutHaut : A.whHaut, demi))),
+      h("span", null, A.lignes.map(l => l.sr.energie + " " + l.txt).join(" · "), " ", lienPrev(accT("détail", "details"))));
+  } else cAtt = accCarteChiffre("acc-att", accT("Atterrissage de l'année", "Landing for the year"), "–", null, null, h("span", null,
+    A.motif === "sans-site" ? accT("pas de compteur de niveau Site", "no site-level meter") : A.motif === "non-prevu" ? accT("fin d'année hors de l'horizon prévu", "year end beyond the forecast horizon") : accT("non calculé ici", "not computed here"), " ", lienPrev(accT("page Prévision", "Forecast page"))));
+  const cQual = accCarteChiffre("acc-qual", accT("Modèles de référence fiables", "Reliable baseline models"), Q.fiables + " / " + Q.total, "R² ≥ " + nf(ACC_R2, 2),
+    Q.faibles.length ? accPastille("rouge", Lg(Q.faibles.length + " à revoir", Q.faibles.length + " to review")) : accPastille("vert", accT("● tous fiables", "● all reliable")),
     (Q.r2Median != null ? Lg("R² médian ", "median R² ") + nf(Q.r2Median, 2) : "") + (Q.errMediane != null ? Lg(" · erreur ± ", " · error ± ") + fmtPct(Q.errMediane) : ""));
-  const tuiles = h("div", { class: "tuiles acc-tuiles" }, tEcart, tDer, tAtt, tQual);
-  // dérives qui coûtent le plus
-  const top = d.liste.slice(0, 3);
-  const derivesCarte = h("section", { class: "carte demi acc-top" }, h("div", { class: "carte-tete" }, h("h2", null, accT("Les dérives en cours qui coûtent le plus", "The costliest ongoing drifts"),
-    h("span", { class: "sous" }, accT("coût par mois si l'écart moyen de l'épisode se maintient", "cost per month if the episode's average gap persists")))),
-    top.length ? h("ol", { class: "acc-liste" }, top.map(x => h("li", null,
-      h("div", { class: "acc-quoi" }, h("b", null, h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie)), " ", h("span", { class: "badge" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie), x.instruit ? h("span", { class: "badge acc-fait" }, accT("fiche rédigée", "report written")) : null),
-      h("div", { class: "acc-chiffres" }, h("span", { class: "acc-montant" }, x.euroMois != null ? fmtEuros(x.euroMois, true) : fmtEnergie(x.whMois, true)), Lg(" par mois · depuis ", " per month · since ") + x.ep.libDebut + " · " + fmtPct(x.ep.pct, true)),
-      h("button", { class: "btn petit", type: "button", onclick: () => accInstruire(x.ep) }, x.instruit ? accT("Voir la fiche", "See the report") : accT("Instruire", "Investigate")))))
-      : h("div", { class: "vide" }, accT("Aucune surconsommation en cours.", "No overconsumption under way."), " ", h("button", { class: "lien", type: "button", onclick: () => aller("derives") }, accT("Voir tous les épisodes", "See all episodes"))),
-    d.liste.length > 3 ? h("button", { class: "lien", type: "button", onclick: () => { Object.assign(etat, { derSerie: "*", derEtat: "o" }); aller("derives"); } }, Lg("Les " + d.liste.length + " dérives en cours", "All " + d.liste.length + " ongoing drifts")) : null);
-  const suiteCarte = h("section", { class: "carte demi acc-suite" }, h("div", { class: "carte-tete" }, h("h2", null, accT("Que faire ensuite", "What to do next"),
-    h("span", { class: "sous" }, accT("dans l'ordre où l'état des données les rend utiles", "in the order the state of the data makes them useful")))),
+  // dérives qui coûtent le plus, et ce que rapporte la correction de la plus coûteuse (ou de celle choisie dans le tableau)
+  const sujet = d.liste.length && typeof dsnCarteCorrige === "function" ? (d.liste.find(x => dsnCleEp(x.ep) === dsn.sujet) || d.liste[0]).ep : null;
+  const corrige = sujet ? dsnCarteCorrige(sujet, d.liste.map(x => x.ep)) : null;
+  const visite = accFictif() ? h("button", { class: "btn acc-bouton-visite", type: "button", onclick: () => accVisiteOuvrir(0) }, accT("Visite guidée (1 min)", "Guided tour (1 min)")) : null;
+  const suiteCarte = h("section", { class: "acc-carte acc-suite" }, h("div", { class: "acc-tete-table" }, h("h2", null, accT("Que faire ensuite", "What to do next")), visite),
+    h("p", { class: "acc-note acc-note-haut" }, accT("dans l'ordre où l'état des données les rend utiles", "in the order the state of the data makes them useful")),
     h("ol", { class: "acc-liste acc-actions" }, K.actions.map(x => h("li", { "data-action": x.id },
       h("div", { class: "acc-quoi" }, h("b", null, x.titre)), h("div", { class: "acc-chiffres" }, x.det),
       h("button", { class: "btn petit" + (x === K.actions[0] ? " principal" : ""), type: "button", onclick: x.faire }, x.bouton)))));
-  const note = repli("acc-methode", null, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Dérives. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Dérives ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
-    "Method: gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Drifts page's assumptions. Monthly cost of an ongoing drift = the Drifts page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
-  return [constat, visite ? h("div", { class: "acc-outils" }, visite) : null, tuiles, h("div", { class: "grille" }, derivesCarte, suiteCarte), note];   // la réponse d'abord, la méthode repliée
+  const note = repli("acc-methode", null, accT("Méthode (chaque chiffre vient des pages Dérives et Prévision) : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Dérives. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Dérives ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
+    "Method (every figure comes from the Drifts and Forecast pages): gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Drifts page's assumptions. Monthly cost of an ongoing drift = the Drifts page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
+  return [h("div", { class: "acc-vue" }, titre, barre,                // la réponse d'abord dans le document ; la barre s'affiche au-dessus (CSS)
+    h("div", { class: "acc-trois" }, cEcart, cAtt, cQual),
+    d.liste.length ? h("div", { class: "acc-deux" }, accBarres(d), corrige) : accBarres(d),
+    d.liste.length ? accTableau(d, sujet) : null,
+    suiteCarte, note)];
 }
 
 /* ---- 3. Bandeau « données fictives », sur chaque page tant que le site fictif est chargé ---- */

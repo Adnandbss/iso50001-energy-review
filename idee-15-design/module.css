@@ -169,3 +169,26 @@ td { border-bottom-color: var(--grille); }
   .feuille, .tuile { border-color: #d6dcea; }
   .btn, .tip { box-shadow: none; }
 }
+
+
+/* ---- Puces (questions toutes faites, tri) et texte pour lecteurs d'écran seulement ----
+.dsn-cache { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dsn-puces { display: flex; flex-wrap: wrap; gap: 8px; }
+.dsn-puce { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--bord); background: var(--surface); color: var(--encre); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; cursor: pointer; text-align: left; box-shadow: 0 4px 18px rgba(70, 90, 180, .08); max-width: 100%; }
+.dsn-puce:hover { border-color: var(--dsn-accent); }
+.dsn-puce[aria-pressed="true"] { background: var(--dsn-accent-pale); color: var(--dsn-accent-texte); border-color: transparent; }
+.dsn-puce[disabled] { opacity: .5; cursor: default; }
+.dsn-etoile { color: var(--dsn-accent); }
+
+/* ---- Carte « Si on corrige » ---- */
+.dsn-tete-carte { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 10px; }
+.dsn-tete-carte h2 { margin: 0; overflow-wrap: anywhere; }
+.dsn-choix { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muet); }
+.dsn-choix select { max-width: 190px; font-size: 12.5px; padding: 4px 8px; }
+.dsn-corrige .legende { margin-top: 8px; }
+.dsn-gains { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-bottom: 6px; }
+.dsn-lib { font-size: 12.5px; color: var(--encre2); }
+.dsn-chiffre { font: 600 24px/1.2 var(--f-texte); letter-spacing: -.02em; }
+.dsn-chiffre.petit { font-size: 18px; color: var(--encre2); }
+.dsn-vert { color: var(--dsn-vert); }
+.dsn-methode { margin: 8px 0 0; font-size: 12.5px; color: var(--encre2); }
