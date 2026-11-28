@@ -539,9 +539,64 @@ details.repli .sim-facteur:first-child { border-top: 0; }
 .accueil .acc-essai p.acc-ou { display: none; }
 .acc-bandeau { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 12.5px; color: var(--encre2); background: var(--creux); border: 1px dashed var(--axe); border-left: 4px solid var(--signal); border-radius: 0 4px 4px 0; padding: 5px 10px; }
 .acc-bandeau b { color: var(--encre); }
-.acc-outils { display: flex; justify-content: flex-end; margin: -6px 0 4px; }
-.acc-synthese .titre { max-width: 62ch; font-size: 24px; }
-.acc-tuiles .tuile .det .lien { font-size: inherit; }
+/* Vue d'ensemble, thème « Lumière » : la page n'est plus une feuille, ce sont des cartes posées sur le fond */
+.feuille:has(> .acc-vue) { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.acc-vue { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.acc-carte { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; box-shadow: var(--dsn-ombre, none); padding: 18px 20px; min-width: 0; }
+.acc-carte h2 { font: 600 15px/1.3 var(--f-texte); margin: 0 0 12px; }
+.acc-vue > .constat.acc-synthese { margin: 4px 0 0; padding: 0; border: 0; }
+.acc-vue > .dsn-barre { order: -1; }   /* au-dessus de la réponse à l'écran ; après elle dans le document, que l'on lit en premier */
+.acc-titre { font: 600 28px/1.2 var(--f-texte); letter-spacing: -.02em; margin: 0; max-width: 40ch; overflow-wrap: anywhere; }
+.acc-sous { margin: 6px 0 0; color: var(--encre2); font-size: 15px; max-width: 90ch; }
+.acc-trois { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.acc-deux { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.acc-lib { font-size: 13px; color: var(--encre2); }
+.acc-val { font: 600 30px/1.15 var(--f-texte); letter-spacing: -.02em; margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.acc-val small { font-size: 14px; font-weight: 500; color: var(--muet); letter-spacing: 0; }
+.acc-pastille-ligne { margin-top: 8px; }
+.acc-det { margin-top: 8px; font-size: 12.5px; color: var(--encre2); }
+.acc-det .lien, .acc-note .lien { font-size: inherit; }
+.acc-note { margin: 12px 0 0; font-size: 12.5px; color: var(--muet); }
+.acc-note-haut { margin: -8px 0 12px; }
+.acc-rangs { display: grid; grid-template-columns: minmax(0, 40%) minmax(40px, 1fr) auto; gap: 10px 14px; align-items: center; font-size: 13.5px; }
+.acc-rang { display: contents; }
+.acc-rang-nom { min-width: 0; overflow-wrap: anywhere; }
+.acc-rang.enfant .acc-rang-nom { padding-left: 14px; color: var(--encre2); }
+.acc-dont { font-size: 12px; color: var(--muet); margin-right: 6px; }
+.acc-rang-nom .acc-nom { font: inherit; color: inherit; text-align: left; white-space: normal; }
+.acc-piste { height: 12px; border-radius: 6px; background: var(--creux); }
+.acc-barre { height: 100%; border-radius: 6px; background: var(--s1); min-width: 2px; }
+.acc-rang.enfant .acc-barre { background: color-mix(in srgb, var(--s1) 55%, var(--surface)); }
+.acc-rang-val { font-weight: 600; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.acc-tete-table { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 12px; }
+.acc-tete-table h2 { margin: 0; }
+.acc-table { padding: 18px 0 14px; }
+.acc-table .acc-tete-table, .acc-table .acc-note { padding: 0 20px; }
+.acc-table .table-defile { max-height: none; }
+.acc-table td { vertical-align: top; white-space: normal; padding-top: 10px; padding-bottom: 10px; }
+.acc-table td:first-child, .acc-table th:first-child { padding-left: 20px; text-align: left; min-width: 170px; }
+.acc-table td:last-child, .acc-table th:last-child { padding-right: 20px; }
+.acc-table td:nth-child(2), .acc-table th:nth-child(2), .acc-table td:nth-child(4), .acc-table th:nth-child(4) { text-align: left; }
+.acc-table .acc-nom { font: inherit; font-weight: 600; color: var(--encre); white-space: normal; text-align: left; }
+.acc-sous-ligne { display: block; font-size: 12px; color: var(--muet); white-space: nowrap; }
+.acc-gain, .acc-gain .lien { color: var(--dsn-vert, var(--bon)); font-weight: 600; }
+.acc-gain .lien { font-size: inherit; }
+.acc-gain .acc-sous-ligne { font-weight: 400; }
+tr.acc-choisie td { background: var(--dsn-accent-pale, var(--creux)); }
+.acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .acc-table thead { display: none; }
+  .acc-table table, .acc-table tbody { display: block; }
+  .acc-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px 12px; padding: 12px 14px; border-bottom: 1px solid var(--grille); }
+  .acc-table td, .acc-table td:first-child, .acc-table td:last-child { display: block; border: 0; padding: 0; text-align: left; min-width: 0; position: static; box-shadow: none; background: none; }
+  .acc-table td:first-child { grid-column: 1 / -1; }
+  .acc-table td[data-lib]::before { content: attr(data-lib); display: block; font-size: 11.5px; color: var(--muet); }
+  .acc-table td.acc-action { align-self: end; }
+  tr.acc-choisie { background: var(--dsn-accent-pale, var(--creux)); }
+  tr.acc-choisie td { background: none; }
+}
+@media (max-width: 980px) { .acc-deux { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .acc-trois { grid-template-columns: minmax(0, 1fr); gap: 10px; } .acc-titre { font-size: 22px; } .acc-carte { padding: 14px 14px; } .acc-table { padding: 14px 0 10px; } .acc-table .acc-tete-table, .acc-table .acc-note { padding: 0 14px; } .acc-table td:first-child, .acc-table th:first-child { padding-left: 14px; } .acc-rangs { grid-template-columns: minmax(0, 46%) minmax(24px, 1fr) auto; gap: 8px 10px; } }
 .acc-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .acc-liste li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 10px 0 0; border-top: 1px solid var(--grille); }
 .acc-liste li:first-child { border-top: 0; padding-top: 0; }
@@ -550,7 +605,6 @@ details.repli .sim-facteur:first-child { border-top: 0; }
 .acc-liste .acc-nom { font: inherit; color: var(--encre); white-space: normal; text-align: left; overflow-wrap: anywhere; }   /* nom de la dérive : lien vers son détail */
 .acc-liste .acc-chiffres { grid-column: 1; font-size: 12.5px; color: var(--encre2); }
 .acc-liste .btn { grid-column: 2; grid-row: 1 / span 2; white-space: nowrap; }
-.acc-montant { font: 700 15px/1.2 var(--f-chiffre); color: var(--encre); font-variant-numeric: tabular-nums; }
 .acc-fait { color: var(--bon); border-color: var(--bon); }
 .acc-actions { counter-reset: acc; }
 .acc-actions li .acc-quoi::before { counter-increment: acc; content: counter(acc) ". "; font-weight: 700; color: var(--muet); }
@@ -569,7 +623,7 @@ details.repli .sim-facteur:first-child { border-top: 0; }
 .acc-boutons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .acc-espace { flex: 1; }
 .acc-bulle.acc-bas { left: 8px; right: 8px; bottom: 8px; top: auto; width: auto; max-height: 46vh; overflow-y: auto; }
-@media print { .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau, .acc-outils { display: none !important; } .acc-liste .acc-nom { display: inline !important; text-decoration: none; } }   /* le nom de la dérive reste imprimé */
+@media print { .acc-carte { box-shadow: none; } .acc-bouton-visite, .acc-tri, .acc-table .btn { display: none !important; } .acc-voile, .acc-spot, .acc-bulle, .acc-bandeau { display: none !important; } .acc-liste .acc-nom, .acc-rang-nom .acc-nom, .acc-table .acc-nom, .acc-gain .lien { display: inline !important; text-decoration: none; } .acc-table .acc-nom { display: block !important; } }   /* le nom de la dérive reste imprimé */
 
 
 /* ==== module : idee-11-ia ==== */
@@ -708,6 +762,201 @@ body.ia-modal { overflow: hidden; }
 .alg-reponse + .tuiles { margin-top: 0; }
 .feuille > details.repli { margin: 0 0 14px; }
 @media (max-width: 700px) { .alg-reponse .titre { font-size: 19px; } }
+
+
+/* ==== module : idee-15-design ==== */
+/* ============================================================================
+   Module « Design » (dsn) : thème « Lumière ». Fond clair légèrement bleuté, halo discret en haut du contenu,
+   cartes blanches à rayon 14 px, accent indigo, vert pour ce qui économise, orange-rouge pour ce qui coûte.
+   Polices du système uniquement, aucune ressource externe. Chargé après les autres modules : il surcharge
+   leurs règles à spécificité égale, sans toucher à leurs fichiers. Graphiques : seules les variables changent.
+   ============================================================================ */
+/* Les jetons de couleur (clair et sombre) sont posés par module.js (DSN_THEME), qui les vérifie aussi dans test.js : contrastes AA. */
+/* ---- Fond, halo, typographie ---- */
+body { background: var(--plan); font: 14px/1.5 var(--f-texte); -webkit-font-smoothing: antialiased; }
+table, .tuile .val, .acc-montant, .dsn-chiffre, input, select { font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--dsn-accent); outline-offset: 2px; }
+.contenu { position: relative; isolation: isolate; }
+.contenu::before { content: ""; position: absolute; z-index: -1; top: -140px; left: 28%; width: min(780px, 70%); height: 460px; background: var(--dsn-halo); pointer-events: none; }
+.entete h1 { font: 600 26px/1.15 var(--f-texte); letter-spacing: -.015em; }
+.carte-tete h2, .fiche h3, .evaluation h3, .rev-section h3, .rev-document h3, .evl-h3, .itg-titre, .ia-tete h2, .acc-bulle h2 { font-family: var(--f-texte); font-weight: 600; letter-spacing: -.005em; }
+.carte-tete h2 { font-size: 16px; }
+.constat { border-left: 0; padding-left: 0; }
+.constat .titre { font: 600 27px/1.2 var(--f-texte); letter-spacing: -.015em; }
+.constat .suite { color: var(--encre2); }
+.progres b, .acc-montant, .rev-grille-faits dt, .rev-renvoi, .ia-fixe { font-family: var(--f-texte); font-weight: 600; }
+.accueil h1, .rev-document h2 { font-family: var(--f-texte); font-weight: 600; letter-spacing: -.015em; }
+
+/* ---- Menu latéral : blanc translucide, entrée active bleu pâle, titres de groupes en petites capitales ---- */
+.panneau { background: var(--dsn-panneau); -webkit-backdrop-filter: saturate(1.4) blur(12px); backdrop-filter: saturate(1.4) blur(12px); border-right: 1px solid var(--bord); padding: 20px 12px 16px; }
+.panneau .marque { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 10px; align-items: center; padding: 0 6px; }
+.panneau .marque > * { grid-column: 2; }
+.panneau .marque > .dsn-logo { grid-column: 1; grid-row: 1 / span 2; }
+.panneau .marque .nom { font: 600 16px/1.2 var(--f-texte); letter-spacing: -.01em; }
+.panneau .marque .fichier { margin-top: 1px; color: var(--muet); }
+.dsn-logo { display: block; width: 28px; height: 28px; flex: none; }
+.titre-groupe { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muet); padding: 0 10px 4px; }
+.menu { gap: 14px; }
+.entree { border-radius: 9px; padding: 7px 10px; color: var(--encre2); transition: background-color .12s, color .12s; }
+.entree:hover { background: var(--voile); color: var(--encre); }
+.entree[aria-current="page"] { background: var(--dsn-accent-pale); color: var(--dsn-accent-texte); font-weight: 600; box-shadow: none; }
+.ia-pied { background: var(--dsn-panneau-plein); }
+.ia-bouton { border-radius: 10px; border-color: var(--bord); }
+.ia-bouton:hover { border-color: var(--dsn-accent); }
+.ia-travail, .ia-note { border-radius: 10px; border-left-width: 1px; border-color: var(--bord); box-shadow: var(--dsn-ombre-haute); }
+.ia-note { border-left: 3px solid var(--bon); }
+
+/* ---- Feuille et cartes ---- */
+.feuille { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; box-shadow: var(--dsn-ombre); }
+.carte { border-top-color: var(--grille); }
+.accueil, .itg-accueil, .guide-accueil .grille, .rev-document, .alertes { border-radius: 14px; border-color: var(--bord); box-shadow: var(--dsn-ombre); }
+.accueil { border-style: solid; box-shadow: var(--dsn-ombre-haute); }
+.accueil.survol { border-color: var(--dsn-accent); background: var(--dsn-accent-pale); }
+.accueil h1 { display: flex; align-items: center; gap: 12px; font-size: 32px; }
+.accueil h1 .dsn-logo { width: 36px; height: 36px; }
+
+/* Tuiles : de petites cartes ; le libellé au-dessus, le grand chiffre, l'unité en petit gris */
+.tuiles { gap: 14px; margin: 0 0 22px; overflow: visible; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); }
+.tuile { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; box-shadow: var(--dsn-ombre); padding: 14px 16px; }
+.tuile .lib { order: 0; margin: 0 0 4px; font-size: 13px; font-weight: 500; color: var(--encre2); }
+.tuile .val { order: 1; font: 600 28px/1.15 var(--f-texte); letter-spacing: -.02em; }
+.tuile .val small, .dsn-unite { font-size: 14px; font-weight: 500; color: var(--muet); letter-spacing: 0; }
+.tuile .det { order: 2; margin-top: 4px; color: var(--encre2); }
+.tuile.hero .val { font-size: 40px; }
+.fiche .tuile { background: var(--surface); }
+
+/* Pastilles */
+.badge { border: 0; border-radius: 999px; background: var(--creux); color: var(--encre2); padding: 1px 9px; }
+.en-cours { color: var(--dsn-rouge); background: var(--dsn-rouge-pale); border-radius: 999px; padding: 0 8px; font-weight: 600; }
+.dsn-pastille { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 500; line-height: 1.5; padding: 2px 9px; border-radius: 999px; white-space: nowrap; background: var(--creux); color: var(--encre2); }
+.dsn-pastille.rouge { background: var(--dsn-rouge-pale); color: var(--dsn-rouge); }
+.dsn-pastille.vert { background: var(--dsn-vert-pale); color: var(--dsn-vert); }
+.dsn-pastille.bleu { background: var(--dsn-accent-pale); color: var(--dsn-accent-texte); }
+.fleche.plus { color: var(--dsn-rouge); } .fleche.moins { color: var(--dsn-vert); }
+
+/* ---- Boutons, liens, champs ---- */
+.btn { border: 1px solid var(--axe); background: var(--surface); border-radius: 10px; padding: 7px 14px; font-weight: 500; color: var(--encre); transition: border-color .12s, background-color .12s; }
+.btn:hover { border-color: var(--dsn-accent); }
+.btn.principal { background: var(--dsn-accent); border-color: var(--dsn-accent); color: var(--dsn-sur-accent); }
+.btn.principal:hover { opacity: 1; filter: brightness(1.08); }
+.btn.petit { border-radius: 8px; padding: 3px 10px; }
+.lien { color: var(--dsn-accent-texte); text-decoration-color: color-mix(in srgb, var(--dsn-accent-texte) 40%, transparent); }
+.lien:hover { color: var(--dsn-accent-texte); text-decoration-color: currentColor; }
+td .lien { color: var(--encre); }
+.segments { border-color: var(--axe); border-radius: 10px; }
+.segments button { padding: 6px 12px; }
+.segments button + button { border-left-color: var(--axe); }
+.segments button[aria-pressed="true"], .sim-puces .btn[aria-pressed="true"] { background: var(--dsn-accent); color: var(--dsn-sur-accent); border-color: var(--dsn-accent); }
+select, input[type="date"], input[type="number"], input[type="password"], input[type="text"], .sim-champ, .vei-motif, .rev-section textarea { border-color: var(--axe); border-radius: 9px; background: var(--surface); }
+.vei-coche input, .ia-case input { accent-color: var(--dsn-accent); }
+
+/* ---- Encadrés ---- */
+.avis, .alertes, .rev-bandeau, .acc-essai { background: var(--dsn-accent-pale); border-left: 3px solid var(--dsn-accent); border-radius: 0 10px 10px 0; }
+.alertes { background: var(--surface); border-left-color: var(--signal); }
+.avis ul { color: var(--encre2); }
+.juge, .vei-regle, .ia-travail { border-radius: 0 10px 10px 0; }
+.journal { border-radius: 10px; border-color: var(--bord); }
+.journal pre, .itg pre { border-radius: 8px; }
+.fiche { border-radius: 0 12px 12px 0; border-color: var(--bord); border-left-color: var(--dsn-accent); }
+.drv-detail { border-left-color: var(--dsn-accent); border-radius: 0 12px 12px 0; }
+.acc-bandeau { border: 1px solid var(--bord); border-radius: 10px; background: var(--surface); }
+.acc-bandeau::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); align-self: center; }
+.tip { border-radius: 10px; border-color: var(--bord); box-shadow: 0 10px 30px rgba(30, 40, 80, .16); }
+.ia-dialogue, .acc-bulle { border-radius: 16px; }
+.ia-tete { border-radius: 16px 16px 0 0; }
+.acc-bulle { border-top: 1px solid var(--bord); box-shadow: 0 16px 48px rgba(20, 30, 70, .25); }
+.acc-spot { border-radius: 14px; box-shadow: 0 0 0 3px var(--dsn-accent), 0 0 0 200vmax rgba(10, 16, 36, .5); }
+details.repli { border-top-color: var(--grille); }
+details.repli > summary { color: var(--encre2); }
+details.repli > summary:hover { color: var(--dsn-accent-texte); }
+
+/* ---- Tableaux : en-tête gris très pâle, lignes séparées par un filet ---- */
+table { font-size: 13px; }
+thead th { background: var(--dsn-tete); color: var(--encre2); font-weight: 500; box-shadow: inset 0 -1px 0 var(--bord); padding: 8px 10px; }
+th:first-child, td:first-child { padding-left: 10px; }
+th:last-child, td:last-child { padding-right: 10px; }
+td { border-bottom-color: var(--grille); }
+.drv-entetes { background: var(--dsn-tete); border-radius: 8px 8px 0 0; border-bottom-color: var(--bord); }
+.drv-item.ouverte > .drv-ligne { background: var(--dsn-accent-pale); }
+.drv-nom.lien, .acc-liste .acc-nom { color: var(--encre); }
+
+/* ---- Barres et graphiques : couleurs par variables ; pistes plus douces ---- */
+.rangs .piste { background: var(--creux); border-radius: 0 6px 6px 0; }
+.rangs .barre { border-radius: 0 6px 6px 0; }
+.evl-piste { border-radius: 6px; } .evl-piste span { background: var(--dsn-accent); }
+.avancement .fait { background: var(--dsn-accent); }
+.etape.fait::before { background: var(--dsn-accent); border-color: var(--dsn-accent); }
+
+@media (prefers-reduced-motion: reduce) { .entree, .btn { transition: none; } }
+@media (max-width: 700px) {
+  .panneau { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--dsn-panneau-plein); border-right: 0; border-bottom: 1px solid var(--bord); }
+  .contenu::before { top: 0; left: 10%; width: 90%; height: 320px; }
+  .entete h1 { font-size: 22px; }
+  .constat .titre { font-size: 22px; }
+  .tuile .val { font-size: 24px; }
+  .tuiles { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+}
+@media print {
+  body, .feuille, .tuile, .contenu { background: #fff !important; box-shadow: none !important; }
+  .contenu::before { display: none; }
+  .feuille, .tuile { border-color: #d6dcea; }
+  .btn, .tip { box-shadow: none; }
+}
+
+
+/* ---- Puces (questions toutes faites, tri) et texte pour lecteurs d'écran seulement ---- */
+.dsn-cache { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dsn-puces { display: flex; flex-wrap: wrap; gap: 8px; }
+.dsn-puce { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--bord); background: var(--surface); color: var(--encre); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; cursor: pointer; text-align: left; box-shadow: 0 4px 18px rgba(70, 90, 180, .08); max-width: 100%; }
+.dsn-puce:hover { border-color: var(--dsn-accent); }
+.dsn-puce[aria-pressed="true"] { background: var(--dsn-accent-pale); color: var(--dsn-accent-texte); border-color: transparent; }
+.dsn-puce[disabled] { opacity: .5; cursor: default; }
+.dsn-etoile { color: var(--dsn-accent); }
+/* ---- Barre « Posez une question sur ce site » ---- */
+.dsn-barre { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.dsn-demande { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--bord); border-radius: 16px; padding: 8px 8px 8px 16px; box-shadow: var(--dsn-ombre-haute); }
+.dsn-demande:focus-within { border-color: var(--dsn-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsn-accent) 22%, transparent), var(--dsn-ombre-haute); }
+.dsn-loupe { color: var(--muet); flex: none; }
+.dsn-champ { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 16px; padding: 8px 0; color: var(--encre); }
+.dsn-champ:focus, .dsn-champ:focus-visible { outline: none; }
+.dsn-champ::placeholder { color: var(--muet); opacity: 1; }
+.dsn-envoyer { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 11px; background: var(--dsn-accent); color: var(--dsn-sur-accent); cursor: pointer; }
+.dsn-envoyer:hover { filter: brightness(1.08); }
+.dsn-envoyer.arret { background: var(--encre2); }
+.dsn-mode { margin: 0; }
+.dsn-note { margin: 0 0 8px; font-size: 12.5px; color: var(--encre2); }
+p.dsn-mode { margin: 0; }
+.dsn-reponse:empty { display: none; }
+.dsn-carte-rep { background: var(--surface); border: 1px solid var(--bord); border-radius: 14px; padding: 14px 18px; box-shadow: var(--dsn-ombre); }
+.dsn-carte-rep .progres { margin: 0; }
+.dsn-carte-rep p { margin: 0 0 8px; }
+.dsn-q { font-size: 12.5px; color: var(--muet); }
+.dsn-texte { font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
+.dsn-nb.ok { text-decoration: underline; text-decoration-color: var(--dsn-vert); text-decoration-thickness: 2px; text-underline-offset: 3px; cursor: help; }
+.dsn-pied { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 12.5px; color: var(--muet); }
+.dsn-outils { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--encre2); }
+.dsn-outils li + li { margin-top: 3px; }
+.dsn-outils code { font: 12px ui-monospace, Menlo, Consolas, monospace; color: var(--encre); }
+.dsn-entree { overflow-wrap: anywhere; color: var(--muet); }
+
+
+/* ---- Carte « Si on corrige » ---- */
+.dsn-tete-carte { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 10px; }
+.dsn-tete-carte h2 { margin: 0; overflow-wrap: anywhere; }
+.dsn-choix { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muet); }
+.dsn-choix select { max-width: 190px; font-size: 12.5px; padding: 4px 8px; }
+.dsn-corrige .legende { margin-top: 8px; }
+.dsn-gains { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-bottom: 6px; }
+.dsn-lib { font-size: 12.5px; color: var(--encre2); }
+.dsn-chiffre { font: 600 24px/1.2 var(--f-texte); letter-spacing: -.02em; }
+.dsn-chiffre.petit { font-size: 18px; color: var(--encre2); }
+.dsn-vert { color: var(--dsn-vert); }
+.dsn-methode { margin: 8px 0 0; font-size: 12.5px; color: var(--encre2); }
+@media (max-width: 700px) {
+  .dsn-demande { padding: 6px 6px 6px 12px; }
+  .dsn-puce { font-size: 13px; padding: 6px 12px; }
+}
+@media print { .dsn-barre, .dsn-choix { display: none !important; } .dsn-puce, .dsn-carte-rep, .dsn-demande { box-shadow: none; } }
 
 </style>
 </head>
@@ -1624,7 +1873,7 @@ function carte(o) {
       o.table ? h("button", { class: "lien", onclick: () => { enTable ? etat.tables.delete(o.id) : etat.tables.add(o.id); rendre(); } }, enTable ? "Voir le graphique" : "Voir le tableau") : null),
     corps);
 }
-const tuile = (lib, val, det, hero) => h("div", { class: "tuile" + (hero ? " hero" : "") }, h("div", { class: "lib" }, lib), h("div", { class: "val" }, val), det ? h("div", { class: "det" }, typeof det === "string" ? det.split(" · ").join(", ") : det) : null);
+const tuile = (lib, val, det, hero) => h("div", { class: "tuile" + (hero ? " hero" : "") }, h("div", { class: "lib" }, lib), h("div", { class: "val" }, dsnUnite(val)), det ? h("div", { class: "det" }, typeof det === "string" ? det.split(" · ").join(", ") : det) : null);
 const filtre = (lib, controle) => h("label", { class: "filtre" }, h("span", null, lib), controle);
 function segments(options, courant, choisir) {
   return h("div", { class: "segments", role: "group" }, options.map(o => h("button", { type: "button", "aria-pressed": String(o.v === courant), onclick: () => choisir(o.v) }, o.t)));
@@ -3249,7 +3498,7 @@ function rendre() {
   const courante = ONGLETS.find(o => o[0] === etat.onglet) || ONGLETS[0];
   app.replaceChildren(h("div", { class: "coque" },
     h("aside", { class: "panneau" },
-      h("div", { class: "marque" }, h("div", { class: "nom" }, "Revue énergétique"), h("div", { class: "fichier", title: etat.fichier }, etat.fichier),
+      h("div", { class: "marque" }, dsnLogo(), h("div", { class: "nom" }, "Revue énergétique"), h("div", { class: "fichier", title: etat.fichier }, etat.fichier),
         etat.figee ? h("span", { class: "badge" }, "copie figée du " + etat.figee) : null),
       h("nav", { class: "menu", "aria-label": "Pages" }, PAGES.map(g => h("div", { class: "groupe" }, h("div", { class: "titre-groupe" }, g.groupe),
         g.pages.map(([v, t]) => h("button", { class: "entree", "aria-current": etat.onglet === v ? "page" : null, onclick: () => aller(v) }, icone(v), h("span", null, t)))))),
@@ -3268,7 +3517,7 @@ function rendre() {
 
 function accueil() {
   const zone = h("div", { class: "accueil" },
-    h("h1", null, "Revue énergétique"),
+    h("h1", null, dsnLogo(), h("span", null, "Revue énergétique")),
     accAccueil(),
     h("p", null, "Déposez ici le classeur Excel de la revue (SER PBI), ou choisissez-le."),
     h("p", { style: "display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0" }, h("button", { class: "btn", onclick: () => selecteur.click() }, "Choisir le classeur Excel"), typeof cntChoisirProjet === "function" ? h("button", { class: "btn", onclick: () => cntChoisirProjet() }, "Ouvrir un projet") : null, choixLangue()),
@@ -6973,66 +7222,130 @@ function accCalcul() {
   K.actions = accActions(K);
   return K;
 }
-/* Phrase de synthèse. */
-function accPhrase(K) {
-  const B = K.bilan, sujet = B.niveau === "site" ? Lg("le site", "the site") : Lg("les usages suivis", "the tracked uses");
-  const duree = B.mois >= 11.5 ? Lg("Sur les 12 derniers mois", "Over the last 12 months") : Lg("Sur les " + B.mois + " derniers mois", "Over the last " + B.mois + " months");
-  let p;
-  if (B.pct == null) p = Lg("Aucune période ne compare le réel à la référence.", "No period compares actuals with the baseline.");
-  else {
-    const plus = B.ecart >= 0, enjeu = [fmtEnergie(B.ecart, true), B.cout == null ? null : fmtEuros(B.cout, true)].filter(Boolean).join(", ");
-    p = duree + ", " + sujet + Lg(B.niveau === "site" ? " consomme " : " consomment ", B.niveau === "site" ? " uses " : " use ") + fmtPct(Math.abs(B.pct)) + Lg(plus ? " de plus que sa référence" : " de moins que sa référence", plus ? " more than its baseline" : " less than its baseline") + " (" + enjeu + ").";
+/* Titre-réponse et sous-titre : la réponse d'abord, les chiffres clés ensuite. */
+function accTitre(K) {
+  const B = K.bilan;
+  if (B.pct == null) return Lg("Aucune période ne compare le réel à la référence", "No period compares actuals with the baseline");
+  const plus = B.ecart >= 0, site = B.niveau === "site";
+  return Lg((site ? "Le site consomme " : "Les usages suivis consomment ") + fmtPct(Math.abs(B.pct)) + (plus ? " de plus" : " de moins") + " que " + (site ? "sa référence" : "leur référence"),
+    (site ? "The site uses " : "The tracked uses use ") + fmtPct(Math.abs(B.pct)) + (plus ? " more" : " less") + " than " + (site ? "its baseline" : "their baseline"));
+}
+function accSous(K) {
+  const B = K.bilan, d = K.der;
+  const duree = B.mois >= 11.5 ? Lg("Sur 12 mois", "Over 12 months") : Lg("Sur " + B.mois + " mois", "Over " + B.mois + " months");
+  const morceaux = [duree, B.pct == null ? null : fmtEnergie(B.ecart, true), B.cout == null ? null : fmtEuros(B.cout, true)];
+  morceaux.push(!d.nb ? Lg("aucune surconsommation en cours", "no overconsumption under way")
+    : Lg(d.nb === 1 ? "une surconsommation en cours coûte " : d.nb + " surconsommations en cours coûtent ", d.nb === 1 ? "one ongoing overconsumption costs " : d.nb + " ongoing overconsumptions cost ")
+      + (d.cout3 != null ? fmtEuros(d.cout3 / 3) : fmtEnergie(d.wh3 / 3)) + Lg(" par mois si rien ne change", " per month if nothing changes"));
+  return morceaux.filter(Boolean).join(" · ");
+}
+/* Carte chiffrée : libellé, grand chiffre (unité en petit), pastille, détail. */
+function accCarteChiffre(cls, lib, val, unite, pastille, det) {
+  return h("div", { class: "acc-carte acc-chiffre " + cls }, h("div", { class: "acc-lib" }, lib),
+    h("div", { class: "acc-val" }, val, unite ? h("small", null, " " + unite) : null),
+    pastille ? h("div", { class: "acc-pastille-ligne" }, pastille) : null, det ? h("div", { class: "acc-det" }, det) : null);
+}
+const accPastille = (couleur, texte) => h("span", { class: "dsn-pastille " + couleur }, texte);
+/* « 75,3 MWh » → ["+75,3", "MWh"] pour le grand chiffre et son unité. */
+function accCouper(txt) { const r = /^(.*\d)\s(\D+)$/.exec(txt); return r ? [r[1], r[2]] : [txt, null]; }
+/* Dérives en cours sans double compte : un usage suivi (UES) est montré dans le compteur général de son énergie, s'il y en a un. */
+function accHierarchie(d) {
+  const D = d.D, sites = new Set(D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie)), haut = [];
+  const montant = x => x.euroMois != null ? x.euroMois : x.whMois;
+  for (const x of d.liste) {
+    if (x.ep.groupe === "site" || !sites.has(x.ep.energie)) haut.push({ x, nom: x.ep.serie, valeur: montant(x), enfants: [] });
   }
-  const d = K.der;
-  const suite = !d.nb ? Lg(" Aucune surconsommation en cours.", " No overconsumption under way.")
-    : " " + Lg(d.nb === 1 ? "Une surconsommation en cours coûte " : d.nb + " surconsommations en cours coûtent ", d.nb === 1 ? "One ongoing overconsumption costs " : d.nb + " ongoing overconsumptions cost ")
-      + (d.cout3 != null ? fmtEuros(d.cout3 / 3) : fmtEnergie(d.wh3 / 3)) + Lg(" par mois si rien ne change.", " per month if nothing changes.");
-  return p + suite;
+  for (const x of d.liste) {
+    if (x.ep.groupe !== "ues" || !sites.has(x.ep.energie)) continue;
+    let parent = haut.find(p => p.x && p.x.ep.groupe === "site" && p.x.ep.energie === x.ep.energie);
+    if (!parent) { parent = { x: null, nom: null, energie: x.ep.energie, valeur: null, enfants: [] }; haut.push(parent); }   // compteur général sans dérive en cours
+    parent.enfants.push({ x, nom: x.ep.serie, valeur: montant(x) });
+  }
+  haut.sort((a, b) => (b.valeur == null ? -1 : b.valeur) - (a.valeur == null ? -1 : a.valeur));
+  return haut;
+}
+const accMontant = x => x.euroMois != null ? fmtEuros(x.euroMois) : fmtEnergie(x.whMois);
+function accBarres(d) {
+  const H = accHierarchie(d), max = Math.max(1e-9, ...H.flatMap(p => [p.valeur || 0, ...p.enfants.map(e => e.valeur || 0)]));
+  const nom = x => h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie);
+  const ligne = (p, enfant) => h("div", { class: "acc-rang" + (enfant ? " enfant" : "") },
+    h("div", { class: "acc-rang-nom" }, enfant ? h("span", { class: "acc-dont" }, accT("dont", "incl.")) : null, p.x ? nom(p.x) : h("span", null, Lg("Compteur général " + p.energie + " : pas de dérive en cours", "Main " + p.energie + " meter: no ongoing drift"))),
+    h("div", { class: "acc-piste" }, p.valeur != null ? h("div", { class: "acc-barre", style: "width:" + Math.max(2, 100 * p.valeur / max).toFixed(1) + "%" }) : null),
+    h("div", { class: "acc-rang-val" }, p.x ? accMontant(p.x) : "–"));
+  return h("section", { class: "acc-carte acc-barres" }, h("h2", null, accT("Dérives qui coûtent le plus", "Drifts that cost the most")),
+    H.length ? h("div", { class: "acc-rangs" }, H.slice(0, 4).flatMap(p => [ligne(p, false), ...p.enfants.slice(0, 3).map(e => ligne(e, true))]))
+      : h("p", { class: "vide" }, accT("Aucune surconsommation en cours.", "No overconsumption under way."), " ", h("button", { class: "lien", type: "button", onclick: () => aller("derives") }, accT("Voir tous les épisodes", "See all episodes"))),
+    h("p", { class: "acc-note" }, accT("par mois si l'écart moyen de l'épisode se maintient · sans double compte : un usage suivi est compris dans son compteur général", "per month if the episode's average gap persists · no double counting: a tracked use is included in its main meter")));
+}
+/* Tableau des dérives en cours, avec le gain si elles sont corrigées (12 mois). */
+function accTableau(d, sujet) {
+  const avecGain = typeof dsnGain === "function", gains = new Map(d.liste.map(x => [x, avecGain ? dsnGain(x.ep) : null]));
+  const valeurGain = x => { const G = gains.get(x); return G ? (G.euro != null ? G.euro : G.wh) : 0; };
+  const lignes = d.liste.slice();
+  if (avecGain && dsn.tri === "gain") lignes.sort((a, b) => valeurGain(b) - valeurGain(a));
+  const sites = new Set(d.D.analyses.filter(A => A.serie.groupe === "site").map(A => A.serie.energie));
+  const tri = avecGain && lignes.length > 1 ? h("button", { type: "button", class: "dsn-puce acc-tri", "aria-pressed": String(dsn.tri === "gain"), onclick: () => { dsn.tri = dsn.tri === "gain" ? "cout" : "gain"; rendre(); } },
+    h("span", { class: "dsn-etoile", "aria-hidden": "true" }, "✦"), dsn.tri === "gain" ? accT("Trié par gain · trier par coût", "Sorted by gain · sort by cost") : accT("Trier par gain", "Sort by gain")) : null;
+  const corps = lignes.map(x => {
+    const G = gains.get(x), choisi = sujet && x.ep === sujet;
+    return h("tr", { class: choisi ? "acc-choisie" : null },
+      h("td", null, h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie),
+        h("span", { class: "acc-sous-ligne" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie + (x.ep.groupe === "ues" && sites.has(x.ep.energie) ? Lg(" · compris dans le compteur général", " · included in the main meter") : ""))),
+      h("td", { "data-lib": tr(accT("Depuis", "Since")) }, x.ep.libDebut, h("span", { class: "acc-sous-ligne" }, fmtPct(x.ep.pct, true))),
+      h("td", { "data-lib": tr(accT("Coût / mois", "Cost / month")) }, accMontant(x)),
+      h("td", { "data-lib": tr(accT("Statut", "Status")) }, x.instruit ? accPastille("vert", accT("fiche rédigée", "report written")) : accPastille("rouge", accT("à traiter", "to handle"))),
+      avecGain ? h("td", { class: "acc-gain", "data-lib": tr(accT("Gain si corrigée (12 mois)", "Gain if fixed (12 months)")) }, h("button", { class: "lien acc-gain-lien", type: "button", "aria-pressed": String(!!choisi), title: accT("Voir ce gain dans « Si on corrige »", "Show this gain in “If it is fixed”"), onclick: () => { dsn.sujet = dsnCleEp(x.ep); rendre(); } },
+        G.euro != null ? fmtEuros(G.euro) : fmtEnergie(G.wh)), h("span", { class: "acc-sous-ligne" }, dsnNomMethode(G))) : null,
+      h("td", { class: "acc-action" }, h("button", { class: "btn petit", type: "button", onclick: () => accInstruire(x.ep) }, x.instruit ? accT("Voir la fiche", "See the report") : accT("Instruire", "Investigate"))));
+  });
+  const entetes = [accT("Dérive", "Drift"), accT("Depuis", "Since"), accT("Coût / mois", "Cost / month"), accT("Statut", "Status"), avecGain ? accT("Gain si corrigée (12 mois)", "Gain if fixed (12 months)") : null, h("span", { class: "dsn-cache" }, accT("Action", "Action"))].filter(Boolean);
+  return h("section", { class: "acc-carte acc-top acc-table" },
+    h("div", { class: "acc-tete-table" }, h("h2", null, accT("Dérives en cours", "Ongoing drifts")), tri),
+    h("div", { class: "table-defile" }, h("table", null, h("thead", null, h("tr", null, entetes.map(e => h("th", null, e)))), h("tbody", null, corps))),
+    avecGain ? h("p", { class: "acc-note" }, accT("Gain : la Prévision sur 12 mois (dérive prolongée contre arrêtée) quand elle permet cet horizon, sinon l'écart moyen de l'épisode prolongé 12 mois, nommé « si l'écart moyen se maintient ». Les usages suivis sont compris dans leur compteur général : leurs gains ne s'ajoutent pas.",
+      "Gain: the 12-month forecast (drift extended against stopped) when it allows that horizon, otherwise the episode's average gap carried over 12 months, labelled “if the average gap persists”. Tracked uses are included in their main meter: their gains do not add up.")) : null);
 }
 function accPage() {
-  const m = etat.modele;
   let K;
   try { K = accCalcul(); }
   catch (e) { console.error(e); return [h("div", { class: "vide" }, accT("La vue d'ensemble n'a pas pu être calculée sur ces données. Les autres pages restent disponibles.", "The overview could not be computed on this data. The other pages remain available."))]; }
   const B = K.bilan, d = K.der, A = K.att, Q = K.qualite;
-  const visite = accFictif() ? h("button", { class: "btn acc-bouton-visite", type: "button", onclick: () => accVisiteOuvrir(0) }, accT("Visite guidée (1 min)", "Guided tour (1 min)")) : null;
-  const constat = h("div", { class: "constat acc-synthese" + (d.nb ? " alerte" : "") }, h("p", { class: "titre" }, accPhrase(K)),
-    h("p", { class: "suite" }, accT("Où en est le site, et que faire ensuite : chaque chiffre vient des pages Dérives et Prévision.", "Where the site stands, and what to do next: every figure comes from the Drifts and Forecast pages.")));
-  // indicateurs
-  const enjeu = [B.cout == null ? null : fmtEuros(B.cout, true), B.co2 == null ? null : fmtCO2(B.co2, true)].filter(Boolean).join(" · ");
-  const tEcart = tuile(accT("Écart à la référence, 12 derniers mois", "Gap to baseline, last 12 months"), B.pct == null ? "–" : fmtPct(B.pct, true), [fmtEnergie(B.ecart, true), enjeu].filter(Boolean).join(" · "));
-  const tDer = tuile(accT("Surconsommations en cours", "Ongoing overconsumptions"), String(d.nb),
-    d.nb ? (d.cout3 != null ? fmtEuros(d.cout3 / 3, true) : fmtEnergie(d.wh3 / 3, true)) + Lg(" par mois si rien ne change", " per month if nothing changes") + (d.economies ? Lg(" · " + d.economies + " économie(s) en cours", " · " + d.economies + " saving(s) under way") : "")
-      : d.economies ? Lg(d.economies + " économie(s) en cours", d.economies + " saving(s) under way") : accT("rien à signaler", "nothing to report"));
-  let tAtt;
+  const barre = typeof dsnBarre === "function" ? dsnBarre() : null;
+  const titre = h("div", { class: "constat acc-synthese" }, h("h2", { class: "acc-titre" }, accTitre(K)), h("p", { class: "acc-sous" }, accSous(K)));
+  // trois cartes : écart à la référence, atterrissage de l'année, qualité des modèles
+  const [vE, uE] = accCouper(fmtEnergie(B.ecart, true));
+  const cEcart = accCarteChiffre("acc-ecart", accT("Écart à la référence, 12 derniers mois", "Gap to baseline, last 12 months"), B.pct == null ? "–" : vE, B.pct == null ? null : uE,
+    B.cout == null ? null : accPastille(B.cout > 0 ? "rouge" : "vert", (B.cout > 0 ? "▲ " : "▼ ") + fmtEuros(B.cout, true) + Lg(" sur 12 mois", " over 12 months")),
+    [B.pct == null ? null : fmtPct(B.pct, true) + Lg(" de la référence", " of the baseline"), B.co2 == null ? null : fmtCO2(B.co2, true)].filter(Boolean).join(" · "));
+  let cAtt;
+  const lienPrev = texte => accPage1("prevision") ? h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, texte) : null;
   if (A.ok) {
-    const val = A.cout != null ? fmtEuros(prevRond(A.cout, A.coutDemi)) : fmtEnergie(prevRond(A.wh, (A.whHaut - A.whBas) / 2));
-    tAtt = tuile(Lg("Atterrissage " + A.lib + " prévu", "Forecast landing " + A.lib), val,
-      h("span", null, A.lignes.map(l => l.sr.energie + " " + l.txt).join(" · "), " ", h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, accT("détail", "details"))));
-  } else tAtt = tuile(accT("Atterrissage de l'année", "Landing for the year"), "–", h("span", null,
-    A.motif === "sans-site" ? accT("pas de compteur de niveau Site", "no site-level meter") : A.motif === "non-prevu" ? accT("fin d'année hors de l'horizon prévu", "year end beyond the forecast horizon") : accT("non calculé ici", "not computed here"), " ",
-    accPage1("prevision") ? h("button", { class: "lien", type: "button", onclick: () => aller("prevision") }, accT("page Prévision", "Forecast page")) : null));
-  const tQual = tuile(accT("Modèles de référence fiables", "Reliable baseline models"), Q.fiables + " / " + Q.total,
+    const demi = A.cout != null ? A.coutDemi : (A.whHaut - A.whBas) / 2, f = A.cout != null ? fmtEuros : fmtEnergie;
+    const [v, u] = accCouper(f(prevRond(A.cout != null ? A.cout : A.wh, demi)));
+    cAtt = accCarteChiffre("acc-att", Lg("Atterrissage " + A.lib + " prévu", "Forecast landing " + A.lib), v, u,
+      accPastille("bleu", Lg("fourchette ", "range ") + f(prevRond(A.cout != null ? A.coutBas : A.whBas, demi)) + " – " + f(prevRond(A.cout != null ? A.coutHaut : A.whHaut, demi))),
+      h("span", null, A.lignes.map(l => l.sr.energie + " " + l.txt).join(" · "), " ", lienPrev(accT("détail", "details"))));
+  } else cAtt = accCarteChiffre("acc-att", accT("Atterrissage de l'année", "Landing for the year"), "–", null, null, h("span", null,
+    A.motif === "sans-site" ? accT("pas de compteur de niveau Site", "no site-level meter") : A.motif === "non-prevu" ? accT("fin d'année hors de l'horizon prévu", "year end beyond the forecast horizon") : accT("non calculé ici", "not computed here"), " ", lienPrev(accT("page Prévision", "Forecast page"))));
+  const cQual = accCarteChiffre("acc-qual", accT("Modèles de référence fiables", "Reliable baseline models"), Q.fiables + " / " + Q.total, "R² ≥ " + nf(ACC_R2, 2),
+    Q.faibles.length ? accPastille("rouge", Lg(Q.faibles.length + " à revoir", Q.faibles.length + " to review")) : accPastille("vert", accT("● tous fiables", "● all reliable")),
     (Q.r2Median != null ? Lg("R² médian ", "median R² ") + nf(Q.r2Median, 2) : "") + (Q.errMediane != null ? Lg(" · erreur ± ", " · error ± ") + fmtPct(Q.errMediane) : ""));
-  const tuiles = h("div", { class: "tuiles acc-tuiles" }, tEcart, tDer, tAtt, tQual);
-  // dérives qui coûtent le plus
-  const top = d.liste.slice(0, 3);
-  const derivesCarte = h("section", { class: "carte demi acc-top" }, h("div", { class: "carte-tete" }, h("h2", null, accT("Les dérives en cours qui coûtent le plus", "The costliest ongoing drifts"),
-    h("span", { class: "sous" }, accT("coût par mois si l'écart moyen de l'épisode se maintient", "cost per month if the episode's average gap persists")))),
-    top.length ? h("ol", { class: "acc-liste" }, top.map(x => h("li", null,
-      h("div", { class: "acc-quoi" }, h("b", null, h("button", { class: "lien acc-nom", type: "button", title: accT("Voir cette dérive sur la page Dérives", "See this drift on the Drifts page"), onclick: () => { accOuvrirDerive(x.ep); aller("derives"); } }, x.ep.serie)), " ", h("span", { class: "badge" }, (x.ep.groupe === "site" ? "Site" : "UES") + " · " + x.ep.energie), x.instruit ? h("span", { class: "badge acc-fait" }, accT("fiche rédigée", "report written")) : null),
-      h("div", { class: "acc-chiffres" }, h("span", { class: "acc-montant" }, x.euroMois != null ? fmtEuros(x.euroMois, true) : fmtEnergie(x.whMois, true)), Lg(" par mois · depuis ", " per month · since ") + x.ep.libDebut + " · " + fmtPct(x.ep.pct, true)),
-      h("button", { class: "btn petit", type: "button", onclick: () => accInstruire(x.ep) }, x.instruit ? accT("Voir la fiche", "See the report") : accT("Instruire", "Investigate")))))
-      : h("div", { class: "vide" }, accT("Aucune surconsommation en cours.", "No overconsumption under way."), " ", h("button", { class: "lien", type: "button", onclick: () => aller("derives") }, accT("Voir tous les épisodes", "See all episodes"))),
-    d.liste.length > 3 ? h("button", { class: "lien", type: "button", onclick: () => { Object.assign(etat, { derSerie: "*", derEtat: "o" }); aller("derives"); } }, Lg("Les " + d.liste.length + " dérives en cours", "All " + d.liste.length + " ongoing drifts")) : null);
-  const suiteCarte = h("section", { class: "carte demi acc-suite" }, h("div", { class: "carte-tete" }, h("h2", null, accT("Que faire ensuite", "What to do next"),
-    h("span", { class: "sous" }, accT("dans l'ordre où l'état des données les rend utiles", "in the order the state of the data makes them useful")))),
+  // dérives qui coûtent le plus, et ce que rapporte la correction de la plus coûteuse (ou de celle choisie dans le tableau)
+  const sujet = d.liste.length && typeof dsnCarteCorrige === "function" ? (d.liste.find(x => dsnCleEp(x.ep) === dsn.sujet) || d.liste[0]).ep : null;
+  const corrige = sujet ? dsnCarteCorrige(sujet, d.liste.map(x => x.ep)) : null;
+  const visite = accFictif() ? h("button", { class: "btn acc-bouton-visite", type: "button", onclick: () => accVisiteOuvrir(0) }, accT("Visite guidée (1 min)", "Guided tour (1 min)")) : null;
+  const suiteCarte = h("section", { class: "acc-carte acc-suite" }, h("div", { class: "acc-tete-table" }, h("h2", null, accT("Que faire ensuite", "What to do next")), visite),
+    h("p", { class: "acc-note acc-note-haut" }, accT("dans l'ordre où l'état des données les rend utiles", "in the order the state of the data makes them useful")),
     h("ol", { class: "acc-liste acc-actions" }, K.actions.map(x => h("li", { "data-action": x.id },
       h("div", { class: "acc-quoi" }, h("b", null, x.titre)), h("div", { class: "acc-chiffres" }, x.det),
       h("button", { class: "btn petit" + (x === K.actions[0] ? " principal" : ""), type: "button", onclick: x.faire }, x.bouton)))));
-  const note = repli("acc-methode", null, accT("Méthode : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Dérives. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Dérives ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
-    "Method: gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Drifts page's assumptions. Monthly cost of an ongoing drift = the Drifts page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
-  return [constat, visite ? h("div", { class: "acc-outils" }, visite) : null, tuiles, h("div", { class: "grille" }, derivesCarte, suiteCarte), note];   // la réponse d'abord, la méthode repliée
+  const note = repli("acc-methode", null, accT("Méthode (chaque chiffre vient des pages Dérives et Prévision) : écart = réel − référence sur les 12 derniers mois des compteurs de niveau Site (à défaut, des UES) ; coût et CO₂e avec les hypothèses de la page Dérives. Coût par mois d'une dérive en cours = projection sur 3 mois de la page Dérives ÷ 3 : ce n'est pas une prévision. Atterrissage = page Prévision, réglages par défaut (dérive non prolongée), fourchette à 80 %. Modèle fiable : erreur renseignée et R² d'au moins 0,75.",
+    "Method (every figure comes from the Drifts and Forecast pages): gap = actual − baseline over the last 12 months of the site-level meters (otherwise the SEUs); cost and CO₂e use the Drifts page's assumptions. Monthly cost of an ongoing drift = the Drifts page's 3-month projection ÷ 3: it is not a forecast. Landing = Forecast page, default settings (drift not extended), 80% range. Reliable model: error filled in and R² of at least 0.75."));
+  return [h("div", { class: "acc-vue" }, titre, barre,                // la réponse d'abord dans le document ; la barre s'affiche au-dessus (CSS)
+    h("div", { class: "acc-trois" }, cEcart, cAtt, cQual),
+    d.liste.length ? h("div", { class: "acc-deux" }, accBarres(d), corrige) : accBarres(d),
+    d.liste.length ? accTableau(d, sujet) : null,
+    suiteCarte, note)];
 }
 
 /* ---- 3. Bandeau « données fictives », sur chaque page tant que le site fictif est chargé ---- */
@@ -8646,6 +8959,484 @@ function algArborescence(totalSite, parts, page) {
     : suivis.length ? algT("Le reste n'est suivi par aucune UES : un usage oublié peut s'y cacher.", "The rest is tracked by no SEU: a forgotten use may hide there.") : null;
   return [algReponse(titre, suite, ecarts.length > 0)].concat(page);
 }
+
+
+/* ==== module : idee-15-design ==== */
+/* ============================================================================
+   Module « Design » (préfixe dsn) : thème « Lumière » et deux briques de la Vue d'ensemble.
+   0. Jetons de couleur du thème, clair et sombre (DSN_THEME), posés dans une feuille de style de la page.
+   1. Marque de l'outil (une jauge stylisée), icône d'onglet, unité en petit dans les tuiles.
+   2. « Si on corrige » : gain sur 12 mois d'une dérive en cours, calculé par la page Prévision
+      (dérive prolongée contre dérive arrêtée) ou, à défaut, par la projection simple de la page Dérives
+      étendue à 12 mois, nommée comme telle. Aucun chiffre n'est inventé.
+   3. « Posez une question sur ce site » : un agent questions-réponses qui reprend la boucle et l'outil
+      « repondre » du banc d'évaluation (evlBoucle). En démonstration, un script répond à des questions
+      toutes faites ; une question libre demande une IA. Chaque chiffre de la réponse est contrôlé.
+   ============================================================================ */
+const dsnT = (fr, en) => { if (!EN.has(fr)) ajouterTraductions([[fr, en]]); return fr; };
+const DSN = { pauseDemo: 140, maxChildren: 3 };
+
+/* ---- 0. Jetons du thème ---- */
+/* Jetons du thème : la seule source des couleurs. Posés en tête de page dans une feuille <style id="dsn-theme">, après le style d'origine
+   (même spécificité, donc ils l'emportent) ; le sombre suit prefers-color-scheme. test.js vérifie que chaque jeton existe dans les deux thèmes
+   et mesure les contrastes des couples texte / fond (AA). */
+const DSN_THEME = {
+  clair: {
+    "f-texte": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Inter, \"Helvetica Neue\", Arial, sans-serif",
+    "f-chiffre": "var(--f-texte)",
+    "plan": "#f6f8fc",
+    "surface": "#ffffff",
+    "creux": "#f2f5fb",
+    "encre": "#1b2340",
+    "encre2": "#535d7c",
+    "muet": "#646c88",
+    "grille": "#edf0f6",
+    "axe": "#d6dcea",
+    "bord": "#e4e8f2",
+    "voile": "rgba(63, 85, 224, .06)",
+    "signal": "#ef7d3c",
+    "s1": "#3f55e0",
+    "s2": "#eb6834",
+    "s3": "#1baf7a",
+    "s4": "#eda100",
+    "s5": "#e87ba4",
+    "s6": "#008300",
+    "s7": "#8a4fd8",
+    "s8": "#e34948",
+    "plus": "#d9502a",
+    "moins": "#13987a",
+    "contexte": "#5d6785",
+    "neutre": "#c8cfdf",
+    "bon": "#11754a",
+    "critique": "#c0392b",
+    "alerte": "#d97706",
+    "dsn-accent": "#3f55e0",
+    "dsn-accent-texte": "#3446c8",
+    "dsn-accent-pale": "#eef1ff",
+    "dsn-sur-accent": "#ffffff",
+    "dsn-vert": "#11754a",
+    "dsn-vert-pale": "#e7f6ee",
+    "dsn-vert-aire": "rgba(19, 152, 122, .16)",
+    "dsn-rouge": "#b23c16",
+    "dsn-rouge-pale": "#fff1ec",
+    "dsn-tete": "#f6f8fc",
+    "dsn-panneau": "rgba(255, 255, 255, .72)",
+    "dsn-panneau-plein": "#fdfdfe",
+    "dsn-ombre": "0 1px 2px rgba(30, 40, 80, .05)",
+    "dsn-ombre-haute": "0 4px 24px rgba(70, 90, 180, .09)",
+    "dsn-halo": "radial-gradient(closest-side, rgba(120, 140, 255, .22), rgba(170, 120, 255, .10) 55%, transparent 78%)" },
+  sombre: {
+    "plan": "#0f1526",
+    "surface": "#161d31",
+    "creux": "#1b233b",
+    "encre": "#e8ecf8",
+    "encre2": "#b3bbd3",
+    "muet": "#949dba",
+    "grille": "#232c45",
+    "axe": "#36405e",
+    "bord": "#283252",
+    "voile": "rgba(140, 155, 255, .08)",
+    "signal": "#f29b56",
+    "s1": "#6d7ff2",
+    "s2": "#d95926",
+    "s3": "#199e70",
+    "s4": "#c98500",
+    "s5": "#d55181",
+    "s6": "#0ca30c",
+    "s7": "#9a78e6",
+    "s8": "#e66767",
+    "plus": "#ee6a43",
+    "moins": "#22b08f",
+    "contexte": "#b3bbd3",
+    "neutre": "#46506e",
+    "bon": "#5fd39a",
+    "critique": "#ff7b6b",
+    "alerte": "#f2a33a",
+    "dsn-accent": "#4f63e6",
+    "dsn-accent-texte": "#a9b5ff",
+    "dsn-accent-pale": "#262f5a",
+    "dsn-sur-accent": "#ffffff",
+    "dsn-vert": "#5fd39a",
+    "dsn-vert-pale": "#14302a",
+    "dsn-vert-aire": "rgba(34, 176, 143, .2)",
+    "dsn-rouge": "#ff9b7a",
+    "dsn-rouge-pale": "#3a2121",
+    "dsn-tete": "#1b233b",
+    "dsn-panneau": "rgba(22, 29, 49, .78)",
+    "dsn-panneau-plein": "#141b2e",
+    "dsn-ombre": "0 1px 2px rgba(0, 0, 0, .3)",
+    "dsn-ombre-haute": "0 4px 24px rgba(0, 0, 0, .35)",
+    "dsn-halo": "radial-gradient(closest-side, rgba(110, 125, 255, .10), rgba(150, 110, 255, .04) 55%, transparent 78%)" }
+};
+function dsnFeuilleTheme() {
+  const bloc = (o, schema) => ":root{color-scheme:" + schema + ";" + Object.entries(o).map(([k, v]) => "--" + k + ":" + v).join(";") + "}";
+  return bloc(DSN_THEME.clair, "light") + "\n@media (prefers-color-scheme: dark){" + bloc(DSN_THEME.sombre, "dark") + "}";
+}
+(function dsnPoserTheme() {
+  try {
+    const ancien = document.getElementById("dsn-theme");
+    if (ancien) ancien.remove();
+    const st = document.createElement("style"); st.setAttribute("id", "dsn-theme"); st.append(document.createTextNode(dsnFeuilleTheme()));
+    (document.head || document.body).append(st);
+  } catch (e) { console.error(e); }
+})();
+
+/* ---- 1. Marque, icône d'onglet, unité des tuiles ---- */
+/* Une jauge : un compteur stylisé, aiguille vers la droite. Pas d'anneau ni de ruban dégradé. */
+function dsnLogo() {
+  return s("svg", { class: "dsn-logo", viewBox: "0 0 28 28", "aria-hidden": "true", focusable: "false" },
+    s("rect", { x: 0, y: 0, width: 28, height: 28, rx: 8, style: "fill: var(--dsn-accent)" }),
+    s("path", { d: "M7.5 18.5a6.5 6.5 0 0 1 13 0", fill: "none", stroke: "#fff", "stroke-width": 2.2, "stroke-linecap": "round", opacity: ".55" }),
+    s("path", { d: "M7.5 18.5a6.5 6.5 0 0 1 3.2-5.6", fill: "none", stroke: "#fff", "stroke-width": 2.2, "stroke-linecap": "round" }),
+    s("path", { d: "M14 18.5l4.2-5", fill: "none", stroke: "#fff", "stroke-width": 2.2, "stroke-linecap": "round" }),
+    s("circle", { cx: 14, cy: 18.5, r: 1.9, fill: "#fff" }));
+}
+(function dsnIcone() {                                                     // icône d'onglet : la même jauge, en SVG inline (aucune ressource externe)
+  try {
+    const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'><rect width='28' height='28' rx='8' fill='%233f55e0'/><path d='M7.5 18.5a6.5 6.5 0 0 1 13 0' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' opacity='.55'/><path d='M14 18.5l4.2-5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/><circle cx='14' cy='18.5' r='1.9' fill='%23fff'/></svg>";
+    if (document.head && !document.querySelector("link[rel=icon]")) document.head.append(h("link", { rel: "icon", type: "image/svg+xml", href: "data:image/svg+xml," + svg }));
+  } catch (e) {}
+})();
+/* « 5,41 GWh » : le nombre en grand, l'unité en petit. Le texte ne change pas (espace compris). */
+function dsnUnite(val) {
+  if (typeof val !== "string") return val;
+  const v = tr(val), r = /^([−+–-]?\d[\d   .,]*)( )([A-Za-zµ€%][^\d]{0,11})$/.exec(v);   // traduit d'abord, puis coupé : les morceaux ne repassent pas par tr()
+  if (!r) return val;
+  const petit = h("small", { class: "dsn-unite" }); petit.append(document.createTextNode(r[2] + r[3]));
+  return [document.createTextNode(r[1]), petit];
+}
+
+/* ---- 2. « Si on corrige » : gain sur 12 mois ---- */
+/* État de la Vue d'ensemble porté par ce module : dérive montrée dans « Si on corrige », tri du tableau, puis la barre de question (partie 3). */
+const dsn = { sujet: null, tri: "cout" };
+AU_CHARGEMENT.push(() => { Object.assign(dsn, { sujet: null, tri: "cout" }); dsnMemo = { cle: null, gains: new Map() }; });
+const dsnN12 = pas => typeof PREV !== "undefined" && PREV.periodes[12][pas] ? PREV.periodes[12][pas] : Math.round(PERIODES_3_MOIS[pas] * 4);
+let dsnMemo = { cle: null, gains: new Map() };
+const dsnCleEp = ep => ep.serie + "|" + ep.debut + "|" + ep.n;
+/* Gain si la dérive cesse, sur 12 mois, en énergie, euros et CO2e, avec la série « si rien ne change » et « si la dérive cesse ». */
+function dsnGain(ep) {
+  const cle = [etat.modele && etat.modele.fin, etat.fichier, LANGUE, JSON.stringify(valoSaisie)].join("|");
+  if (dsnMemo.cle !== cle || dsnMemo.modele !== etat.modele) dsnMemo = { cle, modele: etat.modele, gains: new Map() };
+  const k = dsnCleEp(ep);
+  if (dsnMemo.gains.has(k)) return dsnMemo.gains.get(k);
+  let G = null;
+  try { G = dsnGainPrevision(ep); } catch (e) { console.error(e); G = null; }
+  if (!G) G = dsnGainProjection(ep);
+  G.euro = coutDe(ep.energie, G.wh); G.co2 = co2De(ep.energie, G.wh); G.ep = ep;
+  dsnMemo.gains.set(k, G);
+  return G;
+}
+/* Page Prévision : même origine, même horizon (12 mois), dérive prolongée (« si rien ne change ») contre non prolongée (« si la dérive cesse »).
+   Retenue seulement si l'horizon de 12 mois est permis pour la série, si la Prévision voit la même dérive en cours, et si chaque période est prévue. */
+function dsnGainPrevision(ep) {
+  if (typeof prevPrevoir !== "function" || !ep.ouvert || !(ep.ecart > 0)) return null;
+  const sr = etat.modele.series.find(x => x.nom === ep.serie);
+  if (!sr) return null;
+  const h12 = prevHorizons(sr).find(x => x.mois === 12);
+  if (!h12 || h12.motif) return null;
+  const obs = prevObs(sr), o = obs[obs.length - 1];
+  const rien = prevPrevoir(sr, o, h12.n, true), cesse = prevPrevoir(sr, o, h12.n, false);
+  if (!rien.derive || rien.derive.pct == null || !(rien.derive.pct > 0) || rien.derive.depuis !== ep.libDebut) return null;
+  if (rien.periodes.some(p => p.central == null) || cesse.periodes.some(p => p.central == null)) return null;
+  const a = rien.periodes.map(p => p.central), b = cesse.periodes.map(p => p.central);
+  return { methode: "prevision", pas: sr.pas, n: h12.n, libs: rien.periodes.map(p => p.lib), rien: a, cesse: b, cumul: false, wh: somme(a) - somme(b), pct: rien.derive.pct };
+}
+/* Projection simple de la page Dérives (écart moyen par période de l'épisode), étendue à 12 mois : écart cumulé si l'écart moyen se maintient, contre zéro. */
+function dsnGainProjection(ep) {
+  const p = projectionDe(ep), n = dsnN12(p.pas), rien = [];
+  for (let k = 1; k <= n; k++) rien.push(p.parPeriode * k);
+  return { methode: "projection", pas: p.pas, n, libs: etiquettesFutures(p.pas, ep.fin, n), rien, cesse: rien.map(() => 0), cumul: true, wh: p.parPeriode * n, parPeriode: p.parPeriode };
+}
+const dsnNomMethode = G => G.methode === "prevision" ? dsnT("Prévision sur 12 mois", "12-month forecast") : dsnT("si l'écart moyen se maintient", "if the average gap persists");
+function dsnMethodeLongue(G) {
+  return G.methode === "prevision"
+    ? Lg("Calculé par la page Prévision sur " + G.n + " " + (G.pas === "month" ? "mois" : NOM_PAS[G.pas] + "s") + " : dérive prolongée (son écart de " + fmtPct(G.pct, true) + " se maintient) contre dérive arrêtée. Même modèle, mêmes facteurs : seul l'écart change.",
+      "Computed by the Forecast page over " + G.n + " " + M(NOM_PAS[G.pas]) + "s: drift extended (its " + fmtPct(G.pct, true) + " gap persists) against drift stopped. Same model, same variables: only the gap changes.")
+    : Lg("Projection simple, pas une prévision : l'écart moyen de l'épisode (" + fmtEnergie(G.parPeriode, true) + " par " + (G.pas === "month" ? "mois" : NOM_PAS[G.pas]) + ") prolongé " + G.n + " fois, contre un écart nul. La page Prévision ne permet pas l'horizon de 12 mois pour cette série.",
+      "Simple projection, not a forecast: the episode's average gap (" + fmtEnergie(G.parPeriode, true) + " per " + M(NOM_PAS[G.pas]) + ") carried over " + G.n + " times, against a zero gap. The Forecast page does not allow a 12-month horizon for this series.");
+}
+/* Graphique : « si rien ne change » en tirets, « si la dérive cesse » en trait plein, l'écart entre les deux en vert. */
+function dsnGraphCorrige(zone, G) {
+  const W = Math.max(260, zone.clientWidth || 400), H = 150, g = 8, d = 28, hh = 18, bas = H - 20;
+  const vals = G.rien.concat(G.cesse), min = Math.min(0, ...vals), max = Math.max(...vals) || 1;
+  const lo = G.cumul ? min : Math.min(...vals) - (max - Math.min(...vals)) * 0.25, hi = max + (max - lo) * 0.08;
+  const x = i => g + (W - g - d) * (G.n === 1 ? 0.5 : i / (G.n - 1)), y = v => hh + (bas - hh) * (1 - (v - lo) / (hi - lo || 1));
+  const ligne = t => t.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+  const aire = ligne(G.rien) + " " + G.cesse.map((v, i) => "L" + x(G.n - 1 - i).toFixed(1) + " " + y(G.cesse[G.n - 1 - i]).toFixed(1)).join(" ") + " Z";
+  const u = uniteEnergie(Math.abs(max)), lib = v => nf(v / u.div, v / u.div >= 100 ? 0 : 1);
+  const svg = s("svg", { viewBox: "0 0 " + W + " " + H, height: H, role: "img", "aria-label": Lg("Si rien ne change, contre si la dérive cesse, sur 12 mois. Écart : ", "If nothing changes, against if the drift stops, over 12 months. Gap: ") + fmtEnergie(G.wh) },
+    s("line", { x1: g, x2: W - d, y1: y(G.cumul ? 0 : lo), y2: y(G.cumul ? 0 : lo), stroke: "var(--grille)" }),
+    s("path", { d: aire, style: "fill: var(--dsn-vert-aire)" }),
+    s("path", { d: ligne(G.rien), fill: "none", style: "stroke: var(--contexte)", "stroke-width": 2, "stroke-dasharray": "5 4" }),
+    s("path", { d: ligne(G.cesse), fill: "none", style: "stroke: var(--s1)", "stroke-width": 2.5, "stroke-linejoin": "round" }),
+    s("circle", { cx: x(G.n - 1), cy: y(G.rien[G.n - 1]), r: 3.5, style: "fill: var(--contexte)" }),
+    s("circle", { cx: x(G.n - 1), cy: y(G.cesse[G.n - 1]), r: 4, style: "fill: var(--s1)" }),
+    s("text", { x: g, y: 11 }, G.cumul ? Lg("écart cumulé, en " + u.nom, "cumulative gap, in " + u.nom) : u.nom + Lg(" par " + (G.pas === "month" ? "mois" : NOM_PAS[G.pas]), " per " + M(NOM_PAS[G.pas]))),
+    s("text", { x: g, y: H - 4 }, G.libs[0]), s("text", { x: W - d, y: H - 4, "text-anchor": "end" }, G.libs[G.n - 1]),
+    s("text", { x: W - d + 4, y: y(hi) + 4 }, lib(hi)));
+  const cible = s("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent" });
+  cible.addEventListener("mousemove", e => {
+    const r = svg.getBoundingClientRect(), i = Math.max(0, Math.min(G.n - 1, Math.round(((e.clientX - r.left) * W / (r.width || W) - g) / ((W - g - d) / Math.max(1, G.n - 1)))));
+    montrerTip(e, G.libs[i], [{ couleur: "var(--contexte)", valeur: fmtEnergie(G.rien[i]), nom: dsnT("si rien ne change", "if nothing changes") },
+      { couleur: "var(--s1)", valeur: fmtEnergie(G.cesse[i]), nom: G.cumul ? dsnT("si l'écart cesse", "if the gap stops") : dsnT("si la dérive cesse", "if the drift stops") }]);
+  });
+  cible.addEventListener("mouseleave", cacherTip);
+  svg.append(cible);
+  zone.replaceChildren(svg);
+}
+/* Carte « Si on corrige » d'une dérive en cours. */
+function dsnCarteCorrige(ep, autres) {
+  const G = dsnGain(ep), zone = h("div", { class: "zone dsn-zone" });
+  aDessiner.push(() => dsnGraphCorrige(zone, G));
+  const choix = autres && autres.length > 1 ? h("label", { class: "dsn-choix" }, h("span", null, dsnT("Autre dérive", "Other drift")),
+    liste(autres.map(x => ({ v: dsnCleEp(x), t: x.serie })), dsnCleEp(ep), v => { dsn.sujet = v; rendre(); })) : null;
+  const lignes = G.libs.map((l, i) => [l, fmtEnergie(G.rien[i]), fmtEnergie(G.cesse[i]), fmtEnergie(G.rien[i] - G.cesse[i], true)]);
+  return h("section", { class: "acc-carte dsn-corrige" },
+    h("div", { class: "dsn-tete-carte" }, h("h2", null, Lg("Si on corrige « " + ep.serie + " »", "If “" + ep.serie + "” is fixed")), choix),
+    h("div", { class: "dsn-gains" },
+      h("div", null, h("div", { class: "dsn-lib" }, dsnT("Gain sur 12 mois", "Gain over 12 months")), h("div", { class: "dsn-chiffre dsn-vert" }, G.euro != null ? fmtEuros(G.euro) : fmtEnergie(G.wh))),
+      h("div", null, h("div", { class: "dsn-lib" }, dsnT("Carbone évité", "Carbon avoided")), h("div", { class: "dsn-chiffre" }, G.co2 != null ? fmtCO2(G.co2) : "–")),
+      h("div", null, h("div", { class: "dsn-lib" }, dsnT("Énergie", "Energy")), h("div", { class: "dsn-chiffre petit" }, fmtEnergie(G.wh)))),
+    legende([{ type: "tirets", couleur: "var(--contexte)", nom: dsnT("si rien ne change", "if nothing changes") }, { couleur: "var(--s1)", nom: G.cumul ? dsnT("si l'écart cesse", "if the gap stops") : dsnT("si la dérive cesse", "if the drift stops") }, { type: "bloc", couleur: "color-mix(in srgb, var(--moins) 45%, transparent)", nom: dsnT("gain", "gain") }]),
+    zone,
+    h("p", { class: "dsn-methode" }, h("span", { class: "dsn-pastille " + (G.methode === "prevision" ? "bleu" : "") }, dsnNomMethode(G)), " ", dsnMethodeLongue(G)),
+    repli("dsn-corrige-table", dsnT("Le détail, période par période", "Period-by-period detail"),
+      tableau([dsnT("Période", "Period"), dsnT("Si rien ne change", "If nothing changes"), G.cumul ? dsnT("Si l'écart cesse", "If the gap stops") : dsnT("Si la dérive cesse", "If the drift stops"), dsnT("Écart", "Gap")], lignes)));
+}
+
+/* ---- 3. « Posez une question sur ce site » ---- */
+Object.assign(dsn, { accord: false, question: "", enCours: false, arret: null, res: null, erreur: null, bloque: false, libre: false, progres: null });
+/* Accord : une case de plus dans l'écran d'accord du panneau d'IA (module 11), avec son avis exact, cochée par défaut comme les autres.
+   Sans toucher au module 11 : l'écran d'accord (iaBlocAccord) est enveloppé, et la case suit la même règle que les siennes
+   (iaCoches, puis iaAccord.fonctions au clic sur « J'autorise »). Sans module 11 : aucun envoi possible. */
+const DSN_FN = { id: "question", titre: ["Questions posées sur ce site (Vue d'ensemble)", "Questions asked about this site (Overview)"] };
+(function dsnAccordIA() {
+  if (typeof iaBlocAccord !== "function" || typeof iaCoches === "undefined") return;
+  iaCoches.add(DSN_FN.id);
+  let propre = false;
+  Object.defineProperty(dsn, "accord", { configurable: true, enumerable: true, get: () => iaCouvre(DSN_FN.id) ? iaAccord.fournisseur : propre, set: v => { propre = v; } });
+  const origine = iaBlocAccord;
+  iaBlocAccord = function () { const bloc = origine(); try { dsnBlocAccord(bloc); } catch (e) { console.error(e); } return bloc; };
+})();
+function dsnBlocAccord(bloc) {
+  const titre = Lg(DSN_FN.titre[0], DSN_FN.titre[1]);
+  if (bloc.classList.contains("ia-donne")) {                                // accord donné : la fonction figure dans la liste de ce qui est autorisé
+    const p = bloc.querySelector("p");
+    if (p && iaAccord.fonctions.has(DSN_FN.id)) p.append(document.createTextNode(" " + Lg("Et : ", "And: ") + titre + "."));
+    return;
+  }
+  const base = iaCoches.has("instruction"), coche = base && iaCoches.has(DSN_FN.id);
+  const fn = h("div", { class: "ia-fonction dsn-fonction" + (coche ? "" : " ia-off") },
+    h("label", { class: "ia-case" }, h("input", { type: "checkbox", "data-ia": "dsn-question", checked: coche, disabled: !base,
+      onchange: e => { if (e.target.checked) iaCoches.add(DSN_FN.id); else iaCoches.delete(DSN_FN.id); iaPeindrePanneau(); } }), h("b", null, titre)),
+    h("div", { class: "ia-avis" }, [...dsnAvis().childNodes]));
+  const enfants = [...bloc.childNodes], fonctions = enfants.filter(n => n.classList && n.classList.contains("ia-fonction")), ref = enfants[enfants.indexOf(fonctions[fonctions.length - 1]) + 1];
+  if (fonctions.length && ref) bloc.insertBefore(fn, ref); else bloc.append(fn);
+}
+function dsnAvis() {
+  const f = F();
+  return h("div", { class: "avis" },
+    h("p", null, Lg("Pour chaque question posée dans la barre « Posez une question sur ce site », la page enverra à " + f.api + " (" + f.hote + ", société " + f.societe + "), avec votre clé, jusqu'à " + evl.tours + " fois (un envoi par tour) :",
+      "For each question asked in the “Ask a question about this site” bar, the page will send to " + M(f.api) + " (" + f.hote + ", " + f.societe + "), with your key, up to " + evl.tours + " times (one send per turn):")),
+    h("ul", null,
+      h("li", null, dsnT("la question, telle que vous l'écrivez ;", "the question, as you write it;")),
+      h("li", null, dsnT("une consigne fixe et la description des outils de lecture (lister_series, lire_serie, lire_facteurs, comparer_ues, episodes, repondre) ;", "a fixed instruction and the description of the read-only tools (lister_series, lire_serie, lire_facteurs, comparer_ues, episodes, repondre);")),
+      h("li", null, dsnT("les résultats des outils que le modèle appelle : noms des séries et des facteurs, consommations, références et écarts par période, épisodes de dérive, coûts et émissions estimés, hypothèses de prix et de facteur d'émission, sur les plages qu'il demande.", "the results of the tools the model calls: names of series and variables, consumption, baselines and gaps per period, drift episodes, estimated costs and emissions, price and emission-factor assumptions, over the ranges it asks for."))),
+    h("p", null, dsnT("Ne partent pas : le classeur, son nom, les fiches, la revue, les autres questions. Chaque question repart de zéro.", "Not sent: the workbook, its name, the reports, the review, other questions. Each question starts from scratch.")));
+}
+function dsnBlocage() {
+  if (agent.enCours || (typeof evl !== "undefined" && evl.enCours)) return dsnT("Un agent travaille déjà : attendez qu'il ait fini.", "An agent is already at work: wait until it has finished.");
+  const b = blocageEnvoi();
+  if (b) return b;
+  return dsn.accord === agent.fournisseur ? null : dsnT("Autorisez d'abord l'envoi des questions dans les réglages d'IA (case « Questions posées sur ce site »).", "First authorise sending questions in the AI settings (“Questions asked about this site” box).");
+}
+
+/* Questions toutes faites du mode démonstration. Le texte cite des noms du classeur (des données), jamais écrits en dur.
+   plan[t](vus) : appels d'outils du tour t+1 ; lire(vus) : la réponse, recopiée des résultats d'outils (aucun calcul). */
+const dsnSigne = (v, d) => v == null ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), d);
+const dsnKwh = v => dsnSigne(v, 0) + " kWh", dsnPct = v => dsnSigne(v, 1) + " %", dsnEur = v => v == null ? null : nf(Math.abs(v), 0) + " €";
+function dsnEnCours(vus) {                                                // épisodes en cours de surconsommation lus dans les résultats de l'outil « episodes »
+  return (vus.episodes || []).flatMap(r => r && r.episodes ? r.episodes.filter(e => e.en_cours && e.ecart_kwh > 0).map(e => Object.assign({ serie: r.serie }, e)) : []);
+}
+const dsnCoutProj = e => { const p = e.projection_3_mois_si_l_ecart_moyen_se_maintient; return p && p.cout_estime_eur != null ? p.cout_estime_eur : p ? p.ecart_kwh : 0; };
+function dsnQuestionsDemo() {
+  const m = etat.modele, D = derives(), lister = () => [["lister_series", {}]];
+  const tousEpisodes = vus => vus.lister_series[0].series.filter(x => x.analysable && x.nb_episodes).map(x => ["episodes", { nom: x.nom }]);
+  const Q = [
+    { id: "bilan", texte: Lg("Où en est le site sur les 12 derniers mois ?", "Where does the site stand over the last 12 months?"),
+      plan: [lister, vus => { const L = vus.lister_series[0], site = L.series.filter(x => x.niveau === "Site" && x.analysable), liste = site.length ? site : L.series.filter(x => x.analysable);
+        const de = isoJour(Math.max(Date.parse(L.donnees_du), Date.parse(L.donnees_au) - 364 * JOUR));
+        return liste.map(x => ["lire_serie", { nom: x.nom, de, a: L.donnees_au }]); }],
+      lire: vus => { const r = (vus.lire_serie || []).filter(x => x && x.total && x.total.nb_periodes);
+        if (!r.length) return { type: "abstention", phrase: Lg("Aucune période ne compare le réel à la référence sur les 12 derniers mois.", "No period compares actuals with the baseline over the last 12 months.") };
+        return { type: "nombre", valeur: r[0].total.ecart_pct, unite: "%", phrase: Lg("Du " + r[0].du + " au " + r[0].au + " : ", "From " + r[0].du + " to " + r[0].au + ": ")
+          + r.map(x => "« " + x.serie + " » " + dsnKwh(x.total.ecart_kwh) + " (" + dsnPct(x.total.ecart_pct) + (x.total.cout_estime_eur != null ? ", " + dsnSigne(x.total.cout_estime_eur, 0) + " €" : "") + ")").join(" ; ")
+          + Lg(" par rapport à la référence.", " against the baseline.") }; } },
+    { id: "cher", texte: Lg("Quelle dérive en cours coûte le plus ?", "Which ongoing drift costs the most?"),
+      plan: [lister, tousEpisodes],
+      lire: vus => { const e = dsnEnCours(vus).sort((a, b) => dsnCoutProj(b) - dsnCoutProj(a))[0];
+        if (!e) return { type: "abstention", phrase: Lg("Aucune surconsommation n'est en cours sur ce site.", "No overconsumption is under way on this site.") };
+        const p = e.projection_3_mois_si_l_ecart_moyen_se_maintient, eur = p && dsnEur(p.cout_estime_eur);
+        return { type: "nom", nom: e.serie, phrase: Lg("« " + e.serie + " » : surconsommation en cours depuis " + e.periode_debut + " (" + e.nb_periodes + " périodes), " + dsnKwh(e.ecart_kwh) + " (" + dsnPct(e.ecart_pct) + ")" + (eur ? " ; si l'écart moyen se maintient, environ " + eur + " de plus sur 3 mois." : "."),
+          "“" + e.serie + "”: overconsumption under way since " + e.periode_debut + " (" + e.nb_periodes + " periods), " + dsnKwh(e.ecart_kwh) + " (" + dsnPct(e.ecart_pct) + ")" + (eur ? "; if the average gap persists, about " + eur + " more over 3 months." : ".")) }; } }];
+  // dérive d'un compteur général : les usages qui l'expliquent (seulement s'il y en a une)
+  const site = D.episodes.filter(ep => ep.ouvert && ep.ecart > 0 && ep.groupe === "site").sort((a, b) => b.ecart - a.ecart)[0];
+  if (site && m.series.some(x => x.groupe === "ues" && x.energie === site.energie)) Q.push({ id: "site", texte: Lg("Quels usages expliquent la dérive de « " + site.serie + " » ?", "Which uses explain the drift on “" + site.serie + "”?"),
+    plan: [() => [["lister_series", {}], ["episodes", { nom: site.serie }]], vus => { const e = dsnEnCours(vus)[0], x = vus.lister_series[0].series.find(y => y.nom === site.serie);
+      return e && x ? [["comparer_ues", { energie: x.energie, de: e.debut, a: e.fin }]] : []; }],
+    lire: vus => { const r = (vus.comparer_ues || [])[0], u = r && r.ues.filter(x => x.ecart_kwh > 0)[0];
+      if (!r || !r.site || !u) return { type: "abstention", phrase: Lg("Les résultats d'outils ne permettent pas d'attribuer cette dérive à un usage suivi.", "The tool results do not attribute this drift to a tracked use.") };
+      return { type: "nom", nom: u.nom, phrase: Lg("Du " + r.du + " au " + r.au + ", « " + site.serie + " » dépasse sa référence de " + dsnKwh(r.site.ecart_kwh) + ". « " + u.nom + " » en porte " + nf(u.part_de_l_ecart_site_pct, 1) + " % (" + dsnKwh(u.ecart_kwh) + ") ; " + dsnKwh(r.ecart_site_non_explique_par_les_ues_kwh) + " ne viennent d'aucun usage suivi.",
+        "From " + r.du + " to " + r.au + ", “" + site.serie + "” is above its baseline by " + dsnKwh(r.site.ecart_kwh) + ". “" + u.nom + "” carries " + nf(u.part_de_l_ecart_site_pct, 1) + "% of it (" + dsnKwh(u.ecart_kwh) + "); " + dsnKwh(r.ecart_site_non_explique_par_les_ues_kwh) + " come from no tracked use.") }; } });
+  Q.push({ id: "facteurs", texte: Lg("Les facteurs influents expliquent-ils la dérive qui coûte le plus ?", "Do the influencing variables explain the costliest drift?"),
+    plan: [lister, tousEpisodes, vus => { const e = dsnEnCours(vus).sort((a, b) => dsnCoutProj(b) - dsnCoutProj(a))[0]; return e ? [["lire_facteurs", { de: e.debut, a: e.fin }]] : []; }],
+    lire: vus => { const e = dsnEnCours(vus).sort((a, b) => dsnCoutProj(b) - dsnCoutProj(a))[0], r = (vus.lire_facteurs || [])[0];
+      if (!e || !r) return { type: "abstention", phrase: Lg("Aucune surconsommation en cours : rien à rapprocher des facteurs.", "No overconsumption under way: nothing to compare with the variables.") };
+      const hors = r.facteurs.filter(f => /dessus|dessous/.test(f.position));
+      return { type: "nom", nom: hors.length ? hors[0].facteur : "dans la plage habituelle", phrase: (hors.length
+        ? Lg("Pendant la dérive de « " + e.serie + " » (du " + r.du + " au " + r.au + "), " + hors.map(f => "« " + f.facteur + " » est " + f.position).join(", ") + ".", "During the drift on “" + e.serie + "” (" + r.du + " to " + r.au + "), " + hors.map(f => "“" + f.facteur + "” is " + M(f.position)).join(", ") + ".")
+        : Lg("Pendant la dérive de « " + e.serie + " » (du " + r.du + " au " + r.au + "), aucun facteur influent n'est sorti de sa plage habituelle : rien d'inhabituel de ce côté.", "During the drift on “" + e.serie + "” (" + r.du + " to " + r.au + "), no influencing variable left its usual range: nothing unusual on that side."))
+        + Lg(" La référence tient déjà compte de ces facteurs.", " The baseline already accounts for these variables.") }; } });
+  Q.push({ id: "modeles", texte: Lg("Quel modèle de référence est le moins fiable ?", "Which baseline model is the least reliable?"),
+    plan: [lister],
+    lire: vus => { const l = vus.lister_series[0].series.filter(x => x.r2 != null).sort((a, b) => a.r2 - b.r2);
+      if (!l.length) return { type: "abstention", phrase: Lg("Le classeur ne donne le R² d'aucun modèle.", "The workbook gives no model's R².") };
+      const a = l[0], b = l[l.length - 1];
+      return { type: "nom", nom: a.nom, phrase: Lg("« " + a.nom + " » a le R² le plus faible : " + nf(a.r2, 3) + (a.erreur_modele_pct != null ? ", erreur du modèle " + nf(a.erreur_modele_pct, 2) + " %" : "") + ". Le plus élevé : « " + b.nom + " », " + nf(b.r2, 3) + ".",
+        "“" + a.nom + "” has the lowest R²: " + nf(a.r2, 3) + (a.erreur_modele_pct != null ? ", model error " + nf(a.erreur_modele_pct, 2) + "%" : "") + ". The highest: “" + b.nom + "”, " + nf(b.r2, 3) + ".") }; } });
+  return Q;
+}
+/* Le script joue le modèle : même forme de réponse que l'API (blocs tool_use), sans IA ni réseau. */
+async function dsnDemo(requete, signal) {
+  await attendre(DSN.pauseDemo, signal);
+  const mes = requete.messages, Q = dsnQuestionsDemo().find(x => x.texte === mes[0].content), noms = {}, vus = {};
+  if (!Q) throw new Error(Lg("Le script de démonstration ne connaît que les questions toutes faites.", "The demo script only knows the ready-made questions."));
+  for (const x of mes) if (Array.isArray(x.content)) for (const b of x.content) {
+    if (b.type === "tool_use") noms[b.id] = b.name;
+    else if (b.type === "tool_result" && !b.is_error) (vus[noms[b.tool_use_id]] = vus[noms[b.tool_use_id]] || []).push(JSON.parse(b.content));
+  }
+  const tour = mes.filter(x => x.role === "assistant").length + 1, appels = Q.plan[tour - 1] ? Q.plan[tour - 1](vus) : null;
+  const blocs = appels && appels.length ? appels.map(([name, input], k) => ({ type: "tool_use", id: "toolu_demo_dsn_" + tour + "_" + k, name, input }))
+    : [{ type: "tool_use", id: "toolu_demo_dsn_" + tour, name: "repondre", input: Q.lire(vus) }];
+  return { id: "msg_demo_dsn_" + tour, type: "message", role: "assistant", model: "script de démonstration", content: blocs, stop_reason: "tool_use", usage: { input_tokens: 0, output_tokens: 0 } };
+}
+
+/* Contrôle : chaque nombre écrit dans la réponse doit figurer, à l'arrondi près, dans un résultat d'outil (même règle que les fiches). */
+function dsnControle(res) {
+  const phrase = res.reponse ? res.reponse.phrase : "", sources = res.sources || [];
+  const nombres = nombresDe(phrase.replace(/CO2/gi, "CO₂"), true).map(x => ({ ecrit: x.ecrit, ok: controlerChiffres([x.ecrit], sources).nbAbsents === 0 }));
+  const valeur = res.reponse && res.reponse.valeur != null ? evlRecopie(res.reponse.valeur, sources) : null;
+  return { nombres, total: nombres.length, absents: nombres.filter(x => !x.ok).length, valeur };
+}
+/* La phrase, avec ses nombres soulignés : vérifiés, ou signalés introuvables. */
+function dsnPhrase(phrase, C) {
+  const out = []; let i = 0;
+  for (const x of C.nombres) {
+    const j = phrase.indexOf(x.ecrit, i);
+    if (j < 0) continue;
+    if (j > i) out.push(phrase.slice(i, j));
+    out.push(h("span", { class: x.ok ? "dsn-nb ok" : "nb absent", title: x.ok ? dsnT("Retrouvé dans un résultat d'outil", "Found in a tool result") : dsnT("Introuvable dans les résultats d'outils", "Not found in the tool results") }, x.ecrit));
+    i = j + x.ecrit.length;
+  }
+  out.push(phrase.slice(i));
+  return out.map(n => typeof n === "string" ? document.createTextNode(n) : n);    // texte du modèle : jamais traduit ni interprété
+}
+
+/* Pose une question. appeler : un faux modèle (tests) ; sinon le script en démonstration, ou l'IA réglée. */
+async function dsnPoser(question, appeler) {
+  const q = String(question == null ? "" : question).trim();
+  if (!q || dsn.enCours || !etat.modele) return;
+  Object.assign(dsn, { question: q, res: null, erreur: null, bloque: false, libre: false });
+  const connue = dsnQuestionsDemo().some(x => x.texte === q);
+  if (!appeler && agent.demo && !connue) { dsn.libre = true; dsnPeindre(); return; }      // démonstration : pas d'IA pour une question libre
+  if (!appeler && !agent.demo) { const b = dsnBlocage(); if (b) { dsn.erreur = b; dsn.bloque = true; dsnPeindre(); return; } }
+  const arret = new AbortController(), R = redacteurCourant(arret.signal), demo = !appeler && R.demo;
+  const base = appeler || (demo ? req => dsnDemo(req, arret.signal) : R.appeler);
+  const suivi = async req => { dsn.progres.tour++; dsnPeindre(); return base(req); };
+  const garde = typeof evl !== "undefined" ? evl.progres : null;           // evlBoucle signale ses tours au banc : pas pendant une question
+  Object.assign(dsn, { enCours: true, arret, progres: { tour: 0, debut: performance.now() } });
+  dsnPeindre();
+  try {
+    if (garde) evl.progres = null;
+    const res = await evlBoucle({ fr: q, en: q }, suivi, arret.signal);
+    const C = dsnControle(res);
+    delete res.sources;                                                   // les résultats d'outils ne sont pas gardés une fois la réponse contrôlée
+    dsn.res = Object.assign(res, { question: q, demo, controle: C, agent: demo ? null : appeler ? "faux modèle de test" : F().nom + " (" + (res.modele || modeleIA()) + ")", duree: (performance.now() - dsn.progres.debut) / 1000 });
+  } catch (e) {
+    dsn.erreur = arret.signal.aborted ? dsnT("Question arrêtée.", "Question stopped.") : e && e.message ? e.message : String(e);
+  } finally {
+    if (garde && evl.progres == null) evl.progres = garde;
+    Object.assign(dsn, { enCours: false, arret: null });
+    if (etat.modele) dsnPeindre();
+  }
+}
+function dsnArreter() { if (dsn.arret) dsn.arret.abort(); }
+
+/* La barre : un seul noeud gardé d'un rendu à l'autre (la saisie et la réponse survivent aux changements de page). */
+const dsnChamp = h("input", { type: "text", id: "dsn-question", class: "dsn-champ", autocomplete: "off", maxlength: 400, oninput: e => { dsn.question = e.target.value; } });
+const dsnNoeud = h("div", { class: "dsn-barre" });
+function dsnBarre() { dsnPeindre(); return dsnNoeud; }
+function dsnPeindre() {
+  const ici = document.activeElement === dsnChamp;
+  dsnChamp.setAttribute("placeholder", tr(dsnT("Posez une question sur ce site…", "Ask a question about this site…")));
+  dsnChamp.disabled = dsn.enCours;
+  if (dsnChamp.value !== dsn.question && !ici) dsnChamp.value = dsn.question;
+  const loupe = s("svg", { viewBox: "0 0 16 16", width: 18, height: 18, fill: "none", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round", "aria-hidden": "true", class: "dsn-loupe" }, s("path", { d: "M7 11.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM10.4 10.4l3.1 3.1" }));
+  const fleche = s("svg", { viewBox: "0 0 16 16", width: 16, height: 16, fill: "none", stroke: "currentColor", "stroke-width": 1.8, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" }, s("path", { d: "M8 13V3M4 7l4-4 4 4" }));
+  const envoyer = dsn.enCours
+    ? h("button", { type: "button", class: "dsn-envoyer arret", onclick: dsnArreter, "aria-label": dsnT("Arrêter", "Stop") }, s("svg", { viewBox: "0 0 16 16", width: 14, height: 14, "aria-hidden": "true" }, s("rect", { x: 3, y: 3, width: 10, height: 10, rx: 2, fill: "currentColor" })))
+    : h("button", { type: "submit", class: "dsn-envoyer", "aria-label": dsnT("Envoyer la question", "Send the question") }, fleche);
+  const form = h("form", { class: "dsn-demande", role: "search", onsubmit: e => { e.preventDefault(); dsnPoser(dsnChamp.value); } },
+    h("label", { for: "dsn-question", class: "dsn-cache" }, dsnT("Posez une question sur ce site", "Ask a question about this site")), loupe, dsnChamp, envoyer);
+  dsnNoeud.replaceChildren(form, dsnMode(), h("div", { class: "dsn-reponse", "aria-live": "polite" }, dsnReponse()));
+  if (ici) dsnChamp.focus();
+}
+function dsnMode() {
+  if (agent.demo) return h("div", { class: "dsn-mode" },
+    h("p", { class: "dsn-note" }, h("b", null, dsnT("Démonstration, sans IA : ", "Demo, no AI: ")), dsnT("un script répond à ces questions toutes faites en lisant les données avec les outils de la page.", "a script answers these ready-made questions by reading the data with the page's tools.")),
+    h("div", { class: "dsn-puces" }, dsnQuestionsDemo().map(Q => h("button", { type: "button", class: "dsn-puce", "aria-pressed": String(dsn.question === Q.texte && !!(dsn.res || dsn.enCours)), disabled: dsn.enCours || null, onclick: () => { dsn.question = Q.texte; dsnChamp.value = Q.texte; dsnPoser(Q.texte); } },
+      h("span", { class: "dsn-etoile", "aria-hidden": "true" }, "✦"), document.createTextNode(Q.texte)))));
+  const b = dsnBlocage();
+  return h("p", { class: "dsn-note dsn-mode" }, Lg("Un agent (" + F().nom + ", " + modeleIA() + ") lit les données avec les outils de la page et répond ; chaque chiffre de sa réponse est contrôlé. ", "An agent (" + F().nom + ", " + modeleIA() + ") reads the data with the page's tools and answers; every figure in its answer is checked. "),
+    b ? h("span", null, dsnT("Envoi pas encore autorisé. ", "Sending not authorised yet. "), h("button", { type: "button", class: "lien", onclick: () => iaOuvrir() }, "Réglages d'IA"))
+      : h("span", null, dsnT("Envoi autorisé (réglages d'IA) · ", "Sending authorised (AI settings) · "), h("button", { type: "button", class: "lien", onclick: () => iaOuvrir() }, "Modifier")));
+}
+function dsnReponse() {
+  if (dsn.enCours) {
+    const P = dsn.progres;
+    return h("div", { class: "dsn-carte-rep" }, h("div", { class: "progres" }, h("span", { class: "voyant actif", "aria-hidden": "true" }),
+      h("b", null, agent.demo ? dsnT("Le script lit les données…", "The script is reading the data…") : dsnT("L'agent lit les données…", "The agent is reading the data…")),
+      h("span", { class: "phase" }, Lg("tour " + Math.max(1, P.tour) + " sur " + evl.tours + " au plus", "turn " + Math.max(1, P.tour) + " of " + evl.tours + " at most")),
+      h("button", { type: "button", class: "btn petit", onclick: dsnArreter }, dsnT("Arrêter", "Stop"))));
+  }
+  if (dsn.libre) return h("div", { class: "dsn-carte-rep" },
+    h("p", { class: "dsn-q" }, dsnT("Question : ", "Question: "), document.createTextNode(dsn.question)),
+    h("p", null, dsnT("En mode démonstration, aucune IA ne lit les questions libres : seules les questions toutes faites ci-dessus ont une réponse, calculée par un script. Pour poser votre propre question, réglez une IA.", "In demo mode, no AI reads free questions: only the ready-made questions above have an answer, computed by a script. To ask your own question, set up an AI.")),
+    h("button", { type: "button", class: "btn principal", onclick: () => iaOuvrir() }, dsnT("Régler une IA", "Set up an AI")));
+  if (dsn.erreur) return h("div", { class: "dsn-carte-rep" }, h("p", { class: "erreur" }, document.createTextNode(dsn.erreur)),
+    dsn.bloque ? h("button", { type: "button", class: "btn", onclick: () => iaOuvrir() }, "Réglages d'IA") : null);
+  const r = dsn.res;
+  if (!r) return null;
+  const C = r.controle, R = r.reponse;
+  const verdict = !R ? null : !C.total ? h("span", { class: "dsn-pastille" }, dsnT("aucun chiffre à contrôler", "no figure to check"))
+    : C.absents ? h("span", { class: "dsn-pastille rouge" }, Lg(C.absents + " chiffre(s) sur " + C.total + " introuvable(s) dans les résultats d'outils", C.absents + " of " + C.total + " figure(s) not found in the tool results"))
+    : h("span", { class: "dsn-pastille vert" }, Lg(C.total + " chiffre(s) sur " + C.total + " retrouvé(s) dans les résultats d'outils", C.total + " of " + C.total + " figure(s) found in the tool results"));
+  const outils = r.appels.map(a => h("li", null, h("code", null, a.outil), " ", h("span", { class: "dsn-entree" }, document.createTextNode(JSON.stringify(a.entree))), a.erreur ? h("span", { class: "erreur" }, " — " + a.erreur) : null));
+  return h("div", { class: "dsn-carte-rep" },
+    h("p", { class: "dsn-q" }, dsnT("Question : ", "Question: "), document.createTextNode(r.question)),
+    R ? h("p", { class: "dsn-texte" }, R.abstention ? h("b", null, dsnT("Pas de réponse dans les données : ", "No answer in the data: ")) : null, dsnPhrase(R.phrase, C))
+      : h("p", { class: "dsn-texte" }, Lg("Pas de réponse structurée : " + r.motif + ".", "No structured answer: " + r.motif + "."), r.texte ? h("span", { class: "dsn-entree" }, document.createTextNode(" " + r.texte.slice(0, 600))) : null),
+    h("div", { class: "dsn-pied" }, verdict,
+      h("span", { class: "dsn-source" }, r.demo ? dsnT("Réponse du script de démonstration (sans IA)", "Answer from the demo script (no AI)") : Lg("Réponse de " + r.agent, "Answer from " + r.agent),
+        Lg(" · " + r.appels.length + " appel(s) d'outils · " + nf(r.duree, 1) + " s", " · " + r.appels.length + " tool call(s) · " + nf(r.duree, 1) + " s"))),
+    repli("dsn-outils", Lg("Outils appelés (" + r.appels.length + ")", "Tools called (" + r.appels.length + ")"), h("ul", { class: "dsn-outils" }, outils)));
+}
+
+AU_CHARGEMENT.push(() => {
+  if (dsn.arret) dsn.arret.abort();
+  Object.assign(dsn, { question: "", res: null, erreur: null, bloque: false, libre: false });
+  dsnChamp.value = "";
+});
 
 
 /* ==== module : idee-9-assemblage ==== */
